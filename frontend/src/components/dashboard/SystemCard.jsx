@@ -1,9 +1,17 @@
 export default function SystemCard({ system, onClick }) {
+    const cardImage = system.imageClear || system.imageBlur;
+
     return (
         <div onClick={onClick} className="card rounded-2xl system-card bg-white shadow-md hover:shadow-lg transition duration-300 h-full">
-            <figure className="relative">
-                <img src={system.imageBlur} alt={system.title} className="h-auto object-contain transition-opacity duration-500 hover:opacity-0"/>
-                <img src={system.imageClear} alt={system.title} className="h-auto object-contain absolute inset-0 opacity-0 transition-opacity duration-500 hover:opacity-100"/>
+            <figure className="system-card-media">
+                <img src={cardImage} alt={system.title} className="system-card-image" />
+                <div className="system-card-tint" aria-hidden="true" />
+                <img
+                    src="/assets/images/PUPlogo.png"
+                    alt=""
+                    aria-hidden="true"
+                    className="system-card-logo"
+                />
             </figure>
 
             <div className="card-body gap-0 p-8">
