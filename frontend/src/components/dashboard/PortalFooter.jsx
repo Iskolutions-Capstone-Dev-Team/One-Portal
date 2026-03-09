@@ -23,7 +23,7 @@ export default function PortalFooter() {
           </p>
           <p className="text-[.85rem] w-100">
             © 2026 <span className="font-bold">Polytechnic University of the Philippines</span><br />
-            All rights reserved. PUPT One Portal Management System
+            All rights reserved. PUPT One Portal System
           </p>
         </aside>
 
@@ -46,11 +46,9 @@ export default function PortalFooter() {
       </div>
 
       <div className="mt-6 flex justify-center gap-2 text-[.46rem] sm:text-[.85rem] opacity-90 text-center">
-        <a href="#" className="hover:text-yellow-400 font-bold">Privacy Policy</a>
+        <a href="https://www.pup.edu.ph/privacy/" className="hover:text-yellow-400 font-bold">Privacy Policy</a>
         <span>•</span>
-        <a href="#" className="hover:text-yellow-400 font-bold">Terms of Service</a>
-        <span>•</span>
-        <a href="#" className="hover:text-yellow-400 font-bold">Feedback</a>
+        <a href="https://www.pup.edu.ph/terms/" className="hover:text-yellow-400 font-bold">Terms of Service</a>
       </div>
     </footer>
   );
