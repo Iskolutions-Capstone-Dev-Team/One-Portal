@@ -1,0 +1,28 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: one_portal_frontend
+    restart: always
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL}
+      VITE_BACKEND_URL: ${VITE_BACKEND_URL}
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    working_dir: /app
+    networks:
+      - one_portal_network
+
+# TODO (Miko): Dockerized Backend
+# Backend Application
+
+# TODO (Miko): Dockerized Database
+# Database Application
+
+networks:
+  one_portal_network:
+    driver: bridge
