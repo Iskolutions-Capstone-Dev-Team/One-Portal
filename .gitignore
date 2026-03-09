@@ -1,0 +1,23 @@
+# --- Binaries & Executables ---
+main
+*.bin
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# --- Editor Specific (VS Code) ---
+.vscode/
+*.code-workspace
+*~
+
+# --- Environment Secrets ---
+.env
+.env.local
+.env.*.local
+*.pem
+
+# --- Frontend ---
+node_modules
+dist
