@@ -2,7 +2,7 @@ export default function PortalHero() {
     return (
         <div className="header">
             <div className="header-background">
-                <img src="/assets/images/PUPTbg1.jpg" alt="Header Background" className="header-bg-img"/>
+                <img src="/assets/images/pup_bg.png" alt="Header Background" className="header-bg-img"/>
                 <div className="header-content">
                     <div className="header-logos">
                         <img src="/assets/images/PUPlogo.png" alt="PUP Taguig Seal" className="header-seal-img"/>
