@@ -1,27 +1,14 @@
-import { systems } from "../../data/system";
 import SystemCard from "./SystemCard";
 import MotionWrapper from "../MotionWrapper";
 
-export default function SystemGrid({ activeCategory, searchQuery, currentPage = 1, cardsPerPage = 6 }) {
-  const filteredSystems = systems.filter((system) => {
-    const matchesCategory =
-      activeCategory.toLowerCase() === "all" || 
-      system.category.toLowerCase() === activeCategory.toLowerCase();
-
-    const matchesSearch = system.title
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-
-    return matchesCategory && matchesSearch;
-  });
-
-  if (!filteredSystems.length) {
+export default function SystemGrid({ systems, currentPage = 1, cardsPerPage = 6 }) {
+  if (!systems.length) {
     return <p className="text-center m-30 opacity-60">No systems found</p>;
   }
 
   const startIndex = (currentPage - 1) * cardsPerPage;
   const endIndex = startIndex + cardsPerPage;
-  const paginatedSystems = filteredSystems.slice(startIndex, endIndex);
+  const paginatedSystems = systems.slice(startIndex, endIndex);
 
   return (
     <div className="grid gap-x-12 gap-y-16 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">

@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import OnePortalLayout from "../layouts/OnePortalLayout";
 import PortalHero from "../components/dashboard/PortalHero";
 import PortalToolbar from "../components/dashboard/PortalToolbar";
@@ -8,28 +8,20 @@ import { systems } from "../data/system";
 
 export default function OnePortalHome() {
     const [searchQuery, setSearchQuery] = useState("");
-    const [activeCategory, setActiveCategory] = useState("All");
     const [currentPage, setCurrentPage] = useState(1);
     const CARDS_PER_PAGE = 6;
 
     useEffect(() => {
         setCurrentPage(1);
-    }, [searchQuery, activeCategory]);
+    }, [searchQuery]);
 
-    const filteredSystems = useMemo(() => {
-        return systems.filter((system) => {
-            const matchesCategory =
-                activeCategory === "All" || system.category === activeCategory;
-
-            const matchesSearch = system.title
-                .toLowerCase()
-                .includes(searchQuery.toLowerCase());
-
-            return matchesCategory && matchesSearch;
-        });
-    }, [searchQuery, activeCategory]);
+    const normalizedQuery = searchQuery.toLowerCase();
+    const filteredSystems = systems.filter((system) =>
+        system.title.toLowerCase().includes(normalizedQuery)
+    );
 
     const totalPages = Math.max(1, Math.ceil(filteredSystems.length / CARDS_PER_PAGE));
+
     return (
         <OnePortalLayout>
             <PortalHero />
@@ -37,18 +29,15 @@ export default function OnePortalHome() {
                 <PortalToolbar
                     searchQuery={searchQuery}
                     setSearchQuery={setSearchQuery}
-                    activeCategory={activeCategory}
-                    setActiveCategory={setActiveCategory}
                 />
 
-                <SystemGrid 
-                    searchQuery={searchQuery}
-                    activeCategory={activeCategory} 
+                <SystemGrid
+                    systems={filteredSystems}
                     currentPage={currentPage}
                     cardsPerPage={CARDS_PER_PAGE}
                 />
 
-                <Pagination 
+                <Pagination
                     totalPages={totalPages}
                     currentPage={currentPage}
                     onPageChange={setCurrentPage}
