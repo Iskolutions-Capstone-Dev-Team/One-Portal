@@ -29,7 +29,6 @@ export default function Profile() {
                             firstName: "Juan",
                             middleName: "Miguel",
                             lastName: "Dela Cruz",
-                            username: "juan.delacruz",
                             email: "juan.delacruz@iskolarngbayan.pup.edu.ph",
                         }}
                         addAuditLog={handleAddAuditLog} 

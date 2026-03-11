@@ -6,7 +6,6 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
     firstName: "",
     middleName: "",
     lastName: "",
-    username: "",
     email: "",
   });
   const [previewImage, setPreviewImage] = useState("");
@@ -32,7 +31,7 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
   }, [previewImage]);
 
   const handleChange = (e) => {
-    const { name, value, files } = e.target;
+    const { name, value } = e.target;
     setProfile((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -42,7 +41,6 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
     
     if (!profile.firstName) validationErrors.push("First name is required.");
     if (!profile.lastName) validationErrors.push("Last name is required.");
-    if (!profile.username) validationErrors.push("Username is required.");
     if (allowEmailEdit && !profile.email) validationErrors.push("Email is required.");
 
     if (validationErrors.length > 0) {
@@ -119,15 +117,7 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
                 <p className="text-xs text-gray-500">Max 50 characters</p>
               </div>
             </div>
-            {/* Username*/}
-            <div className="space-y-2">
-              <label className="block text-sm font-semibold text-gray-700">
-                  Username <span className="text-red-500">*</span>
-              </label>
-              <input type="text" name="username" placeholder="username" value={profile.username} onChange={handleChange} className="input input-bordered w-full h-12 rounded-lg bg-transparent border-gray-300 text-base" required maxLength={255}/>
-              <p className="text-xs text-gray-500">Must be unique</p>
-            </div>
-            {/* Email*/}
+            {/* Email */}
             {allowEmailEdit && (
               <div className="space-y-2">
                 <label className="block text-sm font-semibold text-gray-700">
