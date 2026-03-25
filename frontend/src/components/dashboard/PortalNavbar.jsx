@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 export default function PortalNavbar() {
@@ -6,14 +6,11 @@ export default function PortalNavbar() {
     const navigate = useNavigate();
     const location = useLocation();
     const dropdownRef = useRef(null);
+    const isProfilePage = location.pathname === "/profile";
+    const firstOption = isProfilePage ? "Dashboard" : "Profile";
 
-    const firstOption = location.pathname === "/profile" ? "Dashboard" : "Profile";
     const handleFirstOption = () => {
-        if (location.pathname === "/profile") {
-            navigate("/portal");
-        } else {
-            navigate("/profile");
-        }
+        navigate(isProfilePage ? "/portal" : "/profile");
         setDropdownOpen(false);
     };
 
@@ -28,65 +25,71 @@ export default function PortalNavbar() {
                 setDropdownOpen(false);
             }
         };
+
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
     const icons = {
         logout: (
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" />
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
+                <path fillRule="evenodd" d="M16.5 3.75a1.5 1.5 0 0 1 1.5 1.5v13.5a1.5 1.5 0 0 1-1.5 1.5h-6a1.5 1.5 0 0 1-1.5-1.5V15a.75.75 0 0 0-1.5 0v3.75a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3V5.25a3 3 0 0 0-3-3h-6a3 3 0 0 0-3 3V9A.75.75 0 1 0 9 9V5.25a1.5 1.5 0 0 1 1.5-1.5h6ZM5.78 8.47a.75.75 0 0 0-1.06 0l-3 3a.75.75 0 0 0 0 1.06l3 3a.75.75 0 0 0 1.06-1.06l-1.72-1.72H15a.75.75 0 0 0 0-1.5H4.06l1.72-1.72a.75.75 0 0 0 0-1.06Z" clipRule="evenodd"/>
             </svg>
         ),
         dashboard: (
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25" />
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
+                <path fillRule="evenodd" d="M2.25 5.25a3 3 0 0 1 3-3h13.5a3 3 0 0 1 3 3V15a3 3 0 0 1-3 3h-3v.257c0 .597.237 1.17.659 1.591l.621.622a.75.75 0 0 1-.53 1.28h-9a.75.75 0 0 1-.53-1.28l.621-.622a2.25 2.25 0 0 0 .659-1.59V18h-3a3 3 0 0 1-3-3V5.25Zm1.5 0v7.5a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5v-7.5a1.5 1.5 0 0 0-1.5-1.5H5.25a1.5 1.5 0 0 0-1.5 1.5Z" clipRule="evenodd"/>
             </svg>
         ),
         profile: (
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
+                <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clipRule="evenodd"/>
             </svg>
         ),
     };
 
     return (
-        <div className="header-navbar w-full bg-[#991b1b] flex items-center justify-between px-6 py-3 z-100 relative">
-            <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                    <img src="/assets/images/PUPlogo.png" alt="PUP Logo" className="pup-logo-img"/>
+        <header className="portal-header">
+            <span className="portal-header__glow portal-header__glow--left" aria-hidden="true" />
+            <span className="portal-header__glow portal-header__glow--right" aria-hidden="true" />
+
+            <div className="portal-header__inner">
+                <div className="portal-header__brand">
+                    <img src="/assets/images/PUPlogo.png" alt="PUP Logo" className="portal-header__logo"/>
+
+                    <div className="portal-header__text">
+                        <div className="portal-header__title">PUP TAGUIG ONE PORTAL</div>
+                        <div className="portal-header__subtitle">
+                            POLYTECHNIC UNIVERSITY OF THE PHILIPPINES - TAGUIG CAMPUS
+                        </div>
+                    </div>
                 </div>
-                <div className="text-column">
-                    <div className="title"> PUP TAGUIG ONE PORTAL</div>
-                    <div className="subtitle">POLYTECHNIC UNIVERSITY OF THE PHILIPPINES — TAGUIG CAMPUS</div>
-                </div>
-            </div>
-            <div className="relative">
-                <button className="profile-btn" onClick={(e) => {
-                        e.stopPropagation();
-                        setDropdownOpen(!dropdownOpen);
-                    }}
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="currentColor">
-                        <path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0 
-                        1.5c-4 0-7.5 1.79-7.5 4v1.5A1.5 1.5 0 0 0 6 21h12a1.5 
-                        1.5 0 0 0 1.5-1.5V17.5c0-2.21-3.5-4-7.5-4Z"/>
-                    </svg>
-                </button>
-                <div className={`absolute right-0 mt-2 w-44 bg-white text-black rounded-2xl shadow transition-all ${
-                        dropdownOpen ? "block" : "hidden"
-                    }`}
-                >
-                    <button className="w-full flex itemse-center gap-2 font-semibold px-4 py-2 transition-colors rounded-2xl bg-transparent hover:bg-gray-200 hover:text-[#b22222]" onClick={handleFirstOption}>
-                        {firstOption === "Dashboard" ? icons.dashboard : icons.profile}
-                        <span>{firstOption}</span>
+
+                <div className="portal-header__actions" ref={dropdownRef}>
+                    <button type="button" className={`portal-header__profile-button ${dropdownOpen ? "is-open" : ""}`} aria-expanded={dropdownOpen} aria-haspopup="menu" aria-label="Open portal menu" onClick={() => setDropdownOpen((currentOpen) => !currentOpen)}>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="portal-header__profile-icon" aria-hidden="true">
+                            <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clipRule="evenodd"/>
+                        </svg>
+                        <span className="sr-only">Quick Menu</span>
                     </button>
-                    <button className="w-full flex itemse-center gap-2 font-semibold px-4 py-2 transition-colors rounded-2xl bg-transparent hover:bg-gray-200 hover:text-[#b22222]" onClick={handleLogout}>
-                        {icons.logout}
-                        <span>Logout</span>
-                </button>
+
+                    <div className={`portal-header__menu ${dropdownOpen ? "is-open" : ""}`} role="menu">
+                        <button type="button" className="portal-header__menu-item" onClick={handleFirstOption}>
+                            <span className="portal-header__menu-icon" aria-hidden="true">
+                                {firstOption === "Dashboard" ? icons.dashboard : icons.profile}
+                            </span>
+                            <span>{firstOption}</span>
+                        </button>
+
+                        <button type="button" className="portal-header__menu-item" onClick={handleLogout}>
+                            <span className="portal-header__menu-icon" aria-hidden="true">
+                                {icons.logout}
+                            </span>
+                            <span>Logout</span>
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
+        </header>
     );
 }
