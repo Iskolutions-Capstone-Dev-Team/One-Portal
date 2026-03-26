@@ -24,25 +24,29 @@ export default function OnePortalHome() {
 
     return (
         <OnePortalLayout>
+            <div className="portal-home">
             <PortalHero />
-            <main className="p-10 pt-24">
-                <PortalToolbar
-                    searchQuery={searchQuery}
-                    setSearchQuery={setSearchQuery}
-                />
+                <main className="portal-home__main">
+                    <div className="portal-home__shell">
+                        <PortalToolbar
+                            searchQuery={searchQuery}
+                            setSearchQuery={setSearchQuery}
+                        />
 
-                <SystemGrid
-                    systems={filteredSystems}
-                    currentPage={currentPage}
-                    cardsPerPage={CARDS_PER_PAGE}
-                />
+                        <SystemGrid
+                            systems={filteredSystems}
+                            currentPage={currentPage}
+                            cardsPerPage={CARDS_PER_PAGE}
+                        />
 
-                <Pagination
-                    totalPages={totalPages}
-                    currentPage={currentPage}
-                    onPageChange={setCurrentPage}
-                />
-            </main>
+                        <Pagination
+                            totalPages={totalPages}
+                            currentPage={currentPage}
+                            onPageChange={setCurrentPage}
+                        />
+                    </div>
+                </main>
+            </div>
         </OnePortalLayout>
     );
 }
