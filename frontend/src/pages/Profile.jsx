@@ -12,31 +12,30 @@ export default function Profile() {
         { timestamp: "2023-08-15 10:30:45", action: "ACCOUNT_CREATED", details: "Account created", color: "gray" },
     ]);
 
+    const profile = {
+        firstName: "Juan",
+        middleName: "Miguel",
+        lastName: "Dela Cruz",
+        email: "juan.delacruz@iskolarngbayan.pup.edu.ph",
+    };
+
     const handleAddAuditLog = (log) => {
-        setLogs(prev => [log, ...prev]);
+        setLogs((prev) => [log, ...prev]);
     };
 
     return (
         <OnePortalLayout>
-            <div className="p-6">
-                <div className="max-w-4xl mx-auto">
-                    <div className="mb-8">
-                        <h1 className="text-3xl font-bold text-gray-800">User Profile Information</h1>
-                        <p className="text-gray-600 mt-2">View and manage your account details</p>    
-                    </div>    
-                    <ProfileCard 
-                        profile={{
-                            firstName: "Juan",
-                            middleName: "Miguel",
-                            lastName: "Dela Cruz",
-                            email: "juan.delacruz@iskolarngbayan.pup.edu.ph",
-                        }}
-                        addAuditLog={handleAddAuditLog} 
+            <main className="profile-page">
+                <div className="profile-page__shell">
+                    <ProfileCard
+                        profile={profile}
+                        addAuditLog={handleAddAuditLog}
                         allowEmailEdit={false}
                     />
+
                     <AuditLogs logs={logs} />
-                </div> 
-            </div>
+                </div>
+            </main>
         </OnePortalLayout>
     );
 }
