@@ -2141,12 +2141,12 @@ input[type="checkbox"] {
   gap: 0.85rem;
   width: min(100vw - 2rem, 28rem);
   padding: 0.9rem 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.58);
   border-radius: 1.3rem;
   background: linear-gradient(145deg, #eefcf4, #dcfce7);
   box-shadow:
     14px 14px 24px rgba(118, 133, 151, 0.28),
-    -10px -10px 18px rgba(255, 255, 255, 0.86);
+    -6px -6px 10px rgba(255, 255, 255, 0.62);
   transform: translateY(14px);
   opacity: 0;
   transition: transform 0.25s ease, opacity 0.25s ease;
