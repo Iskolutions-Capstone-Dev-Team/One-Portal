@@ -1,11 +1,14 @@
 import PortalNavbar from "../components/dashboard/PortalNavbar";
 import PortalFooter from "../components/dashboard/PortalFooter";
+import { usePortalTheme } from "../context/PortalThemeContext";
 
 export default function OnePortalLayout({ children }) {
+    const { theme } = usePortalTheme();
+
     return (
-        <div className="min-h-screen bg-gray-200 text-gray-800 font-[Poppins]">
+        <div className="portal-layout min-h-screen font-[Poppins]" data-portal-theme={theme}>
             <PortalNavbar />
-                {children} 
+            {children}
             <PortalFooter />
         </div>
     );
