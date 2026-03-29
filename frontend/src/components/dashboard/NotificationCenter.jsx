@@ -2,6 +2,23 @@ import { useEffect, useRef, useState } from "react";
 import { announcements } from "../../data/announcements";
 import "./NotificationCenter.css";
 
+const VISITED_ANNOUNCEMENTS_STORAGE_KEY = "portal-visited-announcements";
+
+function readVisitedAnnouncements() {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  try {
+    const storedValue = window.localStorage.getItem(VISITED_ANNOUNCEMENTS_STORAGE_KEY);
+    const parsedValue = storedValue ? JSON.parse(storedValue) : [];
+
+    return Array.isArray(parsedValue) ? parsedValue : [];
+  } catch {
+    return [];
+  }
+}
+
 function BellIcon() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="portal-notifications__button-icon" aria-hidden="true">
@@ -12,7 +29,15 @@ function BellIcon() {
 
 export default function NotificationCenter() {
   const [isOpen, setIsOpen] = useState(false);
+  const [visitedAnnouncementIds, setVisitedAnnouncementIds] = useState(readVisitedAnnouncements);
   const notificationRef = useRef(null);
+
+  useEffect(() => {
+    window.localStorage.setItem(
+      VISITED_ANNOUNCEMENTS_STORAGE_KEY,
+      JSON.stringify(visitedAnnouncementIds)
+    );
+  }, [visitedAnnouncementIds]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -40,6 +65,20 @@ export default function NotificationCenter() {
     };
   }, [isOpen]);
 
+  const handleAnnouncementClick = (event, announcementId, link) => {
+    setVisitedAnnouncementIds((currentIds) => {
+      if (currentIds.includes(announcementId)) {
+        return currentIds;
+      }
+
+      return [...currentIds, announcementId];
+    });
+
+    if (!link || link === "#") {
+      event.preventDefault();
+    }
+  };
+
   return (
     <div className="portal-notifications" ref={notificationRef}>
       {isOpen ? (
@@ -51,17 +90,23 @@ export default function NotificationCenter() {
 
           <ul className="portal-notifications__list">
             {announcements.map((announcement) => (
-              <li key={announcement.id} className="portal-notifications__item">
-                <span className="portal-notifications__item-marker" aria-hidden="true" />
+              <li key={announcement.id}>
+                <a href={announcement.link} className={`portal-notifications__item ${visitedAnnouncementIds.includes(announcement.id) ? "is-visited" : ""}`}
+                  onClick={(event) =>
+                    handleAnnouncementClick(event, announcement.id, announcement.link)
+                  }
+                >
+                  <span className="portal-notifications__item-marker" aria-hidden="true" />
 
-                <div>
-                  <h3 className="portal-notifications__item-title">
-                    {announcement.title}
-                  </h3>
-                  <p className="portal-notifications__item-content">
-                    {announcement.content}
-                  </p>
-                </div>
+                  <div>
+                    <h3 className="portal-notifications__item-title">
+                      {announcement.title}
+                    </h3>
+                    <p className="portal-notifications__item-content">
+                      {announcement.content}
+                    </p>
+                  </div>
+                </a>
               </li>
             ))}
           </ul>
