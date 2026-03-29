@@ -108,6 +108,7 @@
 }
 
 .portal-floating-actions__toggle {
+  position: relative;
   display: grid;
   place-items: center;
   width: var(--portal-floating-button-size);
@@ -123,6 +124,29 @@
   cursor: pointer;
   pointer-events: auto;
   transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.portal-floating-actions__toggle-badge {
+  position: absolute;
+  top: -0.25rem;
+  right: -0.25rem;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.45rem;
+  height: 1.45rem;
+  padding: 0 0.35rem;
+  border: 2px solid rgba(255, 247, 237, 0.9);
+  border-radius: 9999px;
+  color: #7f1d1d;
+  background: linear-gradient(145deg, #fff2a8, #facc15);
+  box-shadow:
+    6px 6px 12px rgba(153, 27, 27, 0.22),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.38);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
 }
 
 .portal-floating-actions__toggle:hover {
@@ -162,6 +186,13 @@
     12px 12px 20px rgba(8, 12, 18, 0.32),
     -4px -4px 8px rgba(255, 255, 255, 0.06),
     inset 1px 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.portal-layout[data-portal-theme="dark"] .portal-floating-actions__toggle-badge {
+  border-color: rgba(24, 34, 49, 0.9);
+  box-shadow:
+    6px 6px 12px rgba(8, 12, 18, 0.3),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .portal-layout[data-portal-theme="dark"] .portal-floating-tooltip__bubble {
@@ -226,6 +257,14 @@
 
   .portal-floating-actions__list {
     gap: 0.75rem;
+  }
+
+  .portal-floating-actions__toggle-badge {
+    top: -0.15rem;
+    right: -0.15rem;
+    min-width: 1.35rem;
+    height: 1.35rem;
+    font-size: 0.68rem;
   }
 }
 

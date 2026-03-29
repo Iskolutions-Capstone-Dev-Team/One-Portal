@@ -1,9 +1,26 @@
 import { useEffect, useState } from "react";
+import { announcements } from "../data/announcements";
 import ContactUs from "./ContactUs";
 import NotificationCenter from "./NotificationCenter";
 import "../styles/FloatingActionMenu.css";
 
 const MENU_TRANSITION_DURATION_MS = 220;
+const VISITED_ANNOUNCEMENTS_STORAGE_KEY = "portal-visited-announcements";
+
+function readVisitedAnnouncements() {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  try {
+    const storedValue = window.localStorage.getItem(VISITED_ANNOUNCEMENTS_STORAGE_KEY);
+    const parsedValue = storedValue ? JSON.parse(storedValue) : [];
+
+    return Array.isArray(parsedValue) ? parsedValue : [];
+  } catch {
+    return [];
+  }
+}
 
 function getMenuTransitionDuration() {
   if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
@@ -27,6 +44,23 @@ export default function FloatingActionMenu() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMenuMounted, setIsMenuMounted] = useState(false);
   const [activeFloatingPanel, setActiveFloatingPanel] = useState(null);
+  const [visitedAnnouncementIds, setVisitedAnnouncementIds] = useState(readVisitedAnnouncements);
+  const unreadCount = announcements.filter(
+    (announcement) => !visitedAnnouncementIds.includes(announcement.id)
+  ).length;
+  const unreadCountLabel = unreadCount > 99 ? "99+" : unreadCount;
+  const toggleLabel = isMenuOpen
+    ? "Close quick actions"
+    : unreadCount > 0
+      ? `Open quick actions. ${unreadCount} unread announcements`
+      : "Open quick actions";
+
+  useEffect(() => {
+    window.localStorage.setItem(
+      VISITED_ANNOUNCEMENTS_STORAGE_KEY,
+      JSON.stringify(visitedAnnouncementIds)
+    );
+  }, [visitedAnnouncementIds]);
 
   useEffect(() => {
     if (isMenuOpen) {
@@ -80,6 +114,8 @@ export default function FloatingActionMenu() {
               onToggle={() => toggleFloatingPanel("notifications")}
               onClose={() => closeFloatingPanel("notifications")}
               skipCloseAnimation={activeFloatingPanel !== null && activeFloatingPanel !== "notifications"}
+              visitedAnnouncementIds={visitedAnnouncementIds}
+              setVisitedAnnouncementIds={setVisitedAnnouncementIds}
             />
           </div>
 
@@ -94,7 +130,12 @@ export default function FloatingActionMenu() {
         </div>
       ) : null}
 
-      <button type="button" className="portal-floating-actions__toggle" aria-expanded={isMenuOpen} aria-label={isMenuOpen ? "Close quick actions" : "Open quick actions"} onClick={handleMenuToggle}>
+      <button type="button" className="portal-floating-actions__toggle" aria-expanded={isMenuOpen} aria-label={toggleLabel} onClick={handleMenuToggle}>
+        {!isMenuOpen && unreadCount > 0 ? (
+          <span className="portal-floating-actions__toggle-badge" aria-hidden="true">
+            {unreadCountLabel}
+          </span>
+        ) : null}
         <PlusIcon />
       </button>
     </div>

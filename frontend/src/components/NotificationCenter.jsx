@@ -2,23 +2,7 @@ import { useEffect, useState } from "react";
 import { announcements } from "../data/announcements";
 import "../styles/NotificationCenter.css";
 
-const VISITED_ANNOUNCEMENTS_STORAGE_KEY = "portal-visited-announcements";
 const PANEL_TRANSITION_DURATION_MS = 220;
-
-function readVisitedAnnouncements() {
-  if (typeof window === "undefined") {
-    return [];
-  }
-
-  try {
-    const storedValue = window.localStorage.getItem(VISITED_ANNOUNCEMENTS_STORAGE_KEY);
-    const parsedValue = storedValue ? JSON.parse(storedValue) : [];
-
-    return Array.isArray(parsedValue) ? parsedValue : [];
-  } catch {
-    return [];
-  }
-}
 
 function getPanelTransitionDuration() {
   if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
@@ -38,9 +22,8 @@ function BellIcon() {
   );
 }
 
-export default function NotificationCenter({ isOpen, onToggle, onClose, skipCloseAnimation = false }) {
+export default function NotificationCenter({ isOpen, onToggle, onClose, skipCloseAnimation = false, visitedAnnouncementIds = [], setVisitedAnnouncementIds = () => {} }) {
   const [isPanelMounted, setIsPanelMounted] = useState(false);
-  const [visitedAnnouncementIds, setVisitedAnnouncementIds] = useState(readVisitedAnnouncements);
   const unreadCount = announcements.filter(
     (announcement) => !visitedAnnouncementIds.includes(announcement.id)
   ).length;
@@ -48,13 +31,6 @@ export default function NotificationCenter({ isOpen, onToggle, onClose, skipClos
   const buttonLabel = unreadCount > 0
     ? `${unreadCount} unread announcements`
     : "Open announcements";
-
-  useEffect(() => {
-    window.localStorage.setItem(
-      VISITED_ANNOUNCEMENTS_STORAGE_KEY,
-      JSON.stringify(visitedAnnouncementIds)
-    );
-  }, [visitedAnnouncementIds]);
 
   useEffect(() => {
     if (isOpen) {
