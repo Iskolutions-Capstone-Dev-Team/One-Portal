@@ -77,6 +77,47 @@
 
 .asw-container {
   font-family: "Poppins", "Inter", sans-serif !important;
+  --portal-access-panel-border: rgba(255, 255, 255, 0.58);
+  --portal-access-panel-bg: linear-gradient(145deg, #dbe4ef, #c5d1df);
+  --portal-access-panel-shadow:
+    14px 14px 24px rgba(141, 154, 172, 0.18),
+    -3px -3px 10px rgba(255, 255, 255, 0.14),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.2);
+  --portal-access-section-bg: linear-gradient(145deg, #d5dfeb, #bec9d8);
+  --portal-access-section-border: rgba(255, 255, 255, 0.56);
+  --portal-access-section-shadow:
+    10px 10px 18px rgba(141, 154, 172, 0.18),
+    -4px -4px 10px rgba(255, 255, 255, 0.16),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.2);
+  --portal-access-control-bg: linear-gradient(145deg, #243447, #1b2735);
+  --portal-access-control-border: rgba(146, 163, 184, 0.18);
+  --portal-access-control-shadow:
+    12px 12px 22px rgba(71, 85, 105, 0.16),
+    -6px -6px 14px rgba(255, 255, 255, 0.18),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.04);
+  --portal-access-control-text: #eef3fa;
+  --portal-access-control-muted: #cbd5e1;
+  --portal-access-control-icon: #facc15;
+  --portal-access-header-bg: linear-gradient(160deg, #c32929 0%, #991b1b 68%, #7f1d1d 100%);
+  --portal-access-header-text: #fff7ed;
+  --portal-access-header-icon: #facc15;
+  --portal-access-section-title: #991b1b;
+  --portal-access-selected-bg: linear-gradient(145deg, rgba(195, 41, 41, 0.22), rgba(250, 204, 21, 0.28));
+  --portal-access-selected-border: rgba(153, 27, 27, 0.28);
+  --portal-access-selected-text: #7f1d1d;
+  --portal-access-selected-icon: #991b1b;
+  --portal-access-selected-badge-border: rgba(255, 247, 237, 0.88);
+  --portal-access-selected-badge-shadow: 0 6px 16px rgba(153, 27, 27, 0.24);
+  --portal-access-footer-bg: linear-gradient(145deg, #d7e0ec, #c1ccdb);
+  --portal-access-footer-text: #334155;
+  --portal-access-footer-link-hover: #991b1b;
+  --portal-access-toggle-bg: #d5dde8;
+  --portal-access-toggle-active-bg: linear-gradient(145deg, #c32929, #991b1b);
+  --portal-access-toggle-knob: #ffffff;
+  --portal-access-focus-ring: rgba(153, 27, 27, 0.32);
+  --portal-access-overlay: rgba(15, 23, 42, 0.24);
+  --portal-access-structure-line: rgba(153, 27, 27, 0.18);
+  --portal-access-structure-line-strong: rgba(153, 27, 27, 0.32);
 }
 
 .asw-container .asw-menu-btn {
@@ -94,26 +135,88 @@
   pointer-events: none !important;
 }
 
-.asw-container .asw-overlay {
-  background: rgba(15, 23, 42, 0.24) !important;
+.asw-container .asw-overlay,
+.asw-container .asw-structure-overlay {
+  background: var(--portal-access-overlay) !important;
   backdrop-filter: blur(10px) !important;
 }
 
-.asw-container .asw-menu {
-  border: 1px solid rgba(255, 255, 255, 0.72) !important;
+.asw-container .asw-menu,
+.asw-container .asw-structure-modal {
+  border: 1px solid var(--portal-access-panel-border) !important;
   border-radius: 1.6rem !important;
-  background: linear-gradient(145deg, #eef2f7, #dfe5ee) !important;
-  box-shadow:
-    14px 14px 24px rgba(171, 179, 191, 0.14),
-    -3px -3px 10px rgba(255, 255, 255, 0.18),
-    inset 1px 1px 0 rgba(255, 255, 255, 0.28) !important;
-  color: #374151 !important;
+  background: var(--portal-access-panel-bg) !important;
+  box-shadow: var(--portal-access-panel-shadow) !important;
+  color: var(--portal-access-footer-text) !important;
   font-family: inherit !important;
 }
 
 .asw-container .asw-menu,
-.asw-container .asw-menu * {
+.asw-container .asw-menu *,
+.asw-container .asw-structure-modal,
+.asw-container .asw-structure-modal * {
   font-family: inherit !important;
+}
+
+.asw-container .asw-menu-header,
+.asw-container .asw-structure-header {
+  background: var(--portal-access-header-bg) !important;
+  box-shadow: 0 10px 22px rgba(153, 27, 27, 0.22) !important;
+}
+
+.asw-container .asw-menu-title,
+.asw-container .asw-structure-title {
+  color: var(--portal-access-header-text) !important;
+  text-shadow: 0 8px 18px rgba(90, 14, 14, 0.24) !important;
+}
+
+.asw-container .asw-menu-header svg,
+.asw-container .asw-structure-header svg {
+  fill: var(--portal-access-header-icon) !important;
+  color: var(--portal-access-header-icon) !important;
+}
+
+.asw-container .asw-card,
+.asw-container .asw-footer,
+.asw-container .asw-tabs-nav,
+.asw-container .asw-tab-panels {
+  border-color: var(--portal-access-section-border) !important;
+  background: var(--portal-access-section-bg) !important;
+  box-shadow: var(--portal-access-section-shadow) !important;
+}
+
+.asw-container .asw-footer {
+  background: var(--portal-access-footer-bg) !important;
+  color: var(--portal-access-footer-text) !important;
+}
+
+.asw-container .asw-footer,
+.asw-container .asw-footer * {
+  color: var(--portal-access-footer-text) !important;
+}
+
+.asw-container .asw-card-title {
+  color: var(--portal-access-section-title) !important;
+  opacity: 1 !important;
+  text-shadow: none !important;
+}
+
+.asw-container .asw-adjust-font {
+  border: 1px solid rgba(250, 204, 21, 0.24) !important;
+  border-radius: 1.35rem !important;
+  background: var(--portal-access-header-bg) !important;
+  box-shadow:
+    12px 12px 22px rgba(153, 27, 27, 0.18),
+    -4px -4px 10px rgba(255, 255, 255, 0.12),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.08) !important;
+  color: var(--portal-access-header-text) !important;
+  overflow: hidden !important;
+}
+
+.asw-container .asw-adjust-font .asw-label,
+.asw-container .asw-adjust-font .asw-label div,
+.asw-container .asw-adjust-font .asw-amount {
+  color: var(--portal-access-header-text) !important;
 }
 
 .asw-container .asw-menu-close,
@@ -121,15 +224,15 @@
 .asw-container .asw-plus,
 .asw-container .asw-minus,
 .asw-container #asw-language,
+.asw-container .asw-select,
 .asw-container .asw-btn,
-.asw-container .asw-profile-btn {
-  border-color: rgba(203, 213, 225, 0.68) !important;
-  background: linear-gradient(145deg, #e9eef5, #dbe3ed) !important;
-  color: #374151 !important;
-  box-shadow:
-    8px 8px 16px rgba(171, 179, 191, 0.14),
-    -4px -4px 10px rgba(255, 255, 255, 0.24),
-    inset 1px 1px 0 rgba(255, 255, 255, 0.28) !important;
+.asw-container .asw-profile-btn,
+.asw-container .asw-tab-btn,
+.asw-container .asw-structure-item {
+  border: 1px solid var(--portal-access-control-border) !important;
+  background: var(--portal-access-control-bg) !important;
+  color: var(--portal-access-control-text) !important;
+  box-shadow: var(--portal-access-control-shadow) !important;
   transition:
     transform 0.2s ease,
     border-color 0.25s ease,
@@ -142,24 +245,163 @@
 .asw-container .asw-menu-reset:hover,
 .asw-container .asw-plus:hover,
 .asw-container .asw-minus:hover,
+.asw-container #asw-language:hover,
+.asw-container .asw-select:hover,
 .asw-container .asw-btn:hover,
-.asw-container .asw-profile-btn:hover {
+.asw-container .asw-profile-btn:hover,
+.asw-container .asw-tab-btn:hover,
+.asw-container .asw-structure-item:hover,
+.asw-container .asw-structure-item:focus-within {
   transform: translateY(-2px) !important;
-  border-color: rgba(153, 27, 27, 0.2) !important;
+  border-color: var(--portal-access-selected-border) !important;
+  background: var(--portal-access-control-bg) !important;
+  color: var(--portal-access-control-text) !important;
   box-shadow:
-    10px 10px 18px rgba(171, 179, 191, 0.16),
-    -4px -4px 10px rgba(255, 255, 255, 0.28),
-    inset 1px 1px 0 rgba(255, 255, 255, 0.3) !important;
+    14px 14px 22px rgba(71, 85, 105, 0.18),
+    -6px -6px 14px rgba(255, 255, 255, 0.2),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.05) !important;
 }
 
-.asw-container .asw-btn.asw-selected,
-.asw-container .asw-profile-btn.asw-selected {
-  border-color: rgba(153, 27, 27, 0.18) !important;
-  background: linear-gradient(145deg, rgba(195, 41, 41, 0.14), rgba(250, 204, 21, 0.2)) !important;
+.asw-container .asw-btn,
+.asw-container .asw-profile-btn,
+.asw-container .asw-select,
+.asw-container #asw-language {
+  color: var(--portal-access-control-text) !important;
+}
+
+.asw-container .asw-btn svg,
+.asw-container .asw-profile-icon svg,
+.asw-container .asw-menu-close svg,
+.asw-container .asw-menu-reset svg,
+.asw-container .asw-structure-close svg,
+.asw-container .asw-action-btn svg {
+  fill: var(--portal-access-control-icon) !important;
+  color: var(--portal-access-control-icon) !important;
+}
+
+.asw-container .asw-profile-icon {
+  border: 1px solid rgba(255, 255, 255, 0.58) !important;
+  background: linear-gradient(145deg, #f7f9fd, #e2e8f0) !important;
   box-shadow:
-    10px 10px 18px rgba(171, 179, 191, 0.14),
-    -4px -4px 10px rgba(255, 255, 255, 0.22),
-    inset 0 0 0 1px rgba(153, 27, 27, 0.08) !important;
+    inset 4px 4px 10px rgba(193, 203, 215, 0.22),
+    inset -4px -4px 10px rgba(255, 255, 255, 0.4) !important;
+}
+
+.asw-container .asw-text,
+.asw-container .asw-amount,
+.asw-container .asw-label,
+.asw-container .asw-adjust-font,
+.asw-container .asw-profile-title,
+.asw-container .asw-menu h2,
+.asw-container .asw-menu h3,
+.asw-container .asw-menu h4,
+.asw-container .asw-menu label,
+.asw-container .asw-menu span,
+.asw-container .asw-structure-text {
+  color: var(--portal-access-control-text) !important;
+}
+
+.asw-container .asw-profile-desc,
+.asw-container .asw-tab-btn,
+.asw-container .asw-action-btn {
+  color: var(--portal-access-control-muted) !important;
+}
+
+.asw-container .asw-profile-toggle {
+  background: var(--portal-access-toggle-bg) !important;
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
+.asw-container .asw-profile-toggle::before {
+  background: var(--portal-access-toggle-knob) !important;
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.24) !important;
+}
+
+.asw-container .asw-selected,
+.asw-container .asw-btn.asw-selected,
+.asw-container .asw-profile-btn.asw-selected,
+.asw-container .asw-tab-btn.asw-active {
+  border-color: var(--portal-access-selected-border) !important;
+  background: var(--portal-access-selected-bg) !important;
+  box-shadow:
+    12px 12px 20px rgba(166, 134, 29, 0.14),
+    -6px -6px 12px rgba(255, 255, 255, 0.16),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
+}
+
+.asw-container .asw-btn.asw-selected .asw-text,
+.asw-container .asw-btn.asw-selected span,
+.asw-container .asw-profile-btn.asw-selected .asw-profile-title,
+.asw-container .asw-profile-btn.asw-selected .asw-profile-desc,
+.asw-container .asw-tab-btn.asw-active,
+.asw-container .asw-selected .asw-text {
+  color: var(--portal-access-selected-text) !important;
+}
+
+.asw-container .asw-btn.asw-selected svg,
+.asw-container .asw-profile-btn.asw-selected svg,
+.asw-container .asw-tab-btn.asw-active svg {
+  fill: var(--portal-access-selected-icon) !important;
+  color: var(--portal-access-selected-icon) !important;
+}
+
+.asw-container .asw-profile-btn.asw-selected .asw-profile-toggle {
+  background: var(--portal-access-toggle-active-bg) !important;
+}
+
+.asw-container .asw-tab-btn::after {
+  background: var(--portal-access-section-title) !important;
+}
+
+.asw-container .asw-btn.asw-selected::after {
+  background: var(--portal-access-header-bg) !important;
+  color: var(--portal-access-header-text) !important;
+  border-color: var(--portal-access-selected-badge-border) !important;
+  box-shadow: var(--portal-access-selected-badge-shadow) !important;
+}
+
+.asw-container .asw-structure-tag {
+  color: var(--portal-access-section-title) !important;
+  background: rgba(250, 204, 21, 0.18) !important;
+}
+
+.asw-container .asw-structure-nested-wrapper {
+  border-left-color: var(--portal-access-structure-line) !important;
+}
+
+.asw-container .asw-structure-nested-wrapper:hover {
+  border-left-color: var(--portal-access-structure-line-strong) !important;
+}
+
+.asw-container .asw-menu-reset-footer-btn {
+  border: 1px solid rgba(250, 204, 21, 0.28) !important;
+  border-radius: 9999px !important;
+  background: var(--portal-access-header-bg) !important;
+  color: var(--portal-access-header-text) !important;
+  box-shadow:
+    10px 10px 18px rgba(153, 27, 27, 0.16),
+    -4px -4px 10px rgba(255, 255, 255, 0.18),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.12) !important;
+}
+
+.asw-container .asw-menu-reset-footer-btn:hover {
+  background: linear-gradient(145deg, #fff0a3, #facc15) !important;
+  color: #7f1d1d !important;
+}
+
+.asw-container .asw-footer a,
+.asw-container .asw-footer a span {
+  color: var(--portal-access-footer-text) !important;
+}
+
+.asw-container .asw-footer a:hover,
+.asw-container .asw-footer a:hover span,
+.asw-container .asw-action-btn:hover {
+  color: var(--portal-access-footer-link-hover) !important;
+}
+
+.asw-container .asw-action-btn:hover {
+  background: rgba(153, 27, 27, 0.12) !important;
 }
 
 .asw-container .asw-menu-close:focus-visible,
@@ -167,116 +409,100 @@
 .asw-container .asw-plus:focus-visible,
 .asw-container .asw-minus:focus-visible,
 .asw-container #asw-language:focus-visible,
+.asw-container .asw-select:focus-visible,
 .asw-container .asw-btn:focus-visible,
-.asw-container .asw-profile-btn:focus-visible {
-  outline: 2px solid rgba(153, 27, 27, 0.32) !important;
+.asw-container .asw-profile-btn:focus-visible,
+.asw-container .asw-tab-btn:focus-visible,
+.asw-container .asw-structure-item:focus-visible,
+.asw-container .asw-menu-reset-footer-btn:focus-visible {
+  outline: 2px solid var(--portal-access-focus-ring) !important;
   outline-offset: 3px !important;
 }
 
-.asw-container .asw-btn svg,
-.asw-container .asw-profile-icon svg,
-.asw-container .asw-menu-close svg {
-  fill: #991b1b !important;
-}
-
-.asw-container .asw-amount,
-.asw-container .asw-menu h2,
-.asw-container .asw-menu h3,
-.asw-container .asw-menu h4,
-.asw-container .asw-menu label,
-.asw-container .asw-menu p,
-.asw-container .asw-menu span {
-  color: inherit !important;
-}
-
-.asw-container .asw-menu ::-webkit-scrollbar {
+.asw-container .asw-menu ::-webkit-scrollbar,
+.asw-container .asw-structure-modal ::-webkit-scrollbar {
   width: 8px;
 }
 
-.asw-container .asw-menu ::-webkit-scrollbar-track {
+.asw-container .asw-menu ::-webkit-scrollbar-track,
+.asw-container .asw-structure-modal ::-webkit-scrollbar-track {
   background: #ffffff;
 }
 
-.asw-container .asw-menu ::-webkit-scrollbar-thumb {
+.asw-container .asw-menu ::-webkit-scrollbar-thumb,
+.asw-container .asw-structure-modal ::-webkit-scrollbar-thumb {
   background-color: #cbd5e1;
   border-radius: 9999px;
   border: 2px solid #ffffff;
 }
 
-html[data-portal-theme="dark"] .asw-container .asw-overlay {
-  background: rgba(8, 12, 18, 0.58) !important;
-}
-
-html[data-portal-theme="dark"] .asw-container .asw-menu {
-  border-color: rgba(146, 163, 184, 0.16) !important;
-  background: linear-gradient(145deg, #2c3d52, #202d3d) !important;
-  box-shadow:
+html[data-portal-theme="dark"] .asw-container {
+  --portal-access-panel-border: rgba(146, 163, 184, 0.16);
+  --portal-access-panel-bg: linear-gradient(145deg, #2c3d52, #202d3d);
+  --portal-access-panel-shadow:
     14px 14px 24px rgba(8, 12, 18, 0.34),
     -6px -6px 12px rgba(255, 255, 255, 0.03),
-    inset 1px 1px 0 rgba(255, 255, 255, 0.05) !important;
-  color: #eef3fa !important;
-}
-
-html[data-portal-theme="dark"] .asw-container .asw-menu-close,
-html[data-portal-theme="dark"] .asw-container .asw-menu-reset,
-html[data-portal-theme="dark"] .asw-container .asw-plus,
-html[data-portal-theme="dark"] .asw-container .asw-minus,
-html[data-portal-theme="dark"] .asw-container #asw-language,
-html[data-portal-theme="dark"] .asw-container .asw-btn,
-html[data-portal-theme="dark"] .asw-container .asw-profile-btn {
-  border-color: rgba(146, 163, 184, 0.14) !important;
-  background: linear-gradient(145deg, #243447, #1b2735) !important;
-  color: #eef3fa !important;
-  box-shadow:
+    inset 1px 1px 0 rgba(255, 255, 255, 0.05);
+  --portal-access-section-bg: linear-gradient(145deg, #29384c, #202d3d);
+  --portal-access-section-border: rgba(146, 163, 184, 0.16);
+  --portal-access-section-shadow:
+    12px 12px 22px rgba(8, 12, 18, 0.3),
+    -8px -8px 16px rgba(255, 255, 255, 0.04),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.04);
+  --portal-access-control-bg: linear-gradient(145deg, #243447, #1b2735);
+  --portal-access-control-border: rgba(250, 204, 21, 0.14);
+  --portal-access-control-shadow:
     12px 12px 22px rgba(8, 12, 18, 0.3),
     -8px -8px 16px rgba(255, 255, 255, 0.06),
-    inset 1px 1px 0 rgba(255, 255, 255, 0.04) !important;
+    inset 1px 1px 0 rgba(255, 255, 255, 0.04);
+  --portal-access-control-text: #eef3fa;
+  --portal-access-control-muted: #b8c3d3;
+  --portal-access-control-icon: #facc15;
+  --portal-access-header-bg: linear-gradient(145deg, #882224, #2b2434);
+  --portal-access-header-text: #fff7ed;
+  --portal-access-header-icon: #facc15;
+  --portal-access-section-title: #facc15;
+  --portal-access-selected-bg: linear-gradient(145deg, rgba(187, 43, 43, 0.55), rgba(51, 71, 95, 0.96));
+  --portal-access-selected-border: rgba(250, 204, 21, 0.18);
+  --portal-access-selected-text: #fff7ed;
+  --portal-access-selected-icon: #facc15;
+  --portal-access-selected-badge-border: rgba(255, 247, 237, 0.82);
+  --portal-access-selected-badge-shadow: 0 6px 18px rgba(8, 12, 18, 0.32);
+  --portal-access-footer-bg: linear-gradient(145deg, #243447, #1b2735);
+  --portal-access-footer-text: #eef3fa;
+  --portal-access-footer-link-hover: #facc15;
+  --portal-access-toggle-bg: #4b5d73;
+  --portal-access-toggle-active-bg: linear-gradient(145deg, #facc15, #e1af16);
+  --portal-access-toggle-knob: #ffffff;
+  --portal-access-focus-ring: rgba(250, 204, 21, 0.28);
+  --portal-access-overlay: rgba(8, 12, 18, 0.58);
+  --portal-access-structure-line: rgba(250, 204, 21, 0.14);
+  --portal-access-structure-line-strong: rgba(250, 204, 21, 0.28);
 }
 
-html[data-portal-theme="dark"] .asw-container .asw-menu-close:hover,
-html[data-portal-theme="dark"] .asw-container .asw-menu-reset:hover,
-html[data-portal-theme="dark"] .asw-container .asw-plus:hover,
-html[data-portal-theme="dark"] .asw-container .asw-minus:hover,
-html[data-portal-theme="dark"] .asw-container .asw-btn:hover,
-html[data-portal-theme="dark"] .asw-container .asw-profile-btn:hover {
-  border-color: rgba(250, 204, 21, 0.16) !important;
+html[data-portal-theme="dark"] .asw-container .asw-profile-icon {
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  background: linear-gradient(145deg, #33475f, #253347) !important;
   box-shadow:
-    14px 14px 22px rgba(8, 12, 18, 0.32),
-    -8px -8px 16px rgba(255, 255, 255, 0.08),
-    inset 1px 1px 0 rgba(255, 255, 255, 0.05) !important;
+    inset 4px 4px 10px rgba(8, 12, 18, 0.22),
+    inset -4px -4px 10px rgba(255, 255, 255, 0.04) !important;
 }
 
-html[data-portal-theme="dark"] .asw-container .asw-btn.asw-selected,
-html[data-portal-theme="dark"] .asw-container .asw-profile-btn.asw-selected {
+html[data-portal-theme="dark"] .asw-container .asw-adjust-font {
   border-color: rgba(250, 204, 21, 0.18) !important;
-  background: linear-gradient(145deg, rgba(187, 43, 43, 0.46), rgba(51, 71, 95, 0.96)) !important;
   box-shadow:
-    14px 14px 22px rgba(8, 12, 18, 0.32),
-    -8px -8px 16px rgba(255, 255, 255, 0.08),
-    inset 0 0 0 1px rgba(250, 204, 21, 0.08) !important;
+    14px 14px 24px rgba(8, 12, 18, 0.3),
+    -6px -6px 12px rgba(255, 255, 255, 0.04),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.08) !important;
 }
 
-html[data-portal-theme="dark"] .asw-container .asw-menu-close:focus-visible,
-html[data-portal-theme="dark"] .asw-container .asw-menu-reset:focus-visible,
-html[data-portal-theme="dark"] .asw-container .asw-plus:focus-visible,
-html[data-portal-theme="dark"] .asw-container .asw-minus:focus-visible,
-html[data-portal-theme="dark"] .asw-container #asw-language:focus-visible,
-html[data-portal-theme="dark"] .asw-container .asw-btn:focus-visible,
-html[data-portal-theme="dark"] .asw-container .asw-profile-btn:focus-visible {
-  outline-color: rgba(250, 204, 21, 0.28) !important;
-}
-
-html[data-portal-theme="dark"] .asw-container .asw-btn svg,
-html[data-portal-theme="dark"] .asw-container .asw-profile-icon svg,
-html[data-portal-theme="dark"] .asw-container .asw-menu-close svg {
-  fill: #facc15 !important;
-}
-
-html[data-portal-theme="dark"] .asw-container .asw-menu ::-webkit-scrollbar-track {
+html[data-portal-theme="dark"] .asw-container .asw-menu ::-webkit-scrollbar-track,
+html[data-portal-theme="dark"] .asw-container .asw-structure-modal ::-webkit-scrollbar-track {
   background: #1b2735;
 }
 
-html[data-portal-theme="dark"] .asw-container .asw-menu ::-webkit-scrollbar-thumb {
+html[data-portal-theme="dark"] .asw-container .asw-menu ::-webkit-scrollbar-thumb,
+html[data-portal-theme="dark"] .asw-container .asw-structure-modal ::-webkit-scrollbar-thumb {
   background-color: #4b5d73;
   border-color: #1b2735;
 }
