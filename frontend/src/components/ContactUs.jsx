@@ -242,9 +242,14 @@ export default function ContactUs({ isOpen, onToggle, onClose, skipCloseAnimatio
         </section>
       ) : null}
 
-      <button type="button" className="portal-contact__button" aria-expanded={isOpen} aria-label={isOpen ? "Close contact form" : "Open contact form"} onClick={onToggle}>
-        <ContactIcon />
-      </button>
+      <div className={`portal-floating-tooltip ${isOpen ? "is-open" : ""}`}>
+        <button type="button" className="portal-contact__button" aria-expanded={isOpen} aria-label={isOpen ? "Close contact form" : "Open contact form"} onClick={onToggle}>
+          <ContactIcon />
+        </button>
+        <span className="portal-floating-tooltip__bubble" aria-hidden="true">
+          Contact Us
+        </span>
+      </div>
     </div>
   );
 }

@@ -146,14 +146,19 @@ export default function NotificationCenter({ isOpen, onToggle, onClose, skipClos
         </section>
       ) : null}
 
-      <button type="button" className="portal-notifications__button" aria-expanded={isOpen} aria-label={isOpen ? "Close announcements" : buttonLabel} onClick={onToggle}>
-        {unreadCount > 0 ? (
-          <span className="portal-notifications__badge" aria-hidden="true">
-            {unreadCountLabel}
-          </span>
-        ) : null}
-        <BellIcon />
-      </button>
+      <div className={`portal-floating-tooltip ${isOpen ? "is-open" : ""}`}>
+        <button type="button" className="portal-notifications__button" aria-expanded={isOpen} aria-label={isOpen ? "Close announcements" : buttonLabel} onClick={onToggle}>
+          {unreadCount > 0 ? (
+            <span className="portal-notifications__badge" aria-hidden="true">
+              {unreadCountLabel}
+            </span>
+          ) : null}
+          <BellIcon />
+        </button>
+        <span className="portal-floating-tooltip__bubble" aria-hidden="true">
+          Notification
+        </span>
+      </div>
     </div>
   );
 }

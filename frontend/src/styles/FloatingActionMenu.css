@@ -32,6 +32,73 @@
   animation: portalFloatingActionsEnter 0.22s ease both;
 }
 
+.portal-floating-tooltip {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: var(--portal-floating-button-size);
+  height: var(--portal-floating-button-size);
+  pointer-events: auto;
+}
+
+.portal-floating-tooltip__bubble {
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 0.85rem);
+  z-index: 2;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  border-radius: 9999px;
+  background: linear-gradient(145deg, rgba(245, 247, 251, 0.98), rgba(224, 232, 241, 0.98));
+  box-shadow:
+    12px 12px 24px rgba(171, 179, 191, 0.2),
+    -4px -4px 10px rgba(255, 255, 255, 0.26),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.44);
+  color: #344054;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate3d(0.3rem, -50%, 0);
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease,
+    visibility 0.18s ease;
+}
+
+.portal-floating-tooltip__bubble::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: -0.28rem;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.78);
+  border-right: 1px solid rgba(255, 255, 255, 0.78);
+  border-radius: 0 0.18rem 0 0;
+  background: linear-gradient(145deg, rgba(245, 247, 251, 0.98), rgba(224, 232, 241, 0.98));
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.portal-floating-tooltip:hover .portal-floating-tooltip__bubble,
+.portal-floating-tooltip > button:focus-visible + .portal-floating-tooltip__bubble {
+  opacity: 1;
+  visibility: visible;
+  transform: translate3d(0, -50%, 0);
+}
+
+.portal-floating-tooltip.is-open .portal-floating-tooltip__bubble {
+  opacity: 0;
+  visibility: hidden;
+}
+
 .portal-floating-actions__item:first-child {
   animation-delay: 0.04s;
 }
@@ -97,6 +164,22 @@
     inset 1px 1px 0 rgba(255, 255, 255, 0.16);
 }
 
+.portal-layout[data-portal-theme="dark"] .portal-floating-tooltip__bubble {
+  border-color: rgba(146, 163, 184, 0.2);
+  background: linear-gradient(145deg, rgba(43, 58, 78, 0.98), rgba(29, 40, 55, 0.98));
+  box-shadow:
+    14px 14px 28px rgba(8, 12, 18, 0.34),
+    -6px -6px 12px rgba(255, 255, 255, 0.03),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.06);
+  color: #eef3fa;
+}
+
+.portal-layout[data-portal-theme="dark"] .portal-floating-tooltip__bubble::after {
+  border-top-color: rgba(146, 163, 184, 0.2);
+  border-right-color: rgba(146, 163, 184, 0.2);
+  background: linear-gradient(145deg, rgba(43, 58, 78, 0.98), rgba(29, 40, 55, 0.98));
+}
+
 @keyframes portalFloatingActionsEnter {
   from {
     opacity: 0;
@@ -147,6 +230,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .portal-floating-tooltip__bubble,
   .portal-floating-actions__list,
   .portal-floating-actions__item,
   .portal-floating-actions__toggle,
