@@ -29,7 +29,6 @@ export default function ProfileCard({ profile, addAuditLog, allowEmailEdit = fal
     const handleProfileUpdate = (updatedProfile) => {
         setCurrentProfile(updatedProfile);
         setToastMessage("Profile updated successfully!");
-        setTimeout(() => setToastMessage(""), 2000);
     };
 
     return (

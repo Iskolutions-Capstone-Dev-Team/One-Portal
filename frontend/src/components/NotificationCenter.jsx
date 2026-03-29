@@ -2,23 +2,7 @@ import { useEffect, useState } from "react";
 import { announcements } from "../data/announcements";
 import "../styles/NotificationCenter.css";
 
-const VISITED_ANNOUNCEMENTS_STORAGE_KEY = "portal-visited-announcements";
 const PANEL_TRANSITION_DURATION_MS = 220;
-
-function readVisitedAnnouncements() {
-  if (typeof window === "undefined") {
-    return [];
-  }
-
-  try {
-    const storedValue = window.localStorage.getItem(VISITED_ANNOUNCEMENTS_STORAGE_KEY);
-    const parsedValue = storedValue ? JSON.parse(storedValue) : [];
-
-    return Array.isArray(parsedValue) ? parsedValue : [];
-  } catch {
-    return [];
-  }
-}
 
 function getPanelTransitionDuration() {
   if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
@@ -38,10 +22,8 @@ function BellIcon() {
   );
 }
 
-export default function NotificationCenter() {
-  const [isOpen, setIsOpen] = useState(false);
+export default function NotificationCenter({ isOpen, onToggle, onClose, skipCloseAnimation = false, visitedAnnouncementIds = [], setVisitedAnnouncementIds = () => {} }) {
   const [isPanelMounted, setIsPanelMounted] = useState(false);
-  const [visitedAnnouncementIds, setVisitedAnnouncementIds] = useState(readVisitedAnnouncements);
   const unreadCount = announcements.filter(
     (announcement) => !visitedAnnouncementIds.includes(announcement.id)
   ).length;
@@ -49,13 +31,6 @@ export default function NotificationCenter() {
   const buttonLabel = unreadCount > 0
     ? `${unreadCount} unread announcements`
     : "Open announcements";
-
-  useEffect(() => {
-    window.localStorage.setItem(
-      VISITED_ANNOUNCEMENTS_STORAGE_KEY,
-      JSON.stringify(visitedAnnouncementIds)
-    );
-  }, [visitedAnnouncementIds]);
 
   useEffect(() => {
     if (isOpen) {
@@ -67,6 +42,11 @@ export default function NotificationCenter() {
       return undefined;
     }
 
+    if (skipCloseAnimation) {
+      setIsPanelMounted(false);
+      return undefined;
+    }
+
     const closeTimeoutId = window.setTimeout(() => {
       setIsPanelMounted(false);
     }, getPanelTransitionDuration());
@@ -74,7 +54,7 @@ export default function NotificationCenter() {
     return () => {
       window.clearTimeout(closeTimeoutId);
     };
-  }, [isOpen, isPanelMounted]);
+  }, [isOpen, isPanelMounted, skipCloseAnimation]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -83,7 +63,7 @@ export default function NotificationCenter() {
 
     const handleEscape = (event) => {
       if (event.key === "Escape") {
-        setIsOpen(false);
+        onClose?.();
       }
     };
 
@@ -92,7 +72,7 @@ export default function NotificationCenter() {
     return () => {
       document.removeEventListener("keydown", handleEscape);
     };
-  }, [isOpen]);
+  }, [isOpen, onClose]);
 
   const handleAnnouncementClick = (event, announcementId, link) => {
     setVisitedAnnouncementIds((currentIds) => {
@@ -142,14 +122,19 @@ export default function NotificationCenter() {
         </section>
       ) : null}
 
-      <button type="button" className="portal-notifications__button" aria-expanded={isOpen} aria-label={isOpen ? "Close announcements" : buttonLabel} onClick={() => setIsOpen((currentValue) => !currentValue)}>
-        {unreadCount > 0 ? (
-          <span className="portal-notifications__badge" aria-hidden="true">
-            {unreadCountLabel}
-          </span>
-        ) : null}
-        <BellIcon />
-      </button>
+      <div className={`portal-floating-tooltip ${isOpen ? "is-open" : ""}`}>
+        <button type="button" className="portal-notifications__button" aria-expanded={isOpen} aria-label={isOpen ? "Close announcements" : buttonLabel} onClick={onToggle}>
+          {unreadCount > 0 ? (
+            <span className="portal-notifications__badge" aria-hidden="true">
+              {unreadCountLabel}
+            </span>
+          ) : null}
+          <BellIcon />
+        </button>
+        <span className="portal-floating-tooltip__bubble" aria-hidden="true">
+          Notification
+        </span>
+      </div>
     </div>
   );
 }

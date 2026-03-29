@@ -1,18 +1,22 @@
 import { useEffect, useState } from "react";
 
+const ALERT_TRANSITION_MS = 360;
+
 export default function ErrorAlert({ message, onClose, autoCloseMs = 3000 }) {
     const [isVisible, setIsVisible] = useState(false);
     const [shouldRender, setShouldRender] = useState(false);
 
     useEffect(() => {
-        let showTimeout;
+        let showFrame;
         let fadeTimeout;
         let autoCloseTimeout;
 
         if (message) {
             setShouldRender(true);
 
-            showTimeout = setTimeout(() => setIsVisible(true), 10);
+            showFrame = requestAnimationFrame(() => {
+                setIsVisible(true);
+            });
 
             autoCloseTimeout = setTimeout(() => {
                 setIsVisible(false);
@@ -20,18 +24,18 @@ export default function ErrorAlert({ message, onClose, autoCloseMs = 3000 }) {
                 fadeTimeout = setTimeout(() => {
                     onClose?.();
                     setShouldRender(false);
-                }, 300);
+                }, ALERT_TRANSITION_MS);
             }, autoCloseMs);
         } else {
             setIsVisible(false);
 
             fadeTimeout = setTimeout(() => {
                 setShouldRender(false);
-            }, 300);
+            }, ALERT_TRANSITION_MS);
         }
 
         return () => {
-            clearTimeout(showTimeout);
+            cancelAnimationFrame(showFrame);
             clearTimeout(autoCloseTimeout);
             clearTimeout(fadeTimeout);
         };
@@ -43,7 +47,7 @@ export default function ErrorAlert({ message, onClose, autoCloseMs = 3000 }) {
         setTimeout(() => {
             onClose?.();
             setShouldRender(false);
-        }, 300);
+        }, ALERT_TRANSITION_MS);
     };
 
     if (!shouldRender) {

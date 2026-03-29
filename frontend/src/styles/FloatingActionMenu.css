@@ -1,0 +1,280 @@
+.portal-floating-actions {
+  position: fixed;
+  right: clamp(1rem, 3vw, 2rem);
+  bottom: clamp(1rem, 3vw, 2rem);
+  z-index: 44;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.9rem;
+  --portal-floating-button-size: 4.2rem;
+  pointer-events: none;
+}
+
+.portal-floating-actions__list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.9rem;
+  will-change: opacity, transform;
+}
+
+.portal-floating-actions__list.is-open {
+  animation: portalFloatingActionsFadeIn 0.22s ease both;
+}
+
+.portal-floating-actions__list.is-closing {
+  pointer-events: none;
+  animation: portalFloatingActionsFadeOut 0.22s ease both;
+}
+
+.portal-floating-actions__item {
+  animation: portalFloatingActionsEnter 0.22s ease both;
+}
+
+.portal-floating-tooltip {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: var(--portal-floating-button-size);
+  height: var(--portal-floating-button-size);
+  pointer-events: auto;
+}
+
+.portal-floating-tooltip__bubble {
+  position: absolute;
+  top: 50%;
+  right: calc(100% + 0.85rem);
+  z-index: 2;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  border-radius: 9999px;
+  background: linear-gradient(145deg, rgba(245, 247, 251, 0.98), rgba(224, 232, 241, 0.98));
+  box-shadow:
+    12px 12px 24px rgba(171, 179, 191, 0.2),
+    -4px -4px 10px rgba(255, 255, 255, 0.26),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.44);
+  color: #344054;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transform: translate3d(0.3rem, -50%, 0);
+  transition:
+    opacity 0.18s ease,
+    transform 0.18s ease,
+    visibility 0.18s ease;
+}
+
+.portal-floating-tooltip__bubble::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: -0.28rem;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.78);
+  border-right: 1px solid rgba(255, 255, 255, 0.78);
+  border-radius: 0 0.18rem 0 0;
+  background: linear-gradient(145deg, rgba(245, 247, 251, 0.98), rgba(224, 232, 241, 0.98));
+  transform: translateY(-50%) rotate(45deg);
+}
+
+.portal-floating-tooltip:hover .portal-floating-tooltip__bubble,
+.portal-floating-tooltip > button:focus-visible + .portal-floating-tooltip__bubble {
+  opacity: 1;
+  visibility: visible;
+  transform: translate3d(0, -50%, 0);
+}
+
+.portal-floating-tooltip.is-open .portal-floating-tooltip__bubble {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.portal-floating-actions__item:first-child {
+  animation-delay: 0.04s;
+}
+
+.portal-floating-actions__item:last-child {
+  animation-delay: 0.08s;
+}
+
+.portal-floating-actions__toggle {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--portal-floating-button-size);
+  height: var(--portal-floating-button-size);
+  border: 1px solid rgba(250, 204, 21, 0.28);
+  border-radius: 9999px;
+  color: #fff7ed;
+  background: linear-gradient(160deg, #c32929 0%, #991b1b 68%, #7f1d1d 100%);
+  box-shadow:
+    10px 10px 18px rgba(153, 27, 27, 0.16),
+    -3px -3px 8px rgba(255, 255, 255, 0.14),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.portal-floating-actions__toggle-badge {
+  position: absolute;
+  top: -0.25rem;
+  right: -0.25rem;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.45rem;
+  height: 1.45rem;
+  padding: 0 0.35rem;
+  border: 2px solid rgba(255, 247, 237, 0.9);
+  border-radius: 9999px;
+  color: #7f1d1d;
+  background: linear-gradient(145deg, #fff2a8, #facc15);
+  box-shadow:
+    6px 6px 12px rgba(153, 27, 27, 0.22),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.38);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.portal-floating-actions__toggle:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    12px 12px 20px rgba(153, 27, 27, 0.18),
+    -3px -3px 8px rgba(255, 255, 255, 0.16),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.portal-floating-actions__toggle:focus-visible {
+  outline: 2px solid rgba(153, 27, 27, 0.4);
+  outline-offset: 4px;
+}
+
+.portal-floating-actions__toggle-icon {
+  width: 1.7rem;
+  height: 1.7rem;
+  color: var(--portal-gold);
+  transition: transform 0.25s ease, color 0.25s ease;
+}
+
+.portal-floating-actions.is-open .portal-floating-actions__toggle-icon {
+  transform: rotate(45deg);
+  color: #fde68a;
+}
+
+.portal-layout[data-portal-theme="dark"] .portal-floating-actions__toggle {
+  box-shadow:
+    10px 10px 18px rgba(8, 12, 18, 0.28),
+    -4px -4px 8px rgba(255, 255, 255, 0.04),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.portal-layout[data-portal-theme="dark"] .portal-floating-actions__toggle:hover {
+  box-shadow:
+    12px 12px 20px rgba(8, 12, 18, 0.32),
+    -4px -4px 8px rgba(255, 255, 255, 0.06),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+.portal-layout[data-portal-theme="dark"] .portal-floating-actions__toggle-badge {
+  border-color: rgba(24, 34, 49, 0.9);
+  box-shadow:
+    6px 6px 12px rgba(8, 12, 18, 0.3),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.portal-layout[data-portal-theme="dark"] .portal-floating-tooltip__bubble {
+  border-color: rgba(146, 163, 184, 0.2);
+  background: linear-gradient(145deg, rgba(43, 58, 78, 0.98), rgba(29, 40, 55, 0.98));
+  box-shadow:
+    14px 14px 28px rgba(8, 12, 18, 0.34),
+    -6px -6px 12px rgba(255, 255, 255, 0.03),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.06);
+  color: #eef3fa;
+}
+
+.portal-layout[data-portal-theme="dark"] .portal-floating-tooltip__bubble::after {
+  border-top-color: rgba(146, 163, 184, 0.2);
+  border-right-color: rgba(146, 163, 184, 0.2);
+  background: linear-gradient(145deg, rgba(43, 58, 78, 0.98), rgba(29, 40, 55, 0.98));
+}
+
+@keyframes portalFloatingActionsEnter {
+  from {
+    opacity: 0;
+    transform: translateY(0.65rem) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes portalFloatingActionsFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.45rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes portalFloatingActionsFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(0.45rem);
+  }
+}
+
+@media (max-width: 640px) {
+  .portal-floating-actions {
+    right: 0.85rem;
+    bottom: max(0.85rem, env(safe-area-inset-bottom));
+    gap: 0.75rem;
+    --portal-floating-button-size: 3.65rem;
+  }
+
+  .portal-floating-actions__list {
+    gap: 0.75rem;
+  }
+
+  .portal-floating-actions__toggle-badge {
+    top: -0.15rem;
+    right: -0.15rem;
+    min-width: 1.35rem;
+    height: 1.35rem;
+    font-size: 0.68rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portal-floating-tooltip__bubble,
+  .portal-floating-actions__list,
+  .portal-floating-actions__item,
+  .portal-floating-actions__toggle,
+  .portal-floating-actions__toggle-icon {
+    animation: none;
+    transition: none;
+  }
+}

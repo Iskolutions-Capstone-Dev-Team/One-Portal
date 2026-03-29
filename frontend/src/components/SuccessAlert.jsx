@@ -1,42 +1,75 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+
+const ALERT_TRANSITION_MS = 360;
+const AUTO_CLOSE_MS = 4000;
 
 export default function SuccessAlert({ message, onClose }) {
     const [isVisible, setIsVisible] = useState(false);
     const [shouldRender, setShouldRender] = useState(false);
+    const [displayMessage, setDisplayMessage] = useState("");
+    const onCloseRef = useRef(onClose);
+    const displayMessageRef = useRef("");
 
     useEffect(() => {
+        onCloseRef.current = onClose;
+    }, [onClose]);
+
+    useEffect(() => {
+        let showFrame;
         let fadeTimeout;
         let autoCloseTimeout;
 
         if (message) {
+            displayMessageRef.current = message;
+            setDisplayMessage(message);
             setShouldRender(true);
 
-            setTimeout(() => setIsVisible(true), 10);
+            showFrame = requestAnimationFrame(() => {
+                setIsVisible(true);
+            });
 
             autoCloseTimeout = setTimeout(() => {
                 setIsVisible(false);
 
                 fadeTimeout = setTimeout(() => {
-                    onClose?.();
-                }, 300);
-            }, 4000);
-        } else {
+                    onCloseRef.current?.();
+                    setShouldRender(false);
+                    setDisplayMessage("");
+                    displayMessageRef.current = "";
+                }, ALERT_TRANSITION_MS);
+            }, AUTO_CLOSE_MS);
+        } else if (displayMessageRef.current) {
             setIsVisible(false);
 
             fadeTimeout = setTimeout(() => {
                 setShouldRender(false);
-            }, 300);
+                setDisplayMessage("");
+                displayMessageRef.current = "";
+            }, ALERT_TRANSITION_MS);
         }
 
         return () => {
+            cancelAnimationFrame(showFrame);
             clearTimeout(autoCloseTimeout);
             clearTimeout(fadeTimeout);
         };
-    }, [message, onClose]);
+    }, [message]);
 
-    if (!shouldRender) return null;
+    const handleClose = () => {
+        setIsVisible(false);
 
-    return (
+        setTimeout(() => {
+            onCloseRef.current?.();
+            setShouldRender(false);
+            setDisplayMessage("");
+            displayMessageRef.current = "";
+        }, ALERT_TRANSITION_MS);
+    };
+
+    if (!shouldRender || typeof document === "undefined") return null;
+
+    return createPortal(
         <div className="profile-toast-shell">
             <div role="alert" className={`profile-toast profile-toast--success ${isVisible ? "is-visible" : ""}`}>
                 <span className="profile-toast__icon" aria-hidden="true">
@@ -45,14 +78,15 @@ export default function SuccessAlert({ message, onClose }) {
                     </svg>
                 </span>
 
-                <span className="profile-toast__message">{message}</span>
+                <span className="profile-toast__message">{displayMessage}</span>
 
                 {onClose && (
-                    <button type="button" onClick={onClose} className="profile-toast__close" aria-label="Dismiss alert">
+                    <button type="button" onClick={handleClose} className="profile-toast__close" aria-label="Dismiss alert">
                         x
                     </button>
                 )}
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }
