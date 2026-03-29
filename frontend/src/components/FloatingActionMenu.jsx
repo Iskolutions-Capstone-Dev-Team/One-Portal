@@ -107,15 +107,14 @@ export default function FloatingActionMenu() {
 
   return (
     <div className={`portal-floating-actions ${isMenuOpen ? "is-open" : ""}`}>
+      <WebAccessibility
+        isMenuOpen={isMenuOpen}
+        isButtonVisible={isMenuMounted}
+        onActivate={() => setActiveFloatingPanel(null)}
+      />
+
       {isMenuMounted ? (
         <div className={`portal-floating-actions__list ${isMenuOpen ? "is-open" : "is-closing"}`}>
-          <div className="portal-floating-actions__item">
-            <WebAccessibility
-              isMenuOpen={isMenuOpen}
-              onActivate={() => setActiveFloatingPanel(null)}
-            />
-          </div>
-
           <div className="portal-floating-actions__item">
             <NotificationCenter
               isOpen={activeFloatingPanel === "notifications"}

@@ -93,7 +93,11 @@ function AccessibilityIcon() {
   );
 }
 
-export default function WebAccessibility({ isMenuOpen = false, onActivate = () => {} }) {
+export default function WebAccessibility({
+  isMenuOpen = false,
+  isButtonVisible = false,
+  onActivate = () => {},
+}) {
   const { theme } = usePortalTheme();
   const [isAccessibilityMenuOpen, setIsAccessibilityMenuOpen] = useState(false);
 
@@ -147,8 +151,12 @@ export default function WebAccessibility({ isMenuOpen = false, onActivate = () =
     openAccessibilityMenu();
   };
 
+  if (!isButtonVisible) {
+    return null;
+  }
+
   return (
-    <div className="portal-accessibility">
+    <div className="portal-accessibility portal-floating-actions__item">
       <div className="portal-floating-tooltip">
         <button
           type="button"
