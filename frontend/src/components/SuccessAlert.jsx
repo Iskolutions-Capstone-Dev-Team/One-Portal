@@ -1,11 +1,19 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 
 const ALERT_TRANSITION_MS = 360;
+const AUTO_CLOSE_MS = 4000;
 
 export default function SuccessAlert({ message, onClose }) {
     const [isVisible, setIsVisible] = useState(false);
     const [shouldRender, setShouldRender] = useState(false);
+    const [displayMessage, setDisplayMessage] = useState("");
+    const onCloseRef = useRef(onClose);
+    const displayMessageRef = useRef("");
+
+    useEffect(() => {
+        onCloseRef.current = onClose;
+    }, [onClose]);
 
     useEffect(() => {
         let showFrame;
@@ -13,6 +21,8 @@ export default function SuccessAlert({ message, onClose }) {
         let autoCloseTimeout;
 
         if (message) {
+            displayMessageRef.current = message;
+            setDisplayMessage(message);
             setShouldRender(true);
 
             showFrame = requestAnimationFrame(() => {
@@ -23,15 +33,19 @@ export default function SuccessAlert({ message, onClose }) {
                 setIsVisible(false);
 
                 fadeTimeout = setTimeout(() => {
-                    onClose?.();
+                    onCloseRef.current?.();
                     setShouldRender(false);
+                    setDisplayMessage("");
+                    displayMessageRef.current = "";
                 }, ALERT_TRANSITION_MS);
-            }, 4000);
-        } else {
+            }, AUTO_CLOSE_MS);
+        } else if (displayMessageRef.current) {
             setIsVisible(false);
 
             fadeTimeout = setTimeout(() => {
                 setShouldRender(false);
+                setDisplayMessage("");
+                displayMessageRef.current = "";
             }, ALERT_TRANSITION_MS);
         }
 
@@ -40,7 +54,18 @@ export default function SuccessAlert({ message, onClose }) {
             clearTimeout(autoCloseTimeout);
             clearTimeout(fadeTimeout);
         };
-    }, [message, onClose]);
+    }, [message]);
+
+    const handleClose = () => {
+        setIsVisible(false);
+
+        setTimeout(() => {
+            onCloseRef.current?.();
+            setShouldRender(false);
+            setDisplayMessage("");
+            displayMessageRef.current = "";
+        }, ALERT_TRANSITION_MS);
+    };
 
     if (!shouldRender || typeof document === "undefined") return null;
 
@@ -53,10 +78,10 @@ export default function SuccessAlert({ message, onClose }) {
                     </svg>
                 </span>
 
-                <span className="profile-toast__message">{message}</span>
+                <span className="profile-toast__message">{displayMessage}</span>
 
                 {onClose && (
-                    <button type="button" onClick={onClose} className="profile-toast__close" aria-label="Dismiss alert">
+                    <button type="button" onClick={handleClose} className="profile-toast__close" aria-label="Dismiss alert">
                         x
                     </button>
                 )}

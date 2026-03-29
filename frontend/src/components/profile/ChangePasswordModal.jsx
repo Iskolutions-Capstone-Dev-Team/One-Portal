@@ -59,12 +59,7 @@ export default function ChangePasswordModal({ isOpen, onClose, showCurrentPasswo
 
         if (enableSuccessAlert) {
             setSuccessMessage(message);
-
-            const timeout = setTimeout(() => {
-                setSuccessMessage("");
-            }, 3000);
-
-            return () => clearTimeout(timeout);
+            return undefined;
         }
 
         if (setToastMessage) {
