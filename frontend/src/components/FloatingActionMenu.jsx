@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { announcements } from "../data/announcements";
 import ContactUs from "./ContactUs";
 import NotificationCenter from "./NotificationCenter";
+import WebAccessibility from "./WebAccessibility";
 import "../styles/FloatingActionMenu.css";
 
 const MENU_TRANSITION_DURATION_MS = 220;
@@ -106,6 +107,12 @@ export default function FloatingActionMenu() {
 
   return (
     <div className={`portal-floating-actions ${isMenuOpen ? "is-open" : ""}`}>
+      <WebAccessibility
+        isMenuOpen={isMenuOpen}
+        isButtonVisible={isMenuMounted}
+        onActivate={() => setActiveFloatingPanel(null)}
+      />
+
       {isMenuMounted ? (
         <div className={`portal-floating-actions__list ${isMenuOpen ? "is-open" : "is-closing"}`}>
           <div className="portal-floating-actions__item">
