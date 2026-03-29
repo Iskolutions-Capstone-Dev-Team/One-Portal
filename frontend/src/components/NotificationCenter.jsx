@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { announcements } from "../../data/announcements";
-import "./NotificationCenter.css";
+import { announcements } from "../data/announcements";
+import "../styles/NotificationCenter.css";
 
 const VISITED_ANNOUNCEMENTS_STORAGE_KEY = "portal-visited-announcements";
 const PANEL_TRANSITION_DURATION_MS = 220;

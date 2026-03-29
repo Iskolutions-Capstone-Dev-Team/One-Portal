@@ -1,6 +1,6 @@
 import PortalNavbar from "../components/dashboard/PortalNavbar";
 import PortalFooter from "../components/dashboard/PortalFooter";
-import NotificationCenter from "../components/dashboard/NotificationCenter";
+import NotificationCenter from "../components/NotificationCenter";
 import { usePortalTheme } from "../context/PortalThemeContext";
 
 export default function OnePortalLayout({ children }) {
