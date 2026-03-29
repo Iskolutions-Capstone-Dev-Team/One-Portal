@@ -3,6 +3,7 @@ import { announcements } from "../../data/announcements";
 import "./NotificationCenter.css";
 
 const VISITED_ANNOUNCEMENTS_STORAGE_KEY = "portal-visited-announcements";
+const PANEL_TRANSITION_DURATION_MS = 220;
 
 function readVisitedAnnouncements() {
   if (typeof window === "undefined") {
@@ -19,6 +20,16 @@ function readVisitedAnnouncements() {
   }
 }
 
+function getPanelTransitionDuration() {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+    return PANEL_TRANSITION_DURATION_MS;
+  }
+
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ? 0
+    : PANEL_TRANSITION_DURATION_MS;
+}
+
 function BellIcon() {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="portal-notifications__button-icon" aria-hidden="true">
@@ -29,6 +40,7 @@ function BellIcon() {
 
 export default function NotificationCenter() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isPanelMounted, setIsPanelMounted] = useState(false);
   const [visitedAnnouncementIds, setVisitedAnnouncementIds] = useState(readVisitedAnnouncements);
 
   useEffect(() => {
@@ -37,6 +49,25 @@ export default function NotificationCenter() {
       JSON.stringify(visitedAnnouncementIds)
     );
   }, [visitedAnnouncementIds]);
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsPanelMounted(true);
+      return undefined;
+    }
+
+    if (!isPanelMounted) {
+      return undefined;
+    }
+
+    const closeTimeoutId = window.setTimeout(() => {
+      setIsPanelMounted(false);
+    }, getPanelTransitionDuration());
+
+    return () => {
+      window.clearTimeout(closeTimeoutId);
+    };
+  }, [isOpen, isPanelMounted]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -72,8 +103,8 @@ export default function NotificationCenter() {
 
   return (
     <div className="portal-notifications">
-      {isOpen ? (
-        <section className="portal-notifications__panel custom-scrollbar" aria-label="Announcements">
+      {isPanelMounted ? (
+        <section className={`portal-notifications__panel custom-scrollbar ${isOpen ? "is-open" : "is-closing"}`} aria-label="Announcements">
           <div className="portal-notifications__panel-head">
             <p className="portal-notifications__eyebrow">Campus updates</p>
             <h2 className="portal-notifications__title">Announcements</h2>

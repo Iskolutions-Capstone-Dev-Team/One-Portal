@@ -60,7 +60,17 @@
     14px 14px 24px rgba(171, 179, 191, 0.16),
     -6px -6px 12px rgba(255, 255, 255, 0.34),
     inset 1px 1px 0 rgba(255, 255, 255, 0.56);
-  animation: portalNotificationsPop 0.22s ease;
+  transform-origin: bottom right;
+  will-change: opacity, transform;
+}
+
+.portal-notifications__panel.is-open {
+  animation: portalNotificationsFadeIn 0.22s ease both;
+}
+
+.portal-notifications__panel.is-closing {
+  pointer-events: none;
+  animation: portalNotificationsFadeOut 0.22s ease both;
 }
 
 .portal-notifications__panel-head {
@@ -265,7 +275,7 @@
   color: #8796aa;
 }
 
-@keyframes portalNotificationsPop {
+@keyframes portalNotificationsFadeIn {
   from {
     opacity: 0;
     transform: translateY(0.75rem) scale(0.97);
@@ -274,6 +284,18 @@
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes portalNotificationsFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(0.75rem) scale(0.97);
   }
 }
 
@@ -301,6 +323,10 @@
   .portal-notifications__button,
   .portal-notifications__panel {
     transition: none;
+  }
+
+  .portal-notifications__panel.is-open,
+  .portal-notifications__panel.is-closing {
     animation: none;
   }
 }
