@@ -45,8 +45,7 @@ function validateForm(form) {
   return nextErrors;
 }
 
-export default function ContactUs() {
-  const [isOpen, setIsOpen] = useState(false);
+export default function ContactUs({ isOpen, onToggle, onClose, skipCloseAnimation = false }) {
   const [isPanelMounted, setIsPanelMounted] = useState(false);
   const [form, setForm] = useState(INITIAL_FORM);
   const [errors, setErrors] = useState({});
@@ -63,6 +62,11 @@ export default function ContactUs() {
       return undefined;
     }
 
+    if (skipCloseAnimation) {
+      setIsPanelMounted(false);
+      return undefined;
+    }
+
     const closeTimeoutId = window.setTimeout(() => {
       setIsPanelMounted(false);
     }, getPanelTransitionDuration());
@@ -70,7 +74,7 @@ export default function ContactUs() {
     return () => {
       window.clearTimeout(closeTimeoutId);
     };
-  }, [isOpen, isPanelMounted]);
+  }, [isOpen, isPanelMounted, skipCloseAnimation]);
 
   useEffect(() => {
     if (isOpen) {
@@ -81,7 +85,7 @@ export default function ContactUs() {
     setErrorAlert("");
     setShowErrorAlert(false);
     return undefined;
-  }, [isOpen]);
+  }, [isOpen, onClose]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -90,7 +94,7 @@ export default function ContactUs() {
 
     const handleEscape = (event) => {
       if (event.key === "Escape") {
-        setIsOpen(false);
+        onClose?.();
       }
     };
 
@@ -142,7 +146,7 @@ export default function ContactUs() {
     setErrors({});
     setErrorAlert("");
     setShowErrorAlert(false);
-    setIsOpen(false);
+    onClose?.();
   };
 
   return (
@@ -207,7 +211,7 @@ export default function ContactUs() {
         </section>
       ) : null}
 
-      <button type="button" className="portal-contact__button" aria-expanded={isOpen} aria-label={isOpen ? "Close contact form" : "Open contact form"} onClick={() => setIsOpen((currentValue) => !currentValue)}>
+      <button type="button" className="portal-contact__button" aria-expanded={isOpen} aria-label={isOpen ? "Close contact form" : "Open contact form"} onClick={onToggle}>
         <ContactIcon />
       </button>
     </div>

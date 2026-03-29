@@ -38,8 +38,7 @@ function BellIcon() {
   );
 }
 
-export default function NotificationCenter() {
-  const [isOpen, setIsOpen] = useState(false);
+export default function NotificationCenter({ isOpen, onToggle, onClose, skipCloseAnimation = false }) {
   const [isPanelMounted, setIsPanelMounted] = useState(false);
   const [visitedAnnouncementIds, setVisitedAnnouncementIds] = useState(readVisitedAnnouncements);
   const unreadCount = announcements.filter(
@@ -67,6 +66,11 @@ export default function NotificationCenter() {
       return undefined;
     }
 
+    if (skipCloseAnimation) {
+      setIsPanelMounted(false);
+      return undefined;
+    }
+
     const closeTimeoutId = window.setTimeout(() => {
       setIsPanelMounted(false);
     }, getPanelTransitionDuration());
@@ -74,7 +78,7 @@ export default function NotificationCenter() {
     return () => {
       window.clearTimeout(closeTimeoutId);
     };
-  }, [isOpen, isPanelMounted]);
+  }, [isOpen, isPanelMounted, skipCloseAnimation]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -83,7 +87,7 @@ export default function NotificationCenter() {
 
     const handleEscape = (event) => {
       if (event.key === "Escape") {
-        setIsOpen(false);
+        onClose?.();
       }
     };
 
@@ -92,7 +96,7 @@ export default function NotificationCenter() {
     return () => {
       document.removeEventListener("keydown", handleEscape);
     };
-  }, [isOpen]);
+  }, [isOpen, onClose]);
 
   const handleAnnouncementClick = (event, announcementId, link) => {
     setVisitedAnnouncementIds((currentIds) => {
@@ -142,7 +146,7 @@ export default function NotificationCenter() {
         </section>
       ) : null}
 
-      <button type="button" className="portal-notifications__button" aria-expanded={isOpen} aria-label={isOpen ? "Close announcements" : buttonLabel} onClick={() => setIsOpen((currentValue) => !currentValue)}>
+      <button type="button" className="portal-notifications__button" aria-expanded={isOpen} aria-label={isOpen ? "Close announcements" : buttonLabel} onClick={onToggle}>
         {unreadCount > 0 ? (
           <span className="portal-notifications__badge" aria-hidden="true">
             {unreadCountLabel}
