@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import ErrorAlert from "./ErrorAlert";
 import "../styles/ContactUs.css";
 
 const PANEL_TRANSITION_DURATION_MS = 220;
@@ -19,16 +20,9 @@ function getPanelTransitionDuration() {
 
 function ContactIcon() {
   return (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="portal-contact__button-icon" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
-    </svg>
-  );
-}
-
-function AlertIcon() {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="portal-contact__button-icon" aria-hidden="true">
+      <path d="M1.5 8.67v8.58a3 3 0 0 0 3 3h15a3 3 0 0 0 3-3V8.67l-8.928 5.493a3 3 0 0 1-3.144 0L1.5 8.67Z" />
+      <path d="M22.5 6.908V6.75a3 3 0 0 0-3-3h-15a3 3 0 0 0-3 3v.158l9.714 5.978a1.5 1.5 0 0 0 1.572 0L22.5 6.908Z" />
     </svg>
   );
 }
@@ -57,6 +51,7 @@ export default function ContactUs() {
   const [form, setForm] = useState(INITIAL_FORM);
   const [errors, setErrors] = useState({});
   const [errorAlert, setErrorAlert] = useState("");
+  const [showErrorAlert, setShowErrorAlert] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -84,6 +79,7 @@ export default function ContactUs() {
 
     setErrors({});
     setErrorAlert("");
+    setShowErrorAlert(false);
     return undefined;
   }, [isOpen]);
 
@@ -123,6 +119,7 @@ export default function ContactUs() {
 
       if (Object.keys(nextErrors).length === 0) {
         setErrorAlert("");
+        setShowErrorAlert(false);
       }
 
       return nextErrors;
@@ -137,12 +134,14 @@ export default function ContactUs() {
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
       setErrorAlert("Please fix the highlighted fields before submitting.");
+      setShowErrorAlert(true);
       return;
     }
 
     setForm(INITIAL_FORM);
     setErrors({});
     setErrorAlert("");
+    setShowErrorAlert(false);
     setIsOpen(false);
   };
 
@@ -153,17 +152,14 @@ export default function ContactUs() {
           <div className="portal-contact__panel-head">
             <p className="portal-contact__eyebrow">Support</p>
             <h2 className="portal-contact__title">Contact Us</h2>
-            <p className="portal-contact__subtitle">Send us your email and message.</p>
           </div>
 
           <form className="portal-contact__form" onSubmit={handleSubmit} noValidate>
-            {errorAlert ? (
-              <div className="profile-alert profile-alert--error portal-contact__alert" role="alert">
-                <span className="profile-alert__icon" aria-hidden="true">
-                  <AlertIcon />
-                </span>
-                <p className="profile-alert__message">{errorAlert}</p>
-              </div>
+            {showErrorAlert && errorAlert ? (
+              <ErrorAlert
+                message={errorAlert}
+                onClose={() => setShowErrorAlert(false)}
+              />
             ) : null}
 
             <div className="portal-contact__field">
@@ -204,7 +200,7 @@ export default function ContactUs() {
               </p>
             </div>
 
-            <button type="submit" className="portal-contact__submit">
+            <button type="submit" className="profile-action profile-action--primary portal-contact__submit">
               Submit
             </button>
           </form>
