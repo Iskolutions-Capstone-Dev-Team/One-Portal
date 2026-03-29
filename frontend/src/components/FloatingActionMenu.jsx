@@ -43,20 +43,20 @@ export default function FloatingActionMenu() {
       {isMenuOpen ? (
         <div className="portal-floating-actions__list">
           <div className="portal-floating-actions__item">
-            <ContactUs
-              isOpen={activeFloatingPanel === "contact"}
-              onToggle={() => toggleFloatingPanel("contact")}
-              onClose={() => closeFloatingPanel("contact")}
-              skipCloseAnimation={activeFloatingPanel !== null && activeFloatingPanel !== "contact"}
-            />
-          </div>
-
-          <div className="portal-floating-actions__item">
             <NotificationCenter
               isOpen={activeFloatingPanel === "notifications"}
               onToggle={() => toggleFloatingPanel("notifications")}
               onClose={() => closeFloatingPanel("notifications")}
               skipCloseAnimation={activeFloatingPanel !== null && activeFloatingPanel !== "notifications"}
+            />
+          </div>
+
+          <div className="portal-floating-actions__item">
+            <ContactUs
+              isOpen={activeFloatingPanel === "contact"}
+              onToggle={() => toggleFloatingPanel("contact")}
+              onClose={() => closeFloatingPanel("contact")}
+              skipCloseAnimation={activeFloatingPanel !== null && activeFloatingPanel !== "contact"}
             />
           </div>
         </div>
