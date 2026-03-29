@@ -16,6 +16,16 @@
   flex-direction: column;
   align-items: flex-end;
   gap: 0.9rem;
+  will-change: opacity, transform;
+}
+
+.portal-floating-actions__list.is-open {
+  animation: portalFloatingActionsFadeIn 0.22s ease both;
+}
+
+.portal-floating-actions__list.is-closing {
+  pointer-events: none;
+  animation: portalFloatingActionsFadeOut 0.22s ease both;
 }
 
 .portal-floating-actions__item {
@@ -99,6 +109,30 @@
   }
 }
 
+@keyframes portalFloatingActionsFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.45rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes portalFloatingActionsFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(0.45rem);
+  }
+}
+
 @media (max-width: 640px) {
   .portal-floating-actions {
     right: 0.85rem;
@@ -113,6 +147,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .portal-floating-actions__list,
   .portal-floating-actions__item,
   .portal-floating-actions__toggle,
   .portal-floating-actions__toggle-icon {

@@ -1,7 +1,19 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ContactUs from "./ContactUs";
 import NotificationCenter from "./NotificationCenter";
 import "../styles/FloatingActionMenu.css";
+
+const MENU_TRANSITION_DURATION_MS = 220;
+
+function getMenuTransitionDuration() {
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+    return MENU_TRANSITION_DURATION_MS;
+  }
+
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ? 0
+    : MENU_TRANSITION_DURATION_MS;
+}
 
 function PlusIcon() {
   return (
@@ -13,7 +25,27 @@ function PlusIcon() {
 
 export default function FloatingActionMenu() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMenuMounted, setIsMenuMounted] = useState(false);
   const [activeFloatingPanel, setActiveFloatingPanel] = useState(null);
+
+  useEffect(() => {
+    if (isMenuOpen) {
+      setIsMenuMounted(true);
+      return undefined;
+    }
+
+    if (!isMenuMounted) {
+      return undefined;
+    }
+
+    const closeTimeoutId = window.setTimeout(() => {
+      setIsMenuMounted(false);
+    }, getMenuTransitionDuration());
+
+    return () => {
+      window.clearTimeout(closeTimeoutId);
+    };
+  }, [isMenuOpen, isMenuMounted]);
 
   const handleMenuToggle = () => {
     if (isMenuOpen) {
@@ -40,8 +72,8 @@ export default function FloatingActionMenu() {
 
   return (
     <div className={`portal-floating-actions ${isMenuOpen ? "is-open" : ""}`}>
-      {isMenuOpen ? (
-        <div className="portal-floating-actions__list">
+      {isMenuMounted ? (
+        <div className={`portal-floating-actions__list ${isMenuOpen ? "is-open" : "is-closing"}`}>
           <div className="portal-floating-actions__item">
             <NotificationCenter
               isOpen={activeFloatingPanel === "notifications"}
