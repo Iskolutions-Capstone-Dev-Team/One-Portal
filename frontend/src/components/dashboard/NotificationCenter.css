@@ -7,6 +7,7 @@
   flex-direction: column;
   align-items: flex-end;
   gap: 0.9rem;
+  pointer-events: none;
 }
 
 .portal-notifications__button {
@@ -23,6 +24,7 @@
     -5px -5px 10px rgba(255, 255, 255, 0.26),
     inset 1px 1px 0 rgba(255, 255, 255, 0.16);
   cursor: pointer;
+  pointer-events: auto;
   transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
 }
 
@@ -60,6 +62,7 @@
     14px 14px 24px rgba(171, 179, 191, 0.16),
     -6px -6px 12px rgba(255, 255, 255, 0.34),
     inset 1px 1px 0 rgba(255, 255, 255, 0.56);
+  pointer-events: auto;
   transform-origin: bottom right;
   will-change: opacity, transform;
 }
@@ -301,21 +304,59 @@
 
 @media (max-width: 640px) {
   .portal-notifications {
-    right: 1rem;
-    bottom: 1rem;
-    left: 1rem;
+    top: max(0.75rem, env(safe-area-inset-top));
+    right: 0.85rem;
+    bottom: max(0.85rem, env(safe-area-inset-bottom));
+    left: 0.85rem;
+    justify-content: flex-end;
     align-items: stretch;
+    gap: 0.75rem;
   }
 
   .portal-notifications__panel {
     width: 100%;
-    max-height: min(28rem, calc(100vh - 7rem));
+    max-height: calc(100vh - 7.25rem);
+    max-height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 6rem);
+    border-radius: 1.35rem;
+  }
+
+  .portal-notifications__panel-head {
+    padding: 1rem 1rem 0.85rem;
+  }
+
+  .portal-notifications__eyebrow {
+    font-size: 0.68rem;
+  }
+
+  .portal-notifications__title {
+    font-size: 1rem;
+  }
+
+  .portal-notifications__list {
+    gap: 0.75rem;
+    padding: 0.85rem 0.85rem 1rem;
+  }
+
+  .portal-notifications__item {
+    grid-template-columns: 0.7rem minmax(0, 1fr);
+    gap: 0.75rem;
+    padding: 0.9rem;
+    border-radius: 1rem;
+  }
+
+  .portal-notifications__item-title {
+    font-size: 0.94rem;
+  }
+
+  .portal-notifications__item-content {
+    font-size: 0.88rem;
+    line-height: 1.55;
   }
 
   .portal-notifications__button {
     align-self: flex-end;
-    width: 3.8rem;
-    height: 3.8rem;
+    width: 3.65rem;
+    height: 3.65rem;
   }
 }
 
