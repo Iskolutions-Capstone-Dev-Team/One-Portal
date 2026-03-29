@@ -1,10 +1,8 @@
 .portal-notifications {
-  position: fixed;
-  right: clamp(1rem, 3vw, 2rem);
-  bottom: clamp(1rem, 3vw, 2rem);
-  z-index: 40;
-  width: 4.2rem;
-  height: 4.2rem;
+  position: relative;
+  z-index: 1;
+  width: var(--portal-floating-button-size, 4.2rem);
+  height: var(--portal-floating-button-size, 4.2rem);
   pointer-events: none;
 }
 
@@ -14,8 +12,8 @@
   bottom: 0;
   display: grid;
   place-items: center;
-  width: 4.2rem;
-  height: 4.2rem;
+  width: var(--portal-floating-button-size, 4.2rem);
+  height: var(--portal-floating-button-size, 4.2rem);
   border: 1px solid rgba(250, 204, 21, 0.28);
   border-radius: 9999px;
   color: #fff7ed;
@@ -336,13 +334,6 @@
 }
 
 @media (max-width: 640px) {
-  .portal-notifications {
-    right: 0.85rem;
-    bottom: max(0.85rem, env(safe-area-inset-bottom));
-    width: 3.65rem;
-    height: 3.65rem;
-  }
-
   .portal-notifications__panel {
     right: calc(100% + 0.75rem);
     width: min(22rem, calc(100vw - 5.5rem));
@@ -382,11 +373,6 @@
   .portal-notifications__item-content {
     font-size: 0.88rem;
     line-height: 1.55;
-  }
-
-  .portal-notifications__button {
-    width: 3.65rem;
-    height: 3.65rem;
   }
 
   .portal-notifications__badge {

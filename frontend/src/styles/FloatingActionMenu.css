@@ -1,0 +1,122 @@
+.portal-floating-actions {
+  position: fixed;
+  right: clamp(1rem, 3vw, 2rem);
+  bottom: clamp(1rem, 3vw, 2rem);
+  z-index: 44;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.9rem;
+  --portal-floating-button-size: 4.2rem;
+  pointer-events: none;
+}
+
+.portal-floating-actions__list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.9rem;
+}
+
+.portal-floating-actions__item {
+  animation: portalFloatingActionsEnter 0.22s ease both;
+}
+
+.portal-floating-actions__item:first-child {
+  animation-delay: 0.04s;
+}
+
+.portal-floating-actions__item:last-child {
+  animation-delay: 0.08s;
+}
+
+.portal-floating-actions__toggle {
+  display: grid;
+  place-items: center;
+  width: var(--portal-floating-button-size);
+  height: var(--portal-floating-button-size);
+  border: 1px solid rgba(250, 204, 21, 0.2);
+  border-radius: 9999px;
+  color: #fff8ee;
+  background: linear-gradient(160deg, #334155 0%, #1f2937 68%, #0f172a 100%);
+  box-shadow:
+    12px 12px 22px rgba(15, 23, 42, 0.24),
+    -6px -6px 12px rgba(255, 255, 255, 0.28),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.14);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.portal-floating-actions__toggle:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    14px 14px 24px rgba(15, 23, 42, 0.26),
+    -6px -6px 12px rgba(255, 255, 255, 0.32),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.portal-floating-actions__toggle:focus-visible {
+  outline: 2px solid rgba(250, 204, 21, 0.28);
+  outline-offset: 4px;
+}
+
+.portal-floating-actions__toggle-icon {
+  width: 1.7rem;
+  height: 1.7rem;
+  color: var(--portal-gold);
+  transition: transform 0.25s ease, color 0.25s ease;
+}
+
+.portal-floating-actions.is-open .portal-floating-actions__toggle-icon {
+  transform: rotate(45deg);
+  color: #fde68a;
+}
+
+.portal-layout[data-portal-theme="dark"] .portal-floating-actions__toggle {
+  box-shadow:
+    12px 12px 22px rgba(8, 12, 18, 0.34),
+    -6px -6px 12px rgba(255, 255, 255, 0.04),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.portal-layout[data-portal-theme="dark"] .portal-floating-actions__toggle:hover {
+  box-shadow:
+    14px 14px 24px rgba(8, 12, 18, 0.38),
+    -6px -6px 12px rgba(255, 255, 255, 0.06),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.16);
+}
+
+@keyframes portalFloatingActionsEnter {
+  from {
+    opacity: 0;
+    transform: translateY(0.65rem) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (max-width: 640px) {
+  .portal-floating-actions {
+    right: 0.85rem;
+    bottom: max(0.85rem, env(safe-area-inset-bottom));
+    gap: 0.75rem;
+    --portal-floating-button-size: 3.65rem;
+  }
+
+  .portal-floating-actions__list {
+    gap: 0.75rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portal-floating-actions__item,
+  .portal-floating-actions__toggle,
+  .portal-floating-actions__toggle-icon {
+    animation: none;
+    transition: none;
+  }
+}
