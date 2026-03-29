@@ -156,7 +156,7 @@ export default function WebAccessibility({
   }
 
   return (
-    <div className="portal-accessibility portal-floating-actions__item">
+    <div className={`portal-accessibility ${isMenuOpen ? "is-open" : "is-closing"}`}>
       <div className="portal-floating-tooltip">
         <button
           type="button"

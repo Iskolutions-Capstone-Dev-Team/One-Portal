@@ -6,6 +6,15 @@
   pointer-events: none;
 }
 
+.portal-accessibility.is-open {
+  animation: portalFloatingActionsEnter 0.22s ease both;
+}
+
+.portal-accessibility.is-closing {
+  pointer-events: none;
+  animation: portalFloatingActionsFadeOut 0.22s ease both;
+}
+
 .portal-accessibility__button {
   position: absolute;
   right: 0;
@@ -292,5 +301,9 @@ html[data-portal-theme="dark"] .asw-container .asw-menu ::-webkit-scrollbar-thum
   .asw-container .asw-profile-btn {
     transition: none !important;
   }
-
+  
+  .portal-accessibility.is-open,
+  .portal-accessibility.is-closing {
+    animation: none;
+  }
 }
