@@ -42,6 +42,13 @@ export default function NotificationCenter() {
   const [isOpen, setIsOpen] = useState(false);
   const [isPanelMounted, setIsPanelMounted] = useState(false);
   const [visitedAnnouncementIds, setVisitedAnnouncementIds] = useState(readVisitedAnnouncements);
+  const unreadCount = announcements.filter(
+    (announcement) => !visitedAnnouncementIds.includes(announcement.id)
+  ).length;
+  const unreadCountLabel = unreadCount > 99 ? "99+" : unreadCount;
+  const buttonLabel = unreadCount > 0
+    ? `${unreadCount} unread announcements`
+    : "Open announcements";
 
   useEffect(() => {
     window.localStorage.setItem(
@@ -135,7 +142,12 @@ export default function NotificationCenter() {
         </section>
       ) : null}
 
-      <button type="button" className="portal-notifications__button" aria-expanded={isOpen} aria-label={isOpen ? "Close announcements" : "Open announcements"} onClick={() => setIsOpen((currentValue) => !currentValue)}>
+      <button type="button" className="portal-notifications__button" aria-expanded={isOpen} aria-label={isOpen ? "Close announcements" : buttonLabel} onClick={() => setIsOpen((currentValue) => !currentValue)}>
+        {unreadCount > 0 ? (
+          <span className="portal-notifications__badge" aria-hidden="true">
+            {unreadCountLabel}
+          </span>
+        ) : null}
         <BellIcon />
       </button>
     </div>

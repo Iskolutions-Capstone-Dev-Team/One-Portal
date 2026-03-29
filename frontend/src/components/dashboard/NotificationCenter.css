@@ -11,6 +11,7 @@
 }
 
 .portal-notifications__button {
+  position: relative;
   display: grid;
   place-items: center;
   width: 4.2rem;
@@ -26,6 +27,28 @@
   cursor: pointer;
   pointer-events: auto;
   transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+}
+
+.portal-notifications__badge {
+  position: absolute;
+  top: -0.25rem;
+  right: -0.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.45rem;
+  height: 1.45rem;
+  padding: 0 0.35rem;
+  border: 2px solid rgba(255, 247, 237, 0.9);
+  border-radius: 9999px;
+  color: #7f1d1d;
+  background: linear-gradient(145deg, #fff2a8, #facc15);
+  box-shadow:
+    6px 6px 12px rgba(153, 27, 27, 0.22),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.38);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
 }
 
 .portal-notifications__button:hover {
@@ -202,6 +225,13 @@
     inset 1px 1px 0 rgba(255, 255, 255, 0.14);
 }
 
+.portal-layout[data-portal-theme="dark"] .portal-notifications__badge {
+  border-color: rgba(24, 34, 49, 0.9);
+  box-shadow:
+    6px 6px 12px rgba(8, 12, 18, 0.3),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.2);
+}
+
 .portal-layout[data-portal-theme="dark"] .portal-notifications__button:hover {
   box-shadow:
     12px 12px 20px rgba(8, 12, 18, 0.32),
@@ -357,6 +387,14 @@
     align-self: flex-end;
     width: 3.65rem;
     height: 3.65rem;
+  }
+
+  .portal-notifications__badge {
+    top: -0.15rem;
+    right: -0.15rem;
+    min-width: 1.35rem;
+    height: 1.35rem;
+    font-size: 0.68rem;
   }
 }
 
