@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 
 export default function SuccessAlert({ message, onClose }) {
     const [isVisible, setIsVisible] = useState(false);
@@ -34,9 +35,9 @@ export default function SuccessAlert({ message, onClose }) {
         };
     }, [message, onClose]);
 
-    if (!shouldRender) return null;
+    if (!shouldRender || typeof document === "undefined") return null;
 
-    return (
+    return createPortal(
         <div className="profile-toast-shell">
             <div role="alert" className={`profile-toast profile-toast--success ${isVisible ? "is-visible" : ""}`}>
                 <span className="profile-toast__icon" aria-hidden="true">
@@ -53,6 +54,7 @@ export default function SuccessAlert({ message, onClose }) {
                     </button>
                 )}
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }

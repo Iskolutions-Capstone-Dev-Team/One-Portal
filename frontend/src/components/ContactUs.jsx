@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import ErrorAlert from "./ErrorAlert";
+import SuccessAlert from "./SuccessAlert";
 import "../styles/ContactUs.css";
 
 const PANEL_TRANSITION_DURATION_MS = 220;
@@ -75,6 +76,7 @@ export default function ContactUs({ isOpen, onToggle, onClose, skipCloseAnimatio
   const [errors, setErrors] = useState({});
   const [errorAlert, setErrorAlert] = useState("");
   const [showErrorAlert, setShowErrorAlert] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
     if (isOpen) {
@@ -172,11 +174,14 @@ export default function ContactUs({ isOpen, onToggle, onClose, skipCloseAnimatio
     setErrors({});
     setErrorAlert("");
     setShowErrorAlert(false);
+    setSuccessMessage("Message submitted!");
     onClose?.();
   };
 
   return (
     <div className="portal-contact">
+      <SuccessAlert message={successMessage} onClose={() => setSuccessMessage("")} />
+
       {isPanelMounted ? (
         <section className={`portal-contact__panel custom-scrollbar ${isOpen ? "is-open" : "is-closing"}`} aria-label="Contact us form">
           <div className="portal-contact__panel-head">
