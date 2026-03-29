@@ -2033,10 +2033,10 @@ input[type="checkbox"] {
   gap: 0.8rem;
   padding: 1rem 1.05rem;
   border-radius: 1.25rem;
-  border: 1px solid rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(185, 28, 28, 0.2);
   box-shadow:
-    10px 10px 20px rgba(176, 186, 201, 0.24),
-    -8px -8px 16px rgba(255, 255, 255, 0.88);
+    10px 10px 20px rgba(176, 186, 201, 0.2),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.1);
   line-height: 1.6;
 }
 
@@ -2046,10 +2046,11 @@ input[type="checkbox"] {
 
 .profile-alert--animated {
   opacity: 0;
-  transform: translateY(10px);
+  transform: translate3d(0, 0.65rem, 0) scale(0.985);
+  will-change: opacity, transform;
   transition:
-    opacity 0.3s ease,
-    transform 0.3s ease,
+    opacity 0.24s ease,
+    transform 0.36s cubic-bezier(0.22, 1, 0.36, 1),
     background var(--portal-theme-transition),
     color var(--portal-theme-transition),
     border-color var(--portal-theme-transition),
@@ -2058,7 +2059,7 @@ input[type="checkbox"] {
 
 .profile-alert--animated.is-visible {
   opacity: 1;
-  transform: translateY(0);
+  transform: translate3d(0, 0, 0) scale(1);
 }
 
 .profile-alert__icon {
@@ -2117,7 +2118,8 @@ input[type="checkbox"] {
 
 .profile-alert--error {
   color: #991b1b;
-  background: linear-gradient(145deg, #fff1f1, #fbd9d9);
+  border-color: rgba(185, 28, 28, 0.22);
+  background: linear-gradient(145deg, #fee2e2, #f7cfcf);
 }
 
 .profile-alert--info {
@@ -2301,24 +2303,25 @@ input[type="checkbox"] {
   gap: 0.85rem;
   width: min(100vw - 2rem, 28rem);
   padding: 0.9rem 1rem;
-  border: 1px solid rgba(255, 255, 255, 0.58);
+  border: 1px solid rgba(21, 128, 61, 0.28);
   border-radius: 1.3rem;
-  background: linear-gradient(145deg, #eefcf4, #dcfce7);
+  background: linear-gradient(145deg, #1f7a46, #14532d);
   box-shadow:
-    14px 14px 24px rgba(118, 133, 151, 0.28),
-    -6px -6px 10px rgba(255, 255, 255, 0.62);
-  transform: translateY(14px);
+    14px 14px 24px rgba(78, 96, 88, 0.22),
+    inset 1px 1px 0 rgba(236, 253, 245, 0.08);
+  transform: translate3d(0, 0.75rem, 0) scale(0.985);
   opacity: 0;
+  will-change: opacity, transform;
   transition:
-    transform 0.25s ease,
-    opacity 0.25s ease,
+    opacity 0.24s ease,
+    transform 0.36s cubic-bezier(0.22, 1, 0.36, 1),
     background var(--portal-theme-transition),
     border-color var(--portal-theme-transition),
     box-shadow var(--portal-theme-transition);
 }
 
 .profile-toast.is-visible {
-  transform: translateY(0);
+  transform: translate3d(0, 0, 0) scale(1);
   opacity: 1;
 }
 
@@ -2328,7 +2331,7 @@ input[type="checkbox"] {
   justify-content: center;
   width: 2.35rem;
   height: 2.35rem;
-  color: #15803d;
+  color: #ecfdf5;
 }
 
 .profile-toast__icon svg {
@@ -2338,7 +2341,7 @@ input[type="checkbox"] {
 
 .profile-toast__message {
   flex: 1;
-  color: #166534;
+  color: #f0fdf4;
   font-weight: 700;
   white-space: nowrap;
 }
@@ -2348,14 +2351,14 @@ input[type="checkbox"] {
   height: 1.85rem;
   border: 0;
   border-radius: 9999px;
-  color: #166534;
+  color: #dcfce7;
   background: transparent;
   font-weight: 800;
   transition: background-color 0.2s ease;
 }
 
 .profile-toast__close:hover {
-  background: rgba(22, 101, 52, 0.1);
+  background: rgba(240, 253, 244, 0.12);
 }
 
 .portal-layout[data-portal-theme="dark"] {
@@ -2804,10 +2807,10 @@ input[type="checkbox"] {
 }
 
 .portal-layout[data-portal-theme="dark"] .profile-alert {
-  border-color: rgba(146, 163, 184, 0.16);
+  border-color: rgba(248, 113, 113, 0.16);
   box-shadow:
     10px 10px 20px rgba(8, 12, 18, 0.28),
-    -8px -8px 16px rgba(255, 255, 255, 0.08);
+    inset 1px 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .portal-layout[data-portal-theme="dark"] .profile-alert__close:hover {
@@ -2816,7 +2819,8 @@ input[type="checkbox"] {
 
 .portal-layout[data-portal-theme="dark"] .profile-alert--error {
   color: #fecaca;
-  background: linear-gradient(145deg, #4b1f1f, #341616);
+  border-color: rgba(248, 113, 113, 0.18);
+  background: linear-gradient(145deg, #4b1f1f, #301111);
 }
 
 .portal-layout[data-portal-theme="dark"] .profile-alert--info {
@@ -2846,21 +2850,21 @@ input[type="checkbox"] {
 }
 
 .portal-layout[data-portal-theme="dark"] .profile-toast {
-  border-color: rgba(146, 163, 184, 0.16);
-  background: linear-gradient(145deg, #143a2f, #0f2b23);
+  border-color: rgba(74, 222, 128, 0.18);
+  background: linear-gradient(145deg, #166534, #052e16);
   box-shadow:
-    14px 14px 24px rgba(8, 12, 18, 0.32),
-    -6px -6px 10px rgba(255, 255, 255, 0.08);
+    14px 14px 24px rgba(8, 12, 18, 0.34),
+    inset 1px 1px 0 rgba(220, 252, 231, 0.05);
 }
 
 .portal-layout[data-portal-theme="dark"] .profile-toast__icon,
 .portal-layout[data-portal-theme="dark"] .profile-toast__message,
 .portal-layout[data-portal-theme="dark"] .profile-toast__close {
-  color: #bbf7d0;
+  color: #ecfdf5;
 }
 
 .portal-layout[data-portal-theme="dark"] .profile-toast__close:hover {
-  background: rgba(187, 247, 208, 0.08);
+  background: rgba(240, 253, 244, 0.1);
 }
 
 .portal-layout[data-portal-theme="dark"] .custom-scrollbar::-webkit-scrollbar-track {

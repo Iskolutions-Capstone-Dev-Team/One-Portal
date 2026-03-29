@@ -1,35 +1,42 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 
+const ALERT_TRANSITION_MS = 360;
+
 export default function SuccessAlert({ message, onClose }) {
     const [isVisible, setIsVisible] = useState(false);
     const [shouldRender, setShouldRender] = useState(false);
 
     useEffect(() => {
+        let showFrame;
         let fadeTimeout;
         let autoCloseTimeout;
 
         if (message) {
             setShouldRender(true);
 
-            setTimeout(() => setIsVisible(true), 10);
+            showFrame = requestAnimationFrame(() => {
+                setIsVisible(true);
+            });
 
             autoCloseTimeout = setTimeout(() => {
                 setIsVisible(false);
 
                 fadeTimeout = setTimeout(() => {
                     onClose?.();
-                }, 300);
+                    setShouldRender(false);
+                }, ALERT_TRANSITION_MS);
             }, 4000);
         } else {
             setIsVisible(false);
 
             fadeTimeout = setTimeout(() => {
                 setShouldRender(false);
-            }, 300);
+            }, ALERT_TRANSITION_MS);
         }
 
         return () => {
+            cancelAnimationFrame(showFrame);
             clearTimeout(autoCloseTimeout);
             clearTimeout(fadeTimeout);
         };
