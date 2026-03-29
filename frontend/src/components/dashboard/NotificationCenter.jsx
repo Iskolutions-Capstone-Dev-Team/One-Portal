@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { announcements } from "../../data/announcements";
 import "./NotificationCenter.css";
 
@@ -30,7 +30,6 @@ function BellIcon() {
 export default function NotificationCenter() {
   const [isOpen, setIsOpen] = useState(false);
   const [visitedAnnouncementIds, setVisitedAnnouncementIds] = useState(readVisitedAnnouncements);
-  const notificationRef = useRef(null);
 
   useEffect(() => {
     window.localStorage.setItem(
@@ -44,23 +43,15 @@ export default function NotificationCenter() {
       return undefined;
     }
 
-    const handlePointerDown = (event) => {
-      if (notificationRef.current && !notificationRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-
     const handleEscape = (event) => {
       if (event.key === "Escape") {
         setIsOpen(false);
       }
     };
 
-    document.addEventListener("pointerdown", handlePointerDown);
     document.addEventListener("keydown", handleEscape);
 
     return () => {
-      document.removeEventListener("pointerdown", handlePointerDown);
       document.removeEventListener("keydown", handleEscape);
     };
   }, [isOpen]);
@@ -80,7 +71,7 @@ export default function NotificationCenter() {
   };
 
   return (
-    <div className="portal-notifications" ref={notificationRef}>
+    <div className="portal-notifications">
       {isOpen ? (
         <section className="portal-notifications__panel custom-scrollbar" aria-label="Announcements">
           <div className="portal-notifications__panel-head">
