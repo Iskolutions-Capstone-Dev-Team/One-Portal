@@ -45,6 +45,30 @@ function validateForm(form) {
   return nextErrors;
 }
 
+function getErrorAlertMessage(errors) {
+  const issues = [];
+
+  if (errors.email === "Email is required.") {
+    issues.push("enter your email");
+  } else if (errors.email) {
+    issues.push("enter a valid email address");
+  }
+
+  if (errors.message) {
+    issues.push("write your message");
+  }
+
+  if (issues.length === 0) {
+    return "";
+  }
+
+  if (issues.length === 1) {
+    return `Please ${issues[0]}.`;
+  }
+
+  return `Please ${issues.slice(0, -1).join(", ")} and ${issues[issues.length - 1]}.`;
+}
+
 export default function ContactUs({ isOpen, onToggle, onClose, skipCloseAnimation = false }) {
   const [isPanelMounted, setIsPanelMounted] = useState(false);
   const [form, setForm] = useState(INITIAL_FORM);
@@ -124,6 +148,8 @@ export default function ContactUs({ isOpen, onToggle, onClose, skipCloseAnimatio
       if (Object.keys(nextErrors).length === 0) {
         setErrorAlert("");
         setShowErrorAlert(false);
+      } else {
+        setErrorAlert(getErrorAlertMessage(nextErrors));
       }
 
       return nextErrors;
@@ -137,7 +163,7 @@ export default function ContactUs({ isOpen, onToggle, onClose, skipCloseAnimatio
 
     if (Object.keys(nextErrors).length > 0) {
       setErrors(nextErrors);
-      setErrorAlert("Please fix the highlighted fields before submitting.");
+      setErrorAlert(getErrorAlertMessage(nextErrors));
       setShowErrorAlert(true);
       return;
     }

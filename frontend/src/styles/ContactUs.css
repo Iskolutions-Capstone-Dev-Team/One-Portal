@@ -131,6 +131,12 @@
   resize: vertical;
 }
 
+.portal-contact__field .profile-form__input::placeholder {
+  color: #8a94a6;
+  opacity: 1;
+  transition: color var(--portal-theme-transition);
+}
+
 .portal-contact__submit {
   width: 100%;
 }
@@ -170,6 +176,10 @@
 .portal-layout[data-portal-theme="dark"] .portal-contact__title,
 .portal-layout[data-portal-theme="dark"] .portal-contact__label {
   color: #eef3fa;
+}
+
+.portal-layout[data-portal-theme="dark"] .portal-contact__field .profile-form__input::placeholder {
+  color: #8796aa;
 }
 
 @keyframes portalContactFadeIn {
