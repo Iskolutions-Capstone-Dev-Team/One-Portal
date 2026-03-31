@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/initializers"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -18,6 +19,9 @@ const TimeOutDuration = 5 * time.Second
 func main() {
 	// Load environment variables from .env file
 	godotenv.Load()
+
+	// Run database migrations and seed initial data
+	initializers.MigrateAndSeed()
 
 	// Create a context that listens for interrupt signals
 	ctx, stop := signal.NotifyContext(
@@ -49,7 +53,7 @@ func main() {
 
 	// Create a context with timeout for the shutdown process
 	shutdownCtx, cancel := context.WithTimeout(
-		context.Background(), 
+		context.Background(),
 		TimeOutDuration,
 	)
 	defer cancel()
