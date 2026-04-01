@@ -1,0 +1,70 @@
+definitions:
+  dto.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  dto.LogListResponse:
+    properties:
+      logs:
+        items:
+          $ref: '#/definitions/models.Log'
+        type: array
+    type: object
+  models.Log:
+    properties:
+      action:
+        type: string
+      actor:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: integer
+      result:
+        type: string
+    type: object
+info:
+  contact:
+    email: support@oneportal.isaxbsit2027.com
+    name: API Support
+  description: API for One Portal application.
+  title: One Portal API
+  version: "1.0"
+paths:
+  /api/v1/logs:
+    get:
+      consumes:
+      - application/json
+      description: Returns log records filtered by actor substring, with pagination
+        support.
+      parameters:
+      - description: Actor filter substring
+        in: query
+        name: actor
+        type: string
+      - default: 20
+        description: Result limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Result offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.LogListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get logs
+      tags:
+      - logs
+swagger: "2.0"
