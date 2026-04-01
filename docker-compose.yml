@@ -73,3 +73,6 @@ services:
 networks:
   one_portal_network:
     driver: bridge
+
+volumes:
+  db_data:
