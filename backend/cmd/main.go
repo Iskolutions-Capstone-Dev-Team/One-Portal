@@ -18,6 +18,11 @@ import (
 
 const TimeOutDuration = 5 * time.Second
 
+// @title One Portal API
+// @version 1.0
+// @description API for One Portal application.
+// @contact.name API Support
+// @contact.email support@oneportal.isaxbsit2027.com
 func main() {
 	// Load environment variables from .env file
 	godotenv.Load()
