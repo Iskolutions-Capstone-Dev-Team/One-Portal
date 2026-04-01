@@ -12,7 +12,10 @@ var LogsMigration = migrations.TableMigration{
 				id BIGINT AUTO_INCREMENT PRIMARY KEY,
 				actor VARCHAR(100),
 				action VARCHAR(100) NOT NULL,
-				created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+				result ENUM('success', 'failure') NOT NULL,
+				created_at TIMESTAMP DEFAULT NOW(),
+				INDEX idx_actor (actor),
+				INDEX idx_created_at (created_at)
 			);`,
 		},
 	},

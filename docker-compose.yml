@@ -22,7 +22,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: idp_backend
+    container_name: one_portal_backend
     restart: always
     env_file: ./.env
     environment:
@@ -35,7 +35,7 @@ services:
     networks:
       - one_portal_network
     depends_on:
-      db:
+      oneportal_database:
         condition: service_healthy
     # Log rotation configuration
     logging:
@@ -47,7 +47,7 @@ services:
 # Database Application
   oneportal_database:
     image: mysql:8.4
-    container_name: unified_access_database
+    container_name: one_portal_database
     restart: always
     environment:
       MYSQL_DATABASE: ${MYSQL_DB_NAME}
@@ -73,3 +73,6 @@ services:
 networks:
   one_portal_network:
     driver: bridge
+
+volumes:
+  db_data:
