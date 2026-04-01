@@ -28,7 +28,7 @@ func NewLogHandler(logSvc service.LogService) *LogHandler {
 // @Param actor query string false "Actor filter substring"
 // @Param limit query int false "Result limit" default(20)
 // @Param offset query int false "Result offset" default(0)
-// @Success 200 {array} model.Log
+// @Success 200 {object} dto.LogListResponse
 // @Failure 500 {object} dto.ErrorResponse
 // @Router /api/v1/logs [get]
 func (h *LogHandler) HandleGetLogs(c *gin.Context) {
@@ -46,7 +46,7 @@ func (h *LogHandler) HandleGetLogs(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, logs)
+	c.JSON(http.StatusOK, dto.LogListResponse{Logs: logs})
 }
 
 func parseIntOrDefault(s string, def int) int {
