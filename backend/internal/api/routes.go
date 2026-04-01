@@ -3,6 +3,7 @@ package api
 import (
 	v1 "github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/api/v1"
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/initializers"
+	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,5 +23,6 @@ func (r *Routes) Register(router *gin.Engine) {
 	apiGroup := router.Group("/api")
 	v1Group := apiGroup.Group("/v1")
 
-	r.LogHandler.RegisterRoutes(v1Group)
+	v1Group.Use(middleware.APIKeyAuthMiddleware)
+	v1Group.GET("/logs", r.LogHandler.HandleGetLogs)
 }
