@@ -2,7 +2,7 @@ package api
 
 import (
 	v1 "github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/api/v1"
-	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/service"
+	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/initializers"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,9 +11,9 @@ type Routes struct {
 }
 
 // NewRoutes creates a route container with all handlers.
-func NewRoutes(logSvc service.LogService) *Routes {
+func NewRoutes(handlers *initializers.Handlers) *Routes {
 	return &Routes{
-		LogHandler: v1.NewLogHandler(logSvc),
+		LogHandler: handlers.Log,
 	}
 }
 
