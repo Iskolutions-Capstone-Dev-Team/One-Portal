@@ -46,7 +46,8 @@ func main() {
 	defer repos.Log.Close()
 
 	services := initializers.InitServices(repos)
-	routes := api.NewRoutes(services.Log)
+	handlers := initializers.InitHandlers(services)
+	routes := api.NewRoutes(handlers)
 	routes.Register(r)
 
 	server := &http.Server{
