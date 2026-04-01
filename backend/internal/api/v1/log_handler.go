@@ -1,9 +1,11 @@
 package v1
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 
+	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/dto"
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/service"
 	"github.com/gin-gonic/gin"
 )
@@ -17,12 +19,18 @@ func NewLogHandler(logSvc service.LogService) *LogHandler {
 	return &LogHandler{logSvc: logSvc}
 }
 
-// RegisterRoutes attaches log routes to router group.
-func (h *LogHandler) RegisterRoutes(router *gin.RouterGroup) {
-	router.GET("/logs", h.HandleGetLogs)
-}
-
 // HandleGetLogs returns logs filtered by actor, with pagination.
+// @Summary Get logs
+// @Description Returns log records filtered by actor substring, with pagination support.
+// @Tags logs
+// @Accept json
+// @Produce json
+// @Param actor query string false "Actor filter substring"
+// @Param limit query int false "Result limit" default(20)
+// @Param offset query int false "Result offset" default(0)
+// @Success 200 {array} model.Log
+// @Failure 500 {object} dto.ErrorResponse
+// @Router /api/v1/logs [get]
 func (h *LogHandler) HandleGetLogs(c *gin.Context) {
 	actor := c.DefaultQuery("actor", "")
 	limit := parseIntOrDefault(c.Query("limit"), 20)
@@ -30,7 +38,11 @@ func (h *LogHandler) HandleGetLogs(c *gin.Context) {
 
 	logs, err := h.logSvc.GetLogs(c.Request.Context(), actor, limit, offset)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		log.Printf("[LogHandler] GetLogs error: %v", err)
+		c.JSON(
+			http.StatusInternalServerError,
+			dto.ErrorResponse{Error: "Failed to retrieve logs"},
+		)
 		return
 	}
 
