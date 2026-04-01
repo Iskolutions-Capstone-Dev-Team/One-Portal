@@ -1,0 +1,17 @@
+package initializers
+
+import (
+	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/api/v1"
+)
+
+type Handlers struct {
+	Log *v1.LogHandler
+}
+
+// InitHandlers creates and returns all handler instances based on services.
+// Add new handlers here in future and expose via Handlers.
+func InitHandlers(services *Services) *Handlers {
+	return &Handlers{
+		Log: v1.NewLogHandler(services.Log),
+	}
+}
