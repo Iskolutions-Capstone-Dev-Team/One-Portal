@@ -9,6 +9,8 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/api"
+	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/database"
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/initializers"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -33,6 +35,19 @@ func main() {
 
 	// Initialize the Gin router
 	r := gin.Default()
+
+	db, err := database.ConnectToDB()
+	if err != nil {
+		log.Fatalf("[Main] DB connection error: %v", err)
+	}
+	defer db.Close()
+
+	repos := initializers.InitRepositories(db)
+	defer repos.Log.Close()
+
+	services := initializers.InitServices(repos)
+	routes := api.NewRoutes(services.Log)
+	routes.Register(r)
 
 	server := &http.Server{
 		Addr:    os.Getenv("BACKEND_PORT"),
