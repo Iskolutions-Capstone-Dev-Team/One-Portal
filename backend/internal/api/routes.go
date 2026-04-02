@@ -8,13 +8,15 @@ import (
 )
 
 type Routes struct {
-	LogHandler *v1.LogHandler
+	LogHandler  *v1.LogHandler
+	AuthHandler *v1.AuthHandler
 }
 
 // NewRoutes creates a route container with all handlers.
 func NewRoutes(handlers *initializers.Handlers) *Routes {
 	return &Routes{
-		LogHandler: handlers.Log,
+		LogHandler:  handlers.Log,
+		AuthHandler: handlers.Auth,
 	}
 }
 
@@ -25,4 +27,10 @@ func (r *Routes) Register(router *gin.Engine) {
 
 	v1Group.Use(middleware.APIKeyAuthMiddleware)
 	v1Group.GET("/logs", r.LogHandler.HandleGetLogs)
+
+	authGroup := v1Group.Group("/auth")
+	authGroup.POST("/callback", r.AuthHandler.HandleCallback)
+	authGroup.GET("/authorize", r.AuthHandler.HandleAuthorization)
+	authGroup.POST("/logout", r.AuthHandler.Logout)
+	authGroup.POST("/refresh", r.AuthHandler.HandleRefresh)
 }
