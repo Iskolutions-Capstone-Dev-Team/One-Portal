@@ -5,6 +5,9 @@ import (
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/initializers"
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/middleware"
 	"github.com/gin-gonic/gin"
+	_ "github.com/Iskolutions-Capstone-Dev-Team/One-Portal/docs"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Routes struct {
@@ -22,6 +25,7 @@ func NewRoutes(handlers *initializers.Handlers) *Routes {
 
 // Register registers all route groups on the given Gin engine.
 func (r *Routes) Register(router *gin.Engine) {
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	apiGroup := router.Group("/api")
 	v1Group := apiGroup.Group("/v1")
 

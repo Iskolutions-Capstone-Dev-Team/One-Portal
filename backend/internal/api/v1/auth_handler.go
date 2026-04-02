@@ -48,6 +48,14 @@ func NewAuthHandler(
 	}
 }
 
+// HandleAuthorization redirects the user to the IDP for authentication.
+// @Summary      Redirect to IDP
+// @Description  Redirects to the Identity Provider authorization endpoint.
+// @Tags         Auth
+// @Produce      json
+// @Success      302  {string}  string  "Redirect to IDP"
+// @Failure      500  {object}  dto.ErrorResponse
+// @Router       /auth/authorize [get]
 func (h *AuthHandler) HandleAuthorization(c *gin.Context) {
 	authorizeURL := os.Getenv("IDP_AUTH_URL")
 	resp, err := Client.Get(authorizeURL)
@@ -67,6 +75,18 @@ func (h *AuthHandler) HandleAuthorization(c *gin.Context) {
 	defer resp.Body.Close()
 }
 
+// HandleCallback handles the callback from the IDP after successful auth.
+// @Summary      OIDC Callback
+// @Description  Exchanges authorization code for tokens and sets cookie.
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param        request body dto.CallbackRequest true "Authorization code"
+// @Success      200 {object} map[string]string "Status ok"
+// @Failure      400 {object} dto.ErrorResponse "Invalid payload"
+// @Failure      401 {object} dto.ErrorResponse "Invalid token"
+// @Failure      500 {object} dto.ErrorResponse "Internal server error"
+// @Router       /auth/callback [post]
 func (h *AuthHandler) HandleCallback(c *gin.Context) {
 	var req dto.CallbackRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -260,6 +280,12 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 
 // Logout handles the user logout by clearing the access token cookie,
 // deleting the user's refresh token from the database, and notifying the IDP.
+// @Summary      Logout User
+// @Description  Clears the access cookie, deletes refresh tokens, and notifies IDP.
+// @Tags         Auth
+// @Produce      json
+// @Success      200 {object} map[string]string "Status logged out"
+// @Router       /auth/logout [post]
 func (h *AuthHandler) Logout(c *gin.Context) {
 	// Attempt to delete refresh token if cookie exists
 	if tokenStr, _ := c.Cookie(AccessCookieName); tokenStr != "" {
@@ -278,6 +304,14 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 // HandleRefresh handles requesting new access and refresh tokens from the IDP.
 // It uses the current access token's user ID to fetch the refresh token
 // from our database and sends it to the IDP's refresh endpoint.
+// @Summary      Refresh Session
+// @Description  Rotates access/refresh tokens using the stored session.
+// @Tags         Auth
+// @Produce      json
+// @Success      200 {object} map[string]string "Status refreshed"
+// @Failure      401 {object} dto.ErrorResponse "Unauthorized"
+// @Failure      500 {object} dto.ErrorResponse "Internal error"
+// @Router       /auth/refresh [post]
 func (h *AuthHandler) HandleRefresh(c *gin.Context) {
 	// 1. Get user identity from access token cookie
 	tokenStr, _ := c.Cookie(AccessCookieName)
