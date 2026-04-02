@@ -17,7 +17,9 @@ export default defineConfig(({ mode }) => {
     ...loadEnv(mode, envDirectory, ""),
     ...process.env,
   };
-  const backendUrl = env.VITE_BACKEND_URL || "http://localhost:8000";
+  const proxyTargetUrl =
+    env.VITE_PROXY_TARGET_URL ||
+    env.VITE_BACKEND_URL;
   const backendApiKey = env.VITE_BACKEND_API_KEY || "";
 
   return {
@@ -26,7 +28,7 @@ export default defineConfig(({ mode }) => {
     server: {
       proxy: {
         "/api/v1": {
-          target: backendUrl,
+          target: proxyTargetUrl,
           changeOrigin: true,
           secure: false,
           configure(proxy) {
