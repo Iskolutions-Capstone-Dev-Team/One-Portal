@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { usePortalTheme } from "../../context/PortalThemeContext";
+import { logoutSession } from "../../services/auth";
 
 export default function PortalNavbar() {
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
     const dropdownRef = useRef(null);
@@ -17,9 +19,18 @@ export default function PortalNavbar() {
         setDropdownOpen(false);
     };
 
-    const handleLogout = () => {
-        navigate("/");
-        setDropdownOpen(false);
+    const handleLogout = async () => {
+        setIsLoggingOut(true);
+
+        try {
+            await logoutSession();
+        } catch (error) {
+            console.error("Logout request failed.", error);
+        } finally {
+            navigate("/", { replace: true });
+            setDropdownOpen(false);
+            setIsLoggingOut(false);
+        }
     };
 
     useEffect(() => {
@@ -110,11 +121,11 @@ export default function PortalNavbar() {
                             <span>{firstOption}</span>
                         </button>
 
-                        <button type="button" className="portal-header__menu-item" onClick={handleLogout}>
+                        <button type="button" className="portal-header__menu-item" onClick={handleLogout} disabled={isLoggingOut}>
                             <span className="portal-header__menu-icon" aria-hidden="true">
                                 {icons.logout}
                             </span>
-                            <span>Logout</span>
+                            <span>{isLoggingOut ? "Logging out..." : "Logout"}</span>
                         </button>
                     </div>
                 </div>
