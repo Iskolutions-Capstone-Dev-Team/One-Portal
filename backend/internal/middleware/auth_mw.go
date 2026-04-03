@@ -3,12 +3,10 @@ package middleware
 import (
 	"crypto/rsa"
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"math/big"
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/dto"
 	"github.com/gin-gonic/gin"
@@ -20,9 +18,8 @@ const (
 	APIHeaderKey = "X-API-Key"
 )
 
-var httpClient = &http.Client{
-	Timeout: 10 * time.Second,
-}
+// GlobalJWKS stores the public keys fetched from the identity provider.
+var GlobalJWKS []dto.JWK
 
 // APIKeyAuthMiddleware returns a Gin middleware that checks for
 // the presence of an API key in the request header.
@@ -44,25 +41,15 @@ func APIKeyAuthMiddleware(c *gin.Context) {
  * the JWKS endpoint from the identity provider.
  */
 func ValidateAccessToken(tokenStr string) (jwt.MapClaims, error) {
-	jwksURL := os.Getenv("IDP_JWKS_URL")
-	resp, err := httpClient.Get(jwksURL)
-	if err != nil {
-		return nil, fmt.Errorf("failed to fetch JWKS: %v", err)
-	}
-	defer resp.Body.Close()
-
-	var jwks struct {
-		Keys []dto.JWK `json:"keys"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&jwks); err != nil {
-		return nil, fmt.Errorf("failed to decode JWKS: %v", err)
+	if len(GlobalJWKS) == 0 {
+		return nil, fmt.Errorf("global JWKS not initialized")
 	}
 
 	token, err := jwt.Parse(
 		tokenStr,
 		func(t *jwt.Token) (interface{}, error) {
 			kid, _ := t.Header["kid"].(string)
-			for _, key := range jwks.Keys {
+			for _, key := range GlobalJWKS {
 				if key.Kid == kid {
 					nb, _ := base64.RawURLEncoding.DecodeString(key.N)
 					eb, _ := base64.RawURLEncoding.DecodeString(key.E)

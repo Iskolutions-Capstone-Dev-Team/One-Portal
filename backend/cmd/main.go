@@ -27,6 +27,9 @@ func main() {
 	// Load environment variables from .env file
 	godotenv.Load()
 
+	// Initialize the global JWK set for authentication
+	initializers.InitJWKS()
+
 	// Run database migrations and seed initial data
 	initializers.MigrateAndSeed()
 
