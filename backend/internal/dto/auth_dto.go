@@ -41,3 +41,5 @@ type JWK struct {
 	X   string `json:"x"`
 	Y   string `json:"y"`
 }
+
+const AccessCookieName = "access_token"
