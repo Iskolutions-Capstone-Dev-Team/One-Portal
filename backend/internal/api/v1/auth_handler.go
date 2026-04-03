@@ -2,17 +2,14 @@ package v1
 
 import (
 	"bytes"
-	"crypto/rsa"
-	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"log"
-	"math/big"
 	"net/http"
 	"os"
 	"time"
 
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/dto"
+	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/middleware"
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/models"
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/service"
 	"github.com/gin-gonic/gin"
@@ -22,7 +19,6 @@ import (
 
 const (
 	TimeoutDuration = 10 * time.Second
-	AccessCookieName = "access_token"
 )
 
 type AuthHandler struct {
@@ -67,7 +63,7 @@ func (h *AuthHandler) HandleAuthorization(c *gin.Context) {
 		c.JSON(
 			http.StatusInternalServerError,
 			dto.ErrorResponse{
-				Error: "Failed to redirect to authorization endpoint",
+				Error: "Authorization redirect failed",
 			},
 		)
 		return
@@ -106,7 +102,10 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 		Code:         req.Code,
 	})
 	if err != nil {
-		log.Printf("[HandleCallback] Failed to marshal payload: %v", err)
+		log.Printf(
+			"[HandleCallback] Failed to marshal payload: %v",
+			err,
+		)
 		c.JSON(
 			http.StatusInternalServerError,
 			dto.ErrorResponse{
@@ -118,14 +117,13 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 
 	tokenURL := os.Getenv("IDP_TOKEN_URL")
 	resp, err := Client.Post(
-		tokenURL, 
-		"application/json", 
+		tokenURL,
+		"application/json",
 		bytes.NewBuffer(payload),
 	)
-
 	if err != nil {
 		log.Printf(
-			"[HandleCallback] Failed to exchange code for token: %v", 
+			"[HandleCallback] Token exchange error: %v",
 			err,
 		)
 		c.JSON(
@@ -140,7 +138,7 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 
 	if resp.StatusCode != http.StatusOK {
 		log.Printf(
-			"[HandleCallback] Token endpoint returned non-OK status: %d",
+			"[HandleCallback] Token endpoint status: %d",
 			resp.StatusCode,
 		)
 		c.JSON(
@@ -167,54 +165,13 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 		return
 	}
 
-	// Validate access token via IDP_JWKS_URL
-	jwksURL := os.Getenv("IDP_JWKS_URL")
-	jwksResp, err := Client.Get(jwksURL)
+	claims, err := middleware.ValidateAccessToken(tokenResp.AccessToken)
 	if err != nil {
-		log.Printf("[HandleCallback] Failed to fetch JWKS: %v", err)
-		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{Error: "Auth error"})
-		return
-	}
-	defer jwksResp.Body.Close()
-
-	var jwks struct {
-		Keys []dto.JWK `json:"keys"`
-	}
-	if err := json.NewDecoder(jwksResp.Body).Decode(&jwks); err != nil {
-		log.Printf("[HandleCallback] Failed to decode JWKS: %v", err)
-		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{Error: "Auth error"})
-		return
-	}
-
-	token, err := jwt.Parse(tokenResp.AccessToken, func(token *jwt.Token) (interface{}, error) {
-		kid, ok := token.Header["kid"].(string)
-		if !ok {
-			return nil, fmt.Errorf("missing kid")
-		}
-
-		for _, key := range jwks.Keys {
-			if key.Kid == kid {
-				nBytes, _ := base64.RawURLEncoding.DecodeString(key.N)
-				eBytes, _ := base64.RawURLEncoding.DecodeString(key.E)
-				e := big.NewInt(0).SetBytes(eBytes).Int64()
-				return &rsa.PublicKey{
-					N: big.NewInt(0).SetBytes(nBytes),
-					E: int(e),
-				}, nil
-			}
-		}
-		return nil, fmt.Errorf("key not found")
-	})
-
-	if err != nil || !token.Valid {
-		log.Printf("[HandleCallback] Invalid token: %v", err)
-		c.JSON(http.StatusUnauthorized, dto.ErrorResponse{Error: "Invalid token"})
-		return
-	}
-
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{Error: "Invalid claims"})
+		log.Printf("[HandleCallback] Token Validation: %v", err)
+		c.JSON(
+			http.StatusUnauthorized,
+			dto.ErrorResponse{Error: "Invalid token"},
+		)
 		return
 	}
 
@@ -222,7 +179,10 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 	userID, err := uuid.Parse(sub)
 	if err != nil {
 		log.Printf("[HandleCallback] Invalid user ID in token: %v", err)
-		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{Error: "Invalid user identity"})
+		c.JSON(
+			http.StatusInternalServerError,
+			dto.ErrorResponse{Error: "Invalid user identity"},
+		)
 		return
 	}
 
@@ -231,8 +191,9 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 	user, err := h.userService.GetUserByID(ctx, userID)
 	_ = user // user is currently unused but retrieved to check existence
 	if err != nil {
-		// If not exist, create one (Assumes err is row not found or similar)
-		// For simplicity, we create if Get returns error. In prod check specific error.
+		// If not exist, create one (Assumes err is row not found)
+		// For simplicity, we create if Get returns error.
+		// In prod check specific error.
 		newUser := models.User{
 			ID:       userID,
 			Username: claims["preferred_username"].(string),
@@ -246,8 +207,14 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 		}
 
 		if err := h.userService.CreateUser(ctx, newUser); err != nil {
-			log.Printf("[HandleCallback] Failed to create user: %v", err)
-			c.JSON(http.StatusInternalServerError, dto.ErrorResponse{Error: "Database error"})
+			log.Printf(
+				"[HandleCallback] Failed to create user: %v",
+				err,
+			)
+			c.JSON(
+				http.StatusInternalServerError,
+				dto.ErrorResponse{Error: "Database error"},
+			)
 			return
 		}
 	}
@@ -259,14 +226,20 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 		ExpiresAt: time.Now().Add(30 * 24 * time.Hour), // 30 days
 	}
 	if err := h.authService.CreateToken(ctx, rt); err != nil {
-		log.Printf("[HandleCallback] Failed to save refresh token: %v", err)
+		log.Printf(
+			"[HandleCallback] Failed to save refresh token: %v",
+			err,
+		)
 		// Don't fail the whole login if RT fails? Usually we should.
-		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{Error: "Auth error"})
+		c.JSON(
+			http.StatusInternalServerError,
+			dto.ErrorResponse{Error: "Auth error"},
+		)
 		return
 	}
 
 	c.SetCookie(
-		AccessCookieName,
+		dto.AccessCookieName,
 		tokenResp.AccessToken,
 		tokenResp.ExpiresIn,
 		"/",
@@ -281,19 +254,20 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 // Logout handles the user logout by clearing the access token cookie,
 // deleting the user's refresh token from the database, and notifying the IDP.
 // @Summary      Logout User
-// @Description  Clears the access cookie, deletes refresh tokens, and notifies IDP.
+// @Description  Clears the access cookie, deletes RTs, and notifies IDP.
 // @Tags         Auth
 // @Produce      json
 // @Success      200 {object} map[string]string "Status logged out"
 // @Router       /auth/logout [post]
 func (h *AuthHandler) Logout(c *gin.Context) {
 	// Attempt to delete refresh token if cookie exists
-	if tokenStr, _ := c.Cookie(AccessCookieName); tokenStr != "" {
+	tokenStr, _ := c.Cookie(dto.AccessCookieName)
+	if tokenStr != "" {
 		h.processTokenDeletion(c, tokenStr)
 	}
 
 	// Always clear the access token cookie
-	c.SetCookie(AccessCookieName, "", -1, "/", "", true, true)
+	c.SetCookie(dto.AccessCookieName, "", -1, "/", "", true, true)
 
 	// Notify the Identity Provider about the logout
 	h.notifyIDPLogout()
@@ -314,10 +288,15 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 // @Router       /auth/refresh [post]
 func (h *AuthHandler) HandleRefresh(c *gin.Context) {
 	// 1. Get user identity from access token cookie
-	tokenStr, _ := c.Cookie(AccessCookieName)
+	tokenStr, _ := c.Cookie(dto.AccessCookieName)
 	if tokenStr == "" {
-		log.Printf("[HandleRefresh] Authentication: no access token cookie")
-		c.JSON(http.StatusUnauthorized, dto.ErrorResponse{Error: "No token"})
+		log.Printf(
+			"[HandleRefresh] Auth: no access token cookie",
+		)
+		c.JSON(
+			http.StatusUnauthorized,
+			dto.ErrorResponse{Error: "No token"},
+		)
 		return
 	}
 
@@ -327,7 +306,10 @@ func (h *AuthHandler) HandleRefresh(c *gin.Context) {
 	)
 	if err != nil {
 		log.Printf("[HandleRefresh] Token Parsing: %v", err)
-		c.JSON(http.StatusUnauthorized, dto.ErrorResponse{Error: "invalid token"})
+		c.JSON(
+			http.StatusUnauthorized,
+			dto.ErrorResponse{Error: "invalid token"},
+		)
 		return
 	}
 
@@ -335,7 +317,7 @@ func (h *AuthHandler) HandleRefresh(c *gin.Context) {
 	if !ok {
 		log.Printf("[HandleRefresh] Claims Parsing: invalid map format")
 		c.JSON(
-			http.StatusUnauthorized, 
+			http.StatusUnauthorized,
 			dto.ErrorResponse{Error: "invalid claims"},
 		)
 		return
@@ -346,7 +328,7 @@ func (h *AuthHandler) HandleRefresh(c *gin.Context) {
 	if err != nil {
 		log.Printf("[HandleRefresh] Identity Extraction: %v", err)
 		c.JSON(
-			http.StatusUnauthorized, 
+			http.StatusUnauthorized,
 			dto.ErrorResponse{Error: "user not found"},
 		)
 		return
@@ -357,7 +339,10 @@ func (h *AuthHandler) HandleRefresh(c *gin.Context) {
 	oldRT, err := h.authService.GetTokenByUserID(ctx, id[:])
 	if err != nil {
 		log.Printf("[HandleRefresh] Token Fetch: %v", err)
-		c.JSON(http.StatusUnauthorized, dto.ErrorResponse{Error: "no session"})
+		c.JSON(
+			http.StatusUnauthorized,
+			dto.ErrorResponse{Error: "no session"},
+		)
 		return
 	}
 
@@ -377,7 +362,10 @@ func (h *AuthHandler) HandleRefresh(c *gin.Context) {
 	)
 	if err != nil {
 		log.Printf("[HandleRefresh] IDP Request: %v", err)
-		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{Error: "failed"})
+		c.JSON(
+			http.StatusInternalServerError,
+			dto.ErrorResponse{Error: "failed"},
+		)
 		return
 	}
 	defer resp.Body.Close()
@@ -403,7 +391,7 @@ func (h *AuthHandler) HandleRefresh(c *gin.Context) {
 
 	// 4. Update access token cookie
 	c.SetCookie(
-		AccessCookieName,
+		dto.AccessCookieName,
 		tokenResp.AccessToken,
 		tokenResp.ExpiresIn,
 		"/",
@@ -472,4 +460,3 @@ func (h *AuthHandler) notifyIDPLogout() {
 		log.Printf("[Logout] IDP Logout Request: %v", err)
 	}
 }
-
