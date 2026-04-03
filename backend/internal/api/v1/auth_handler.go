@@ -175,7 +175,7 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 		return
 	}
 
-	sub, _ := claims["sub"].(string)
+	sub, _ := claims["userId"].(string)
 	userID, err := uuid.Parse(sub)
 	if err != nil {
 		log.Printf("[HandleCallback] Invalid user ID in token: %v", err)
@@ -188,29 +188,36 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 
 	// Check for user with that ID
 	ctx := c.Request.Context()
-	user, err := h.userService.GetUserByID(ctx, userID)
-	_ = user // user is currently unused but retrieved to check existence
+	_, err = h.userService.GetUserByID(ctx, userID)
 	if err != nil {
-		// If not exist, create one (Assumes err is row not found)
-		// For simplicity, we create if Get returns error.
-		// In prod check specific error.
-		newUser := models.User{
-			ID:       userID,
-			Username: claims["preferred_username"].(string),
-			Email:    claims["email"].(string),
+		userinfoURL := os.Getenv("IDP_USERINFO_URL")
+		req, _ := http.NewRequest("GET", userinfoURL, nil)
+		bearer := "Bearer " + tokenResp.AccessToken
+		req.Header.Set("Authorization", bearer)
+
+		resp, err := Client.Do(req)
+		if err != nil {
+			log.Printf("[HandleCallback] Userinfo fetch: %v", err)
+			c.JSON(
+				http.StatusInternalServerError,
+				dto.ErrorResponse{Error: "Auth error"},
+			)
+			return
 		}
-		if name, ok := claims["given_name"].(string); ok {
-			newUser.FirstName = name
-		}
-		if name, ok := claims["family_name"].(string); ok {
-			newUser.LastName = name
+		defer resp.Body.Close()
+
+		var me dto.MeResponse
+		if err := json.NewDecoder(resp.Body).Decode(&me); err != nil {
+			log.Printf("[HandleCallback] Userinfo decode: %v", err)
+			c.JSON(
+				http.StatusInternalServerError,
+				dto.ErrorResponse{Error: "Auth error"},
+			)
+			return
 		}
 
-		if err := h.userService.CreateUser(ctx, newUser); err != nil {
-			log.Printf(
-				"[HandleCallback] Failed to create user: %v",
-				err,
-			)
+		if err := h.userService.CreateUserFromMe(ctx, me); err != nil {
+			log.Printf("[HandleCallback] User creation: %v", err)
 			c.JSON(
 				http.StatusInternalServerError,
 				dto.ErrorResponse{Error: "Database error"},
@@ -323,7 +330,7 @@ func (h *AuthHandler) HandleRefresh(c *gin.Context) {
 		return
 	}
 
-	sub, _ := claims["sub"].(string)
+	sub, _ := claims["userId"].(string)
 	id, err := uuid.Parse(sub)
 	if err != nil {
 		log.Printf("[HandleRefresh] Identity Extraction: %v", err)
