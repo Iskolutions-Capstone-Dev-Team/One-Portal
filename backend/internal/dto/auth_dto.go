@@ -21,15 +21,6 @@ type TokenResponse struct {
 	ExpiresIn    int    `json:"expires_in"`
 }
 
-type MeResponse struct {
-	FirstName      string   `json:"first_name"`
-	MiddleName     string   `json:"middle_name"`
-	LastName       string   `json:"last_name"`
-	NameSuffix     string   `json:"name_suffix"`
-	Email          string   `json:"email"`
-	AllowedClients []string `json:"allowed_clients"`
-}
-
 type JWK struct {
 	Kty string `json:"kty"`
 	Kid string `json:"kid"`
