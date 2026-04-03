@@ -15,6 +15,7 @@ import (
 
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/api"
 	v1 "github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/api/v1"
+	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/dto"
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/initializers"
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/middleware"
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/models"
@@ -83,6 +84,13 @@ type fakeUserRepoService struct{}
 func (f *fakeUserRepoService) CreateUser(
 	ctx context.Context, 
 	user models.User,
+) error {
+	return nil
+}
+
+func (f *fakeUserRepoService) CreateUserFromMe(
+	ctx context.Context, 
+	me dto.MeResponse,
 ) error {
 	return nil
 }
