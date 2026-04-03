@@ -1,5 +1,33 @@
 import { apiRequest, fetchApiResponse, readApiResponse } from "./api";
 
+const SESSION_REFRESH_TIMESTAMP_KEY = "one-portal:last-session-refresh-at";
+
+function hasLocalStorage() {
+    return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
+}
+
+function readSessionRefreshTimestamp() {
+    if (!hasLocalStorage()) {
+        return null;
+    }
+
+    const storedValue = Number(window.localStorage.getItem(SESSION_REFRESH_TIMESTAMP_KEY));
+
+    if (!Number.isFinite(storedValue) || storedValue <= 0) {
+        return null;
+    }
+
+    return storedValue;
+}
+
+function writeSessionRefreshTimestamp(timestamp = Date.now()) {
+    if (!hasLocalStorage()) {
+        return;
+    }
+
+    window.localStorage.setItem(SESSION_REFRESH_TIMESTAMP_KEY, String(timestamp));
+}
+
 function getResponseRedirectUrl(response) {
     if (!response.redirected || !response.url) {
         return null;
@@ -43,11 +71,15 @@ export async function startAuthorization() {
     return false;
 }
 
-export function completeAuthorization(code) {
-    return apiRequest("/auth/callback", {
+export async function completeAuthorization(code) {
+    const data = await apiRequest("/auth/callback", {
         method: "POST",
         body: JSON.stringify({ code }),
     });
+
+    writeSessionRefreshTimestamp();
+
+    return data;
 }
 
 export async function logoutSession() {
@@ -70,8 +102,31 @@ export async function logoutSession() {
     return getLogoutFallbackUrl();
 }
 
-export function refreshSession() {
-    return apiRequest("/auth/refresh", {
+export async function refreshSession() {
+    const data = await apiRequest("/auth/refresh", {
         method: "POST",
     });
+
+    writeSessionRefreshTimestamp();
+
+    return data;
+}
+
+export function clearSessionRefreshTimestamp() {
+    if (!hasLocalStorage()) {
+        return;
+    }
+
+    window.localStorage.removeItem(SESSION_REFRESH_TIMESTAMP_KEY);
+}
+
+export function getSessionRefreshDelay(refreshIntervalMs) {
+    const lastRefreshTimestamp = readSessionRefreshTimestamp();
+
+    if (!lastRefreshTimestamp) {
+        return refreshIntervalMs;
+    }
+
+    const elapsedTime = Date.now() - lastRefreshTimestamp;
+    return Math.max(0, refreshIntervalMs - elapsedTime);
 }

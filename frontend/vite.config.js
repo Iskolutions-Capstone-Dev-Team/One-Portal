@@ -11,15 +11,28 @@ function getEnvDirectory() {
   return existsSync(rootEnvPath) ? repoRoot : __dirname;
 }
 
+function isRunningInDocker() {
+  return existsSync("/.dockerenv");
+}
+
+function getProxyTargetUrl(env) {
+  const localBackendUrl = env.VITE_BACKEND_URL;
+  const containerBackendUrl = env.VITE_PROXY_TARGET_URL;
+
+  if (isRunningInDocker()) {
+    return containerBackendUrl || localBackendUrl;
+  }
+
+  return localBackendUrl || containerBackendUrl;
+}
+
 export default defineConfig(({ mode }) => {
   const envDirectory = getEnvDirectory();
   const env = {
     ...loadEnv(mode, envDirectory, ""),
     ...process.env,
   };
-  const proxyTargetUrl =
-    env.VITE_PROXY_TARGET_URL ||
-    env.VITE_BACKEND_URL;
+  const proxyTargetUrl = getProxyTargetUrl(env);
   const backendApiKey = env.VITE_BACKEND_API_KEY || "";
 
   return {

@@ -4,7 +4,7 @@ import PortalNavbar from "../components/dashboard/PortalNavbar";
 import PortalFooter from "../components/dashboard/PortalFooter";
 import FloatingActionMenu from "../components/FloatingActionMenu";
 import { usePortalTheme } from "../context/PortalThemeContext";
-import { refreshSession } from "../services/auth";
+import { getSessionRefreshDelay, refreshSession } from "../services/auth";
 
 const REFRESH_INTERVAL_MS = 10 * 60 * 1000;
 const SKELETON_CARDS = Array.from({ length: 6 });
@@ -112,12 +112,20 @@ function PortalLayoutSkeleton() {
 export default function OnePortalLayout({ children }) {
     const { theme } = usePortalTheme();
     const navigate = useNavigate();
-    const [isSessionReady, setIsSessionReady] = useState(false);
+    const [isSessionReady, setIsSessionReady] = useState(() => getSessionRefreshDelay(REFRESH_INTERVAL_MS) > 0);
 
     useEffect(() => {
         let isMounted = true;
+        let intervalId;
+        let timeoutId;
 
-        const syncSession = async (isInitialCheck = false) => {
+        const initialDelay = getSessionRefreshDelay(REFRESH_INTERVAL_MS);
+
+        const syncSession = async (showLoadingState = false) => {
+            if (isMounted && showLoadingState) {
+                setIsSessionReady(false);
+            }
+
             try {
                 await refreshSession();
             } catch (error) {
@@ -130,24 +138,31 @@ export default function OnePortalLayout({ children }) {
                     return;
                 }
 
-                if (isInitialCheck) {
+                if (showLoadingState) {
                     console.error("Failed to refresh the current session.", error);
                 }
             } finally {
-                if (isMounted && isInitialCheck) {
+                if (isMounted) {
                     setIsSessionReady(true);
                 }
             }
         };
 
-        syncSession(true);
+        if (initialDelay > 0) {
+            setIsSessionReady(true);
+        }
 
-        const intervalId = window.setInterval(() => {
-            syncSession(false);
-        }, REFRESH_INTERVAL_MS);
+        timeoutId = window.setTimeout(() => {
+            void syncSession(initialDelay === 0);
+
+            intervalId = window.setInterval(() => {
+                void syncSession(false);
+            }, REFRESH_INTERVAL_MS);
+        }, initialDelay);
 
         return () => {
             isMounted = false;
+            window.clearTimeout(timeoutId);
             window.clearInterval(intervalId);
         };
     }, [navigate]);
