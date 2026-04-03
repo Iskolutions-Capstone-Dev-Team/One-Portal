@@ -5,17 +5,13 @@ import (
 )
 
 type Services struct {
-	Log          service.LogService
-	RefreshToken service.AuthService
-	User         service.UserService
+	Log service.LogService
 }
 
 // InitServices creates and returns all service instances based on repositories.
 // Add new services here in future and expose them through Services.
 func InitServices(repos *Repositories) *Services {
 	return &Services{
-		Log:          service.NewLogService(repos.Log),
-		RefreshToken: service.NewAuthService(repos.RefreshToken),
-		User:         service.NewUserService(repos.User),
+		Log: service.NewLogService(repos.Log),
 	}
 }

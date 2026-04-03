@@ -1,9 +1,7 @@
-package handler_test
+package tests
 
 import (
 	"context"
-	"crypto/rand"
-	"encoding/hex"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -19,18 +17,12 @@ import (
 // fakeLogService is a test stub for service.LogService.
 type fakeLogService struct{}
 
-func (f *fakeLogService) LogAction(
-	ctx context.Context, actor, action string,
-) error {
+func (f *fakeLogService) LogAction(ctx context.Context, actor, action string) error {
 	return nil
 }
 
-func (f *fakeLogService) GetLogs(
-	ctx context.Context, actor string, limit, offset int,
-) ([]models.Log, error) {
-	return []models.Log{
-		{ID: 1, Actor: "test", Action: "x", Result: "ok"},
-	}, nil
+func (f *fakeLogService) GetLogs(ctx context.Context, actor string, limit, offset int) ([]models.Log, error) {
+	return []models.Log{{ID: 1, Actor: "test", Action: "x", Result: "ok"}}, nil
 }
 
 func TestRoutesRegisterAndLogHandler(t *testing.T) {
@@ -39,9 +31,7 @@ func TestRoutesRegisterAndLogHandler(t *testing.T) {
 
 	validAPIKey := os.Getenv("VITE_BACKEND_API_KEY")
 	if validAPIKey == "" {
-		keyBytes := make([]byte, 32)
-		_, _ = rand.Read(keyBytes)
-		validAPIKey = hex.EncodeToString(keyBytes)
+		validAPIKey = "2FmnXRyBncCLUgTAdpJPv0Jhc2FmnXRyBncCLUgTAdpJPv0Jhc"
 	}
 	os.Setenv("VITE_BACKEND_API_KEY", validAPIKey)
 	defer os.Unsetenv("VITE_BACKEND_API_KEY")

@@ -1,4 +1,4 @@
-export default function PortalHero({ children }) {
+export default function PortalHero() {
     return (
         <section className="header">
             <div className="header-background">
@@ -15,7 +15,6 @@ export default function PortalHero({ children }) {
                         <p className="header-subtitle">
                             The PUP Online Repository of all systems for PUP Taguig students, faculty, and staff.
                         </p>
-                        {children}
                     </div>
                 </div>
             </div>

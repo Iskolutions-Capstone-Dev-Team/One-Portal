@@ -1,14 +1,16 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import OnePortalLayout from "../layouts/OnePortalLayout";
 import ProfileCard from "../components/profile/ProfileCard";
 import AuditLogs from "../components/profile/AuditLogs";
-import { getRecentAuditLogs } from "../services/logs";
 
 export default function Profile() {
-    const [backendLogs, setBackendLogs] = useState([]);
-    const [localLogs, setLocalLogs] = useState([]);
-    const [isLoadingLogs, setIsLoadingLogs] = useState(true);
-    const [logsError, setLogsError] = useState("");
+    const [logs, setLogs] = useState([
+        { timestamp: "2024-01-20 14:25:10", action: "PROFILE_UPDATE", details: "Updated email address", color: "blue" },
+        { timestamp: "2024-01-18 09:15:22", action: "LOGIN_SUCCESS", details: "Successful login", color: "green" },
+        { timestamp: "2024-01-15 16:45:33", action: "PASSWORD_CHANGE", details: "Password changed", color: "yellow" },
+        { timestamp: "2024-01-10 11:20:45", action: "ROLE_ASSIGNED", details: "Assigned student role", color: "purple" },
+        { timestamp: "2023-08-15 10:30:45", action: "ACCOUNT_CREATED", details: "Account created", color: "gray" },
+    ]);
 
     const profile = {
         firstName: "Juan",
@@ -17,42 +19,9 @@ export default function Profile() {
         email: "juan.delacruz@iskolarngbayan.pup.edu.ph",
     };
 
-    useEffect(() => {
-        let isMounted = true;
-
-        const loadLogs = async () => {
-            setIsLoadingLogs(true);
-
-            try {
-                const recentLogs = await getRecentAuditLogs();
-
-                if (isMounted) {
-                    setBackendLogs(recentLogs);
-                    setLogsError("");
-                }
-            } catch (error) {
-                if (isMounted) {
-                    setLogsError(error.message);
-                }
-            } finally {
-                if (isMounted) {
-                    setIsLoadingLogs(false);
-                }
-            }
-        };
-
-        loadLogs();
-
-        return () => {
-            isMounted = false;
-        };
-    }, []);
-
     const handleAddAuditLog = (log) => {
-        setLocalLogs((currentLogs) => [log, ...currentLogs]);
+        setLogs((prev) => [log, ...prev]);
     };
-
-    const logs = [...localLogs, ...backendLogs];
 
     return (
         <OnePortalLayout>
@@ -64,11 +33,7 @@ export default function Profile() {
                         allowEmailEdit={false}
                     />
 
-                    <AuditLogs
-                        logs={logs}
-                        isLoading={isLoadingLogs}
-                        errorMessage={logsError}
-                    />
+                    <AuditLogs logs={logs} />
                 </div>
             </main>
         </OnePortalLayout>
