@@ -1,10 +1,49 @@
-export default function AuditLogs({ logs }) {
+export default function AuditLogs({ logs, isLoading = false, errorMessage = "" }) {
     const toneClassNames = {
         blue: "profile-logs__dot--blue",
         green: "profile-logs__dot--green",
         yellow: "profile-logs__dot--yellow",
         purple: "profile-logs__dot--purple",
         gray: "profile-logs__dot--gray",
+    };
+
+    const renderContent = () => {
+        if (isLoading) {
+            return (
+                <div className="profile-logs__placeholder" role="row">
+                    Loading recent changes...
+                </div>
+            );
+        }
+
+        if (errorMessage) {
+            return (
+                <div className="profile-logs__placeholder profile-logs__placeholder--error" role="row">
+                    {errorMessage}
+                </div>
+            );
+        }
+
+        if (!logs.length) {
+            return (
+                <div className="profile-logs__placeholder" role="row">
+                    No recent changes available yet.
+                </div>
+            );
+        }
+
+        return logs.map((log, idx) => (
+            <div key={log.id ?? `${log.timestamp}-${idx}`} className="profile-logs__entry" role="row">
+                <div className="profile-logs__cell profile-logs__cell--timestamp" role="cell">
+                    <div className="profile-logs__timestamp">
+                        <span className={`profile-logs__dot ${toneClassNames[log.color] ?? "profile-logs__dot--gray"}`} aria-hidden="true" />
+                        <span>{log.timestamp}</span>
+                    </div>
+                </div>
+
+                <div className="profile-logs__cell" role="cell">{log.details}</div>
+            </div>
+        ));
     };
 
     return (
@@ -22,18 +61,7 @@ export default function AuditLogs({ logs }) {
                     </div>
 
                     <div className="profile-logs__body" role="rowgroup">
-                        {logs.map((log, idx) => (
-                            <div key={`${log.timestamp}-${idx}`} className="profile-logs__entry" role="row">
-                                <div className="profile-logs__cell profile-logs__cell--timestamp" role="cell">
-                                    <div className="profile-logs__timestamp">
-                                        <span className={`profile-logs__dot ${toneClassNames[log.color] ?? "profile-logs__dot--gray"}`} aria-hidden="true" />
-                                        <span>{log.timestamp}</span>
-                                    </div>
-                                </div>
-
-                                <div className="profile-logs__cell" role="cell">{log.details}</div>
-                            </div>
-                        ))}
+                        {renderContent()}
                     </div>
                 </div>
             </div>
