@@ -1,4 +1,4 @@
-package repository_test
+package tests
 
 import (
 	"testing"
@@ -13,9 +13,6 @@ func TestInitRepositoriesBasic(t *testing.T) {
 	}
 	if repos.Log == nil {
 		t.Fatal("expected repos.Log non-nil")
-	}
-	if repos.RefreshToken == nil {
-		t.Fatal("expected repos.RefreshToken non-nil")
 	}
 	// repository.Close should be safe to call even when db is nil.
 	repos.Log.Close()

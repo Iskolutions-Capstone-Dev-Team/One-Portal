@@ -6,12 +6,10 @@ services:
     container_name: one_portal_frontend
     restart: always
     ports:
-      - "5174:5173"
+      - "5173:5173"
     environment:
       VITE_API_BASE_URL: ${VITE_API_BASE_URL}
       VITE_BACKEND_URL: ${VITE_BACKEND_URL}
-      VITE_PROXY_TARGET_URL: ${VITE_PROXY_TARGET_URL}
-      VITE_BACKEND_API_KEY: ${VITE_BACKEND_API_KEY}
     volumes:
       - ./frontend:/app
       - /app/node_modules

@@ -1,4 +1,4 @@
-package service_test
+package tests
 
 import (
 	"testing"
@@ -7,15 +7,12 @@ import (
 )
 
 func TestInitServicesBasic(t *testing.T) {
-	repos := &initializers.Repositories{Log: nil, RefreshToken: nil}
+	repos := &initializers.Repositories{Log: nil}
 	services := initializers.InitServices(repos)
 	if services == nil {
 		t.Fatal("expected non-nil services")
 	}
 	if services.Log == nil {
 		t.Fatal("expected services.Log non-nil")
-	}
-	if services.RefreshToken == nil {
-		t.Fatal("expected services.RefreshToken non-nil")
 	}
 }
