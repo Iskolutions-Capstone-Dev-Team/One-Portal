@@ -8,6 +8,7 @@ type Services struct {
 	Log          service.LogService
 	RefreshToken service.AuthService
 	User         service.UserService
+	Client       service.ClientService
 }
 
 // InitServices creates and returns all service instances based on repositories.
@@ -17,5 +18,6 @@ func InitServices(repos *Repositories) *Services {
 		Log:          service.NewLogService(repos.Log),
 		RefreshToken: service.NewAuthService(repos.RefreshToken),
 		User:         service.NewUserService(repos.User),
+		Client:       service.NewClientService(repos.Client, Storage),
 	}
 }
