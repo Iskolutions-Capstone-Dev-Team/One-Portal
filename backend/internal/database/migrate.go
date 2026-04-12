@@ -55,6 +55,7 @@ func RunAllMigrations(db *sqlx.DB) {
 		tables.SessionsMigration,
 		tables.LogsMigration,
 		tables.RefreshTokensMigration,
+		tables.UserAccessMigration,
 	}
 
 	allMigrations := append(parentTables, childTables...)
