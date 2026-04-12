@@ -10,6 +10,7 @@ type Repositories struct {
 	RefreshToken repository.AuthRepository
 	User         repository.UserRepository
 	Client       repository.ClientRepository
+	UserAccess   repository.UserAccessRepository
 }
 
 // InitRepositories creates and returns all repository instances.
@@ -20,5 +21,6 @@ func InitRepositories(db *sqlx.DB) *Repositories {
 		RefreshToken: repository.NewAuthRepository(db),
 		User:         repository.NewUserRepository(db),
 		Client:       repository.NewClientRepository(db),
+		UserAccess:   repository.NewUserAccessRepository(db),
 	}
 }
