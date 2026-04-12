@@ -7,6 +7,7 @@ import (
 type Handlers struct {
 	Log  *v1.LogHandler
 	Auth *v1.AuthHandler
+	Client *v1.ClientHandler
 }
 
 // InitHandlers creates and returns all handler instances based on services.
@@ -15,5 +16,6 @@ func InitHandlers(services *Services) *Handlers {
 	return &Handlers{
 		Log:  v1.NewLogHandler(services.Log),
 		Auth: v1.NewAuthHandler(services.Log, services.RefreshToken, services.User),
+		Client: v1.NewClientHandler(services.Client),
 	}
 }
