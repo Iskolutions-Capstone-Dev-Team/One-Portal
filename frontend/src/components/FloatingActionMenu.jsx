@@ -105,6 +105,11 @@ export default function FloatingActionMenu() {
     ));
   };
 
+  const handleContactClick = () => {
+    setActiveFloatingPanel(null);
+    setIsMenuOpen(false);
+  };
+
   return (
     <div className={`portal-floating-actions ${isMenuOpen ? "is-open" : ""}`}>
       <WebAccessibility
@@ -127,12 +132,7 @@ export default function FloatingActionMenu() {
           </div>
 
           <div className="portal-floating-actions__item">
-            <ContactUs
-              isOpen={activeFloatingPanel === "contact"}
-              onToggle={() => toggleFloatingPanel("contact")}
-              onClose={() => closeFloatingPanel("contact")}
-              skipCloseAnimation={activeFloatingPanel !== null && activeFloatingPanel !== "contact"}
-            />
+            <ContactUs onClick={handleContactClick} />
           </div>
         </div>
       ) : null}
