@@ -10,7 +10,7 @@ const socialLinks = [
   },
   {
     name: "Email",
-    href: "mailto:csc.puptaguig@gmail.com",
+    href: "mailto:iskolutions.team@gmail.com",
     icon: (
       <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
         <path d="M1.5 8.67v8.58a3 3 0 0 0 3 3h15a3 3 0 0 0 3-3V8.67l-8.928 5.493a3 3 0 0 1-3.144 0L1.5 8.67Z" />

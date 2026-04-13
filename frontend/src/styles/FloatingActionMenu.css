@@ -88,7 +88,7 @@
 }
 
 .portal-floating-tooltip:hover .portal-floating-tooltip__bubble,
-.portal-floating-tooltip > button:focus-visible + .portal-floating-tooltip__bubble {
+.portal-floating-tooltip > :is(button, a):focus-visible + .portal-floating-tooltip__bubble {
   opacity: 1;
   visibility: visible;
   transform: translate3d(0, -50%, 0);
