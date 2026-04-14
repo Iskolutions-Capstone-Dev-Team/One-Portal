@@ -14,6 +14,7 @@ type Routes struct {
 	LogHandler  *v1.LogHandler
 	AuthHandler *v1.AuthHandler
 	ClientHandler *v1.ClientHandler
+	UserAccessHandler *v1.UserAccessHandler
 }
 
 // NewRoutes creates a route container with all handlers.
@@ -22,6 +23,7 @@ func NewRoutes(handlers *initializers.Handlers) *Routes {
 		LogHandler:  handlers.Log,
 		AuthHandler: handlers.Auth,
 		ClientHandler: handlers.Client,
+		UserAccessHandler: handlers.UserAccess,
 	}
 }
 
@@ -46,4 +48,6 @@ func (r *Routes) Register(router *gin.Engine) {
 	clientsGroup.POST("", r.ClientHandler.CreateClient)
 	clientsGroup.PUT("/:id", r.ClientHandler.UpdateClient)
 	clientsGroup.DELETE("/:id", r.ClientHandler.DeleteClient)
+
+	v1Group.GET("/users/access", r.UserAccessHandler.GetUserDetailedAccess)
 }
