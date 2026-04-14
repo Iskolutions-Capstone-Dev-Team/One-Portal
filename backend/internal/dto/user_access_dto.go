@@ -12,3 +12,11 @@ type UserAccessResponse struct {
 	ClientID  uuid.UUID `json:"client_id"`
 	CreatedAt string    `json:"created_at"`
 }
+
+type ClientDetailedAccessResponse struct {
+	ID            string `json:"id"`
+	Name          string `json:"name"`
+	Description   string `json:"description"`
+	ImageLocation string `json:"image_location"`
+	BaseURL       string `json:"base_url"`
+}
