@@ -19,6 +19,15 @@ func NewUserAccessHandler() *UserAccessHandler {
 
 // GetUserDetailedAccess proxies the request to the Identity-Provider to fetch
 // detailed user access information.
+// @Summary      Get detailed user access
+// @Description  Fetches detailed access information by proxying to the IDP.
+// @Tags         User Access
+// @Produce      json
+// @Success      200  {array}   dto.ClientDetailedAccessResponse
+// @Failure      401  {object}  dto.ErrorResponse
+// @Failure      500  {object}  dto.ErrorResponse
+// @Failure      502  {object}  dto.ErrorResponse
+// @Router       /users/access [get]
 func (h *UserAccessHandler) GetUserDetailedAccess(c *gin.Context) {
 	// 1. Get access_token from cookie
 	accessToken, err := c.Cookie("access_token")
