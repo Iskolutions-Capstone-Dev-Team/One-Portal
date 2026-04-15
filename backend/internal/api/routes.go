@@ -53,4 +53,11 @@ func (r *Routes) Register(router *gin.Engine) {
 
 	v1Group.GET("/users/access", r.UserAccessHandler.GetUserDetailedAccess)
 	v1Group.GET("/userinfo", middleware.JWTAuthMiddleware, r.UserHandler.HandleUserInfo)
+
+	userGroup := v1Group.Group("/user")
+	{
+		userGroup.PATCH("/:id/name", r.UserHandler.PatchUserName)
+		userGroup.PATCH("/password/forgot", r.UserHandler.PatchUserPasswordByEmail)
+		userGroup.PATCH("/password/change", middleware.JWTAuthMiddleware, r.UserHandler.PatchChangePassword)
+	}
 }
