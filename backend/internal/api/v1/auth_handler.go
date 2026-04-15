@@ -279,8 +279,16 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 
 	// Notify the Identity Provider about the logout
 	url := h.notifyIDPLogout(c)
+	if url != "" {
+		resp, err := Client.Get(url)
+		if err != nil {
+			log.Printf("[Logout] IDP Notification: %v", err)
+		} else {
+			resp.Body.Close()
+		}
+	}
 
-	c.JSON(http.StatusOK, gin.H{"url": url})
+	c.Status(http.StatusOK)
 }
 
 // HandleRefresh handles requesting new access and refresh tokens from the IDP.
