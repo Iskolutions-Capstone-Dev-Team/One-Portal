@@ -11,6 +11,7 @@ type Handlers struct {
 	User       *v1.UserHandler
 	UserAccess *v1.UserAccessHandler
 	OTP        *v1.OTPHandler
+	Announcement *v1.AnnouncementHandler
 }
 
 // InitHandlers creates and returns all handler instances based on services.
@@ -23,5 +24,6 @@ func InitHandlers(services *Services) *Handlers {
 		Client:     v1.NewClientHandler(services.Client),
 		UserAccess: v1.NewUserAccessHandler(),
 		OTP:        v1.NewOTPHandler(),
+		Announcement: v1.NewAnnouncementHandler(),
 	}
 }
