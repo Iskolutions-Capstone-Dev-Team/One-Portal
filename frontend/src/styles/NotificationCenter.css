@@ -136,6 +136,23 @@
   list-style: none;
 }
 
+.portal-notifications__status {
+  padding: 1rem;
+  border: 1px dashed rgba(148, 163, 184, 0.45);
+  border-radius: 1.1rem;
+  color: #526074;
+  background: rgba(255, 255, 255, 0.35);
+  font-size: 0.92rem;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.portal-notifications__status--error {
+  border-color: rgba(153, 27, 27, 0.24);
+  color: #991b1b;
+  background: rgba(254, 226, 226, 0.72);
+}
+
 .portal-notifications__item {
   display: grid;
   grid-template-columns: 0.75rem minmax(0, 1fr);
@@ -264,6 +281,18 @@
 .portal-layout[data-portal-theme="dark"] .portal-notifications__title,
 .portal-layout[data-portal-theme="dark"] .portal-notifications__item-title {
   color: #eef3fa;
+}
+
+.portal-layout[data-portal-theme="dark"] .portal-notifications__status {
+  border-color: rgba(146, 163, 184, 0.16);
+  color: #c7d2de;
+  background: rgba(24, 34, 49, 0.48);
+}
+
+.portal-layout[data-portal-theme="dark"] .portal-notifications__status--error {
+  border-color: rgba(250, 204, 21, 0.18);
+  color: #fde68a;
+  background: rgba(127, 29, 29, 0.34);
 }
 
 .portal-layout[data-portal-theme="dark"] .portal-notifications__item {

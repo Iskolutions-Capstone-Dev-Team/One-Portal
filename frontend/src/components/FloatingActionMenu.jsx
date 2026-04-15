@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { announcements } from "../data/announcements";
+import { getAnnouncements } from "../services/announcements";
 import ContactUs from "./ContactUs";
 import NotificationCenter from "./NotificationCenter";
 import WebAccessibility from "./WebAccessibility";
@@ -45,6 +45,9 @@ export default function FloatingActionMenu() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMenuMounted, setIsMenuMounted] = useState(false);
   const [activeFloatingPanel, setActiveFloatingPanel] = useState(null);
+  const [announcements, setAnnouncements] = useState([]);
+  const [isLoadingAnnouncements, setIsLoadingAnnouncements] = useState(true);
+  const [announcementError, setAnnouncementError] = useState("");
   const [visitedAnnouncementIds, setVisitedAnnouncementIds] = useState(readVisitedAnnouncements);
   const unreadCount = announcements.filter(
     (announcement) => !visitedAnnouncementIds.includes(announcement.id)
@@ -52,9 +55,47 @@ export default function FloatingActionMenu() {
   const unreadCountLabel = unreadCount > 99 ? "99+" : unreadCount;
   const toggleLabel = isMenuOpen
     ? "Close quick actions"
+    : isLoadingAnnouncements
+      ? "Open quick actions. Loading announcements"
     : unreadCount > 0
       ? `Open quick actions. ${unreadCount} unread announcements`
       : "Open quick actions";
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const loadAnnouncements = async () => {
+      setIsLoadingAnnouncements(true);
+
+      try {
+        const announcementItems = await getAnnouncements();
+
+        if (!isMounted) {
+          return;
+        }
+
+        setAnnouncements(announcementItems);
+        setAnnouncementError("");
+      } catch (error) {
+        if (!isMounted) {
+          return;
+        }
+
+        setAnnouncements([]);
+        setAnnouncementError(error.message || "Unable to load announcements.");
+      } finally {
+        if (isMounted) {
+          setIsLoadingAnnouncements(false);
+        }
+      }
+    };
+
+    void loadAnnouncements();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     window.localStorage.setItem(
@@ -122,6 +163,9 @@ export default function FloatingActionMenu() {
         <div className={`portal-floating-actions__list ${isMenuOpen ? "is-open" : "is-closing"}`}>
           <div className="portal-floating-actions__item">
             <NotificationCenter
+              announcements={announcements}
+              isLoading={isLoadingAnnouncements}
+              errorMessage={announcementError}
               isOpen={activeFloatingPanel === "notifications"}
               onToggle={() => toggleFloatingPanel("notifications")}
               onClose={() => closeFloatingPanel("notifications")}
