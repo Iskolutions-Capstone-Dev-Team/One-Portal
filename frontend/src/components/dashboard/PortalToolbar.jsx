@@ -1,4 +1,4 @@
-export default function PortalToolbar({ searchQuery, setSearchQuery }) {
+export default function PortalToolbar({ searchQuery, setSearchQuery, isSearchDisabled = false }) {
     return (
         <section className="portal-toolbar">
             <div className="portal-toolbar__copy">
@@ -22,7 +22,7 @@ export default function PortalToolbar({ searchQuery, setSearchQuery }) {
                         </g>
                     </svg>
 
-                    <input type="search" placeholder="Search" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} className="portal-toolbar__search-input"/>
+                    <input type="search" placeholder="Search systems" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} className="portal-toolbar__search-input" disabled={isSearchDisabled}/>
                 </label>
             </div>
         </section>

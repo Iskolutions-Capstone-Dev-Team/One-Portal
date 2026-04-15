@@ -48,12 +48,14 @@ func RunAllMigrations(db *sqlx.DB) {
 
 	parentTables := []migrations.TableMigration{
 		tables.UsersMigration,
+		tables.ClientsMigration,
 	}
 
 	childTables := []migrations.TableMigration{
 		tables.SessionsMigration,
 		tables.LogsMigration,
 		tables.RefreshTokensMigration,
+		tables.UserAccessMigration,
 	}
 
 	allMigrations := append(parentTables, childTables...)

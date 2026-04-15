@@ -5,7 +5,6 @@ import { completeAuthorization } from "../services/auth";
 export default function Callback() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const [statusMessage, setStatusMessage] = useState("Finishing your sign in...");
     const [errorMessage, setErrorMessage] = useState("");
 
     useEffect(() => {
@@ -36,7 +35,6 @@ export default function Callback() {
                 await completeAuthorization(code);
 
                 if (isMounted) {
-                    setStatusMessage("Sign in complete. Redirecting to your portal...");
                     navigate("/portal", { replace: true });
                 }
             } catch (error) {
@@ -72,9 +70,11 @@ export default function Callback() {
                     Signing You In
                 </p>
 
-                <p className="max-w-xl text-sm leading-7 text-white/85 sm:text-base">
-                    {errorMessage || statusMessage}
-                </p>
+                {errorMessage ? (
+                    <p className="max-w-xl text-sm leading-7 text-white/85 sm:text-base">
+                        {errorMessage}
+                    </p>
+                ) : null}
 
                 {errorMessage && (
                     <Link to="/" className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#f8d24e] px-6 py-3 text-sm font-semibold text-[#5c0b10] shadow-[0_18px_40px_rgba(0,0,0,0.28)] transition hover:-translate-y-0.5 hover:bg-[#ffe27a]">

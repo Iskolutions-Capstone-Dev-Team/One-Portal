@@ -26,6 +26,7 @@ func MigrateAndSeed() {
 	privilegedTables := [...]string{
 		"refresh_tokens",
 		"sessions",
+		"clients",
 	}
 
 	for _, tableName := range privilegedTables {

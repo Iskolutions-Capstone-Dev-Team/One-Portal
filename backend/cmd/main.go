@@ -30,6 +30,11 @@ func main() {
 	// Initialize the global JWK set for authentication
 	initializers.InitJWKS()
 
+	// Initialize S3 storage
+	if err := initializers.InitS3Storage(); err != nil {
+		log.Printf("[Main] S3 initialization failed (optional): %v", err)
+	}
+
 	// Run database migrations and seed initial data
 	initializers.MigrateAndSeed()
 

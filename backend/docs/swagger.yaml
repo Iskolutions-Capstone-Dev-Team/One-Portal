@@ -1,4 +1,24 @@
 definitions:
+  dto.CallbackRequest:
+    properties:
+      code:
+        type: string
+    required:
+    - code
+    type: object
+  dto.ClientDetailedAccessResponse:
+    properties:
+      base_url:
+        type: string
+      description:
+        type: string
+      id:
+        type: string
+      image_location:
+        type: string
+      name:
+        type: string
+    type: object
   dto.ErrorResponse:
     properties:
       error:
@@ -67,4 +87,122 @@ paths:
       summary: Get logs
       tags:
       - logs
+  /auth/authorize:
+    get:
+      description: Redirects to the Identity Provider authorization endpoint.
+      produces:
+      - application/json
+      responses:
+        "302":
+          description: Redirect to IDP
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Redirect to IDP
+      tags:
+      - Auth
+  /auth/callback:
+    post:
+      consumes:
+      - application/json
+      description: Exchanges authorization code for tokens and sets cookie.
+      parameters:
+      - description: Authorization code
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CallbackRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Status ok
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid payload
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Invalid token
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: OIDC Callback
+      tags:
+      - Auth
+  /auth/logout:
+    post:
+      description: Clears the access cookie, deletes RTs, and notifies IDP.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Status logged out
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Logout User
+      tags:
+      - Auth
+  /auth/refresh:
+    post:
+      description: Rotates access/refresh tokens using the stored session.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Status refreshed
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Refresh Session
+      tags:
+      - Auth
+  /users/access:
+    get:
+      description: Fetches detailed access information by proxying to the IDP.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.ClientDetailedAccessResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "502":
+          description: Bad Gateway
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Get detailed user access
+      tags:
+      - User Access
 swagger: "2.0"
