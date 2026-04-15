@@ -15,6 +15,7 @@ type Routes struct {
 	AuthHandler *v1.AuthHandler
 	ClientHandler *v1.ClientHandler
 	UserAccessHandler *v1.UserAccessHandler
+	UserHandler       *v1.UserHandler
 }
 
 // NewRoutes creates a route container with all handlers.
@@ -24,6 +25,7 @@ func NewRoutes(handlers *initializers.Handlers) *Routes {
 		AuthHandler: handlers.Auth,
 		ClientHandler: handlers.Client,
 		UserAccessHandler: handlers.UserAccess,
+		UserHandler: handlers.User,
 	}
 }
 
@@ -50,4 +52,5 @@ func (r *Routes) Register(router *gin.Engine) {
 	clientsGroup.DELETE("/:id", r.ClientHandler.DeleteClient)
 
 	v1Group.GET("/users/access", r.UserAccessHandler.GetUserDetailedAccess)
+	v1Group.GET("/userinfo", middleware.JWTAuthMiddleware, r.UserHandler.HandleUserInfo)
 }
