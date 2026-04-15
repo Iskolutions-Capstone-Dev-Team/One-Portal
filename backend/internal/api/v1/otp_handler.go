@@ -38,8 +38,13 @@ func (h *OTPHandler) SendOTP(c *gin.Context) {
 	idpURL := fmt.Sprintf("%s/send", os.Getenv("IDP_OTP_URL"))
 	body, _ := json.Marshal(req)
 	
-	proxyReq, _ := http.NewRequest(http.MethodPost, idpURL, bytes.NewBuffer(body))
+	proxyReq, _ := http.NewRequest(
+		http.MethodPost, 
+		idpURL, 
+		bytes.NewBuffer(body),
+	)
 	proxyReq.Header.Set("Content-Type", "application/json")
+	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
 
 	resp, err := Client.Do(proxyReq)
 	if err != nil || resp.StatusCode != http.StatusOK {
@@ -74,8 +79,13 @@ func (h *OTPHandler) VerifyOTP(c *gin.Context) {
 	idpURL := fmt.Sprintf("%s/verify", os.Getenv("IDP_OTP_URL"))
 	body, _ := json.Marshal(req)
 
-	proxyReq, _ := http.NewRequest(http.MethodPost, idpURL, bytes.NewBuffer(body))
+	proxyReq, _ := http.NewRequest(
+		http.MethodPost, 
+		idpURL, 
+		bytes.NewBuffer(body),
+	)
 	proxyReq.Header.Set("Content-Type", "application/json")
+	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
 
 	resp, err := Client.Do(proxyReq)
 	if err != nil || resp.StatusCode != http.StatusOK {
@@ -86,5 +96,8 @@ func (h *OTPHandler) VerifyOTP(c *gin.Context) {
 	}
 	defer resp.Body.Close()
 
-	c.JSON(http.StatusOK, dto.SuccessResponse{Message: "OTP verified successfully"})
+	c.JSON(
+		http.StatusOK, 
+		dto.SuccessResponse{Message: "OTP verified successfully"},
+	)
 }
