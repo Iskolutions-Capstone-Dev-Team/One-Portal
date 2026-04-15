@@ -138,11 +138,7 @@ function createMissingAuthorizationRedirectError() {
     return error;
 }
 
-async function getAuthorizationUrl() {
-    const response = await fetchApiResponse(AUTHORIZATION_PATH, {
-        method: "GET",
-        redirect: "manual",
-    });
+async function readAuthorizationUrl(response) {
     const locationUrl = getAuthorizationLocationUrl(response);
 
     if (locationUrl) {
@@ -167,9 +163,13 @@ async function getAuthorizationUrl() {
 export async function startAuthorization() {
     if (!authorizationRequestPromise) {
         authorizationRequestPromise = (async () => {
-            const authorizationUrl = await getAuthorizationUrl();
+            const response = await fetchApiResponse(AUTHORIZATION_PATH, {
+                method: "GET",
+                redirect: "manual",
+            });
+            const authorizationUrl = await readAuthorizationUrl(response);
 
-            window.location.assign(authorizationUrl);
+            window.location.href = authorizationUrl;
 
             return true;
         })();

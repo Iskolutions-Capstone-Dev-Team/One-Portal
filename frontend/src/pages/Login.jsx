@@ -32,7 +32,7 @@ export default function Login() {
 
             <div className="auth-entry__shell auth-entry__shell--compact">
                 <header className="auth-entry__brand auth-entry__brand--centered">
-                    <img src="/assets/images/PUPlogo.png" alt="PUP Taguig seal" className="auth-entry__logo float-logo" />
+                    <img src="/assets/images/PUPlogo.png" alt="PUP Taguig seal" className="auth-entry__logo" />
 
                     <div className="auth-entry__brand-copy">
                         <p className="auth-entry__brand-name">PUP Taguig One Portal</p>
