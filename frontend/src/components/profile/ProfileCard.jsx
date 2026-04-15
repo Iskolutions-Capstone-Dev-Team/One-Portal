@@ -5,7 +5,7 @@ import ProfileDetails from "./ProfileDetails";
 import ActionButtons from "./ActionButtons";
 import SuccessAlert from "../SuccessAlert";
 
-export default function ProfileCard({ profile, addAuditLog, allowEmailEdit = false }) {
+export default function ProfileCard({ profile, onProfileChange, addAuditLog, allowEmailEdit = false }) {
     const [isEditOpen, setEditOpen] = useState(false);
     const [isPasswordOpen, setPasswordOpen] = useState(false);
     const [currentProfile, setCurrentProfile] = useState(profile);
@@ -32,6 +32,7 @@ export default function ProfileCard({ profile, addAuditLog, allowEmailEdit = fal
 
     const handleProfileUpdate = (updatedProfile) => {
         setCurrentProfile(updatedProfile);
+        onProfileChange?.(updatedProfile);
         setToastMessage("Profile updated successfully!");
     };
 
@@ -80,6 +81,7 @@ export default function ProfileCard({ profile, addAuditLog, allowEmailEdit = fal
             <ChangePasswordModal
                 isOpen={isPasswordOpen}
                 onClose={() => setPasswordOpen(false)}
+                email={currentProfile.email}
                 showCurrentPassword={true}
                 addAuditLog={addAuditLog}
                 enableSuccessAlert={true}

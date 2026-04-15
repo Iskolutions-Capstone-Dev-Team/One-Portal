@@ -92,6 +92,10 @@ export default function Profile() {
         setLocalLogs((currentLogs) => [log, ...currentLogs]);
     };
 
+    const handleProfileChange = (updatedProfile) => {
+        setProfile(updatedProfile);
+    };
+
     const hasUnauthorizedError = profileErrorStatus === 401 || logsErrorStatus === 401;
     const logs = [...localLogs, ...backendLogs];
     const pageDescription = profileError
@@ -116,6 +120,7 @@ export default function Profile() {
 
                     <ProfileCard
                         profile={profile}
+                        onProfileChange={handleProfileChange}
                         addAuditLog={handleAddAuditLog}
                         allowEmailEdit={false}
                     />

@@ -1982,8 +1982,13 @@ input[type="checkbox"] {
   height: 1.05rem;
 }
 
-.profile-action:hover::before {
+.profile-action:hover:not(:disabled)::before {
   opacity: 1;
+}
+
+.profile-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
 }
 
 .profile-action--secondary {
@@ -2011,11 +2016,19 @@ input[type="checkbox"] {
     inset 1px 1px 0 rgba(255, 255, 255, 0.14);
 }
 
-.profile-action--primary:hover {
+.profile-action--primary:hover:not(:disabled) {
   color: #7f1d1d;
   box-shadow:
     14px 14px 20px rgba(181, 145, 51, 0.24),
     -8px -8px 16px rgba(255, 255, 255, 0.84);
+}
+
+.profile-action--primary:disabled {
+  color: rgba(255, 249, 244, 0.78);
+  background: linear-gradient(145deg, #6b2020, #481515);
+  box-shadow:
+    inset 2px 2px 6px rgba(255, 255, 255, 0.06),
+    10px 10px 18px rgba(48, 9, 9, 0.32);
 }
 
 .profile-logs {
@@ -2292,7 +2305,7 @@ input[type="checkbox"] {
 
 .profile-form__grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
 }
 
@@ -3153,7 +3166,7 @@ input[type="checkbox"] {
 }
 
 .portal-layout[data-portal-theme="dark"] .profile-action--secondary:hover,
-.portal-layout[data-portal-theme="dark"] .profile-action--primary:hover {
+.portal-layout[data-portal-theme="dark"] .profile-action--primary:hover:not(:disabled) {
   color: #6b1b1b;
   box-shadow:
     14px 14px 20px rgba(8, 12, 18, 0.28),
@@ -3165,6 +3178,14 @@ input[type="checkbox"] {
     14px 14px 24px rgba(8, 12, 18, 0.34),
     -8px -8px 16px rgba(255, 255, 255, 0.08),
     inset 1px 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.portal-layout[data-portal-theme="dark"] .profile-action--primary:disabled {
+  color: rgba(255, 249, 244, 0.72);
+  background: linear-gradient(145deg, #451919, #241012);
+  box-shadow:
+    inset 2px 2px 6px rgba(255, 255, 255, 0.04),
+    10px 10px 18px rgba(5, 8, 12, 0.4);
 }
 
 .portal-layout[data-portal-theme="dark"] .profile-logs__head-row {

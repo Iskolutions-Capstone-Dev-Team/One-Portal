@@ -4,6 +4,15 @@ function readTextValue(value) {
     return typeof value === "string" ? value.trim() : "";
 }
 
+function buildUserNamePayload(profile = {}) {
+    return {
+        first_name: readTextValue(profile.firstName),
+        middle_name: readTextValue(profile.middleName),
+        last_name: readTextValue(profile.lastName),
+        name_suffix: readTextValue(profile.nameSuffix),
+    };
+}
+
 export function createEmptyProfile() {
     return {
         id: "",
@@ -30,4 +39,27 @@ export async function getCurrentUserProfile() {
     const response = await apiRequest("/userinfo");
 
     return mapUserInfoToProfile(response);
+}
+
+export async function updateCurrentUserProfile(profile) {
+    const userId = readTextValue(profile?.id);
+
+    if (!userId) {
+        throw new Error("User ID is required to update the profile.");
+    }
+
+    await apiRequest(`/user/${userId}/name`, {
+        method: "PATCH",
+        data: buildUserNamePayload(profile),
+    });
+
+    return {
+        ...createEmptyProfile(),
+        id: userId,
+        firstName: readTextValue(profile.firstName),
+        middleName: readTextValue(profile.middleName),
+        lastName: readTextValue(profile.lastName),
+        nameSuffix: readTextValue(profile.nameSuffix),
+        email: readTextValue(profile.email),
+    };
 }
