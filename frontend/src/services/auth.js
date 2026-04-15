@@ -1,6 +1,8 @@
-import { apiRequest } from "./api";
+import { apiRequest, fetchApiResponse, getApiUrl, readApiResponse } from "./api";
 
 const SESSION_REFRESH_TIMESTAMP_KEY = "one-portal:last-session-refresh-at";
+const AUTHORIZATION_PATH = "/auth/authorize";
+let authorizationRequestPromise = null;
 
 function hasLocalStorage() {
     return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
@@ -26,6 +28,10 @@ function writeSessionRefreshTimestamp(timestamp = Date.now()) {
     }
 
     window.localStorage.setItem(SESSION_REFRESH_TIMESTAMP_KEY, String(timestamp));
+}
+
+function getAppUrl(pathname) {
+    return new URL(pathname, window.location.origin).toString();
 }
 
 function getConfiguredLoginPageUrl() {
@@ -63,13 +69,117 @@ export function getLoginPageUrl() {
     return loginUrl.toString();
 }
 
+export function getLandingPageUrl() {
+    return getAppUrl("/");
+}
+
 export function getLogoutFallbackUrl() {
-    return getLoginPageUrl();
+    return getLandingPageUrl();
+}
+
+function isCurrentPage(url) {
+    return window.location.href === url;
+}
+
+export function navigateToLoginPage() {
+    const loginPageUrl = getLoginPageUrl();
+
+    if (isCurrentPage(loginPageUrl)) {
+        return false;
+    }
+
+    window.location.assign(loginPageUrl);
+
+    return true;
+}
+
+function getAuthorizationResponseUrl(data) {
+    if (!data || typeof data === "string") {
+        return "";
+    }
+
+    const authorizationUrl = data.redirect_url ?? data.redirectUrl ?? data.url;
+
+    return typeof authorizationUrl === "string" ? authorizationUrl.trim() : "";
+}
+
+function getAuthorizationLocationUrl(response) {
+    const location = response.headers.get("location");
+
+    if (!location) {
+        return "";
+    }
+
+    try {
+        return new URL(location, getApiUrl(AUTHORIZATION_PATH)).toString();
+    } catch (error) {
+        console.error("Invalid authorization redirect URL.", error);
+        return "";
+    }
+}
+
+function createAuthorizationError(status, data) {
+    const message = typeof data === "string" && data.trim()
+        ? data
+        : data?.error ?? data?.message ?? `Request failed with status ${status}`;
+    const error = new Error(message);
+
+    error.status = status;
+    error.data = data;
+
+    return error;
+}
+
+function createMissingAuthorizationRedirectError() {
+    const error = new Error("The authorization redirect is unavailable.");
+
+    error.status = 500;
+
+    return error;
+}
+
+async function getAuthorizationUrl() {
+    const response = await fetchApiResponse(AUTHORIZATION_PATH, {
+        method: "GET",
+        redirect: "manual",
+    });
+    const locationUrl = getAuthorizationLocationUrl(response);
+
+    if (locationUrl) {
+        return locationUrl;
+    }
+
+    const data = await readApiResponse(response);
+
+    if (!response.ok) {
+        throw createAuthorizationError(response.status, data);
+    }
+
+    const authorizationUrl = getAuthorizationResponseUrl(data);
+
+    if (authorizationUrl) {
+        return authorizationUrl;
+    }
+
+    throw createMissingAuthorizationRedirectError();
 }
 
 export async function startAuthorization() {
-    window.location.assign(getLoginPageUrl());
-    return true;
+    if (!authorizationRequestPromise) {
+        authorizationRequestPromise = (async () => {
+            const authorizationUrl = await getAuthorizationUrl();
+
+            window.location.assign(authorizationUrl);
+
+            return true;
+        })();
+    }
+
+    try {
+        return await authorizationRequestPromise;
+    } finally {
+        authorizationRequestPromise = null;
+    }
 }
 
 export async function completeAuthorization(code) {

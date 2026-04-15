@@ -4,7 +4,7 @@ export default function PortalToolbar({ searchQuery, setSearchQuery, isSearchDis
             <div className="portal-toolbar__copy">
                 <h1 className="portal-toolbar__title">
                     Welcome back,
-                    <span className="portal-toolbar__title-accent"> Student!</span>
+                    <span className="portal-toolbar__title-accent"> PUPTian!</span>
                 </h1>
                 <p className="portal-toolbar__subtitle">
                     Manage your connected systems, track updates, and stay in sync with
