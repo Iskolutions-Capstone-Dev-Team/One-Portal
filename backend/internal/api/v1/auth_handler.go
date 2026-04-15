@@ -283,6 +283,7 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 
 	// Always clear the access token cookie
 	c.SetCookie(dto.AccessCookieName, "", -1, "/", "", true, true)
+	c.SetCookie(dto.SessionCookieName, "", -1, "/", "", true, true)
 
 	// Notify the Identity Provider about the logout
 	url := h.notifyIDPLogout(c)
