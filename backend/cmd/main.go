@@ -23,6 +23,10 @@ const TimeOutDuration = 5 * time.Second
 // @description API for One Portal application.
 // @contact.name API Support
 // @contact.email support@oneportal.isaxbsit2027.com
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer <your_token>"
 func main() {
 	// Load environment variables from .env file
 	godotenv.Load()
