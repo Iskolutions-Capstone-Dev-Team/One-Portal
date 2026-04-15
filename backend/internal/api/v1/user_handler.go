@@ -24,11 +24,16 @@ func NewUserHandler(userService service.UserService) *UserHandler {
 }
 
 // HandleUserInfo fetches user information from the IDP or database fallback.
-/**
- * HandleUserInfo attempts to fetch the latest user profile from the Identity
- * Provider. If the IDP is unreachable or returns an error, it falls back to
- * the local database while maintaining a consistent DTO response.
- */
+// @Summary      Get user info
+// @Description  Fetches the current user's profile from the IDP or database.
+// @Tags         User
+// @Produce      json
+// @Success      200      {object}  dto.MeResponse
+// @Failure      401      {object}  dto.ErrorResponse
+// @Failure      404      {object}  dto.ErrorResponse
+// @Failure      500      {object}  dto.ErrorResponse
+// @Security     BearerAuth
+// @Router       /userinfo [get]
 func (h *UserHandler) HandleUserInfo(c *gin.Context) {
 	// 1. Attempt to fetch from IDP
 	accessToken, _ := c.Cookie(dto.AccessCookieName)
