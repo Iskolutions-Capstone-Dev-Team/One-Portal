@@ -390,15 +390,21 @@
     }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
     .auth-entry__hero {
         grid-template-columns: 1fr;
-        justify-items: start;
+        justify-items: center;
+        align-content: center;
         padding-top: 2rem;
+    }
+
+    .auth-entry__content {
+        display: none;
     }
 
     .auth-entry__portal-card {
         width: min(100%, 32rem);
+        margin-inline: auto;
     }
 
     .auth-entry__login-shell {
