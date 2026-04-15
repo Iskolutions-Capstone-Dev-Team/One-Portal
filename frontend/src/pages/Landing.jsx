@@ -2,6 +2,8 @@ import { useState } from "react";
 import { navigateToLoginPage } from "../services/auth";
 import "../styles/AuthEntry.css";
 
+const registerPageUrl = import.meta.env.VITE_REGISTER_PAGE_URL?.trim();
+
 function LoginIcon() {
     return (
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
@@ -25,9 +27,14 @@ function RegisterIcon() {
 export default function Landing() {
     const [pendingAction, setPendingAction] = useState("");
 
-    const handlePortalEntry = (action) => {
-        setPendingAction(action);
+    const handleLoginClick = () => {
+        setPendingAction("login");
         navigateToLoginPage();
+    };
+
+    const handleRegisterClick = () => {
+        setPendingAction("register");
+        window.location.assign(registerPageUrl || new URL("/register", window.location.origin).toString());
     };
 
     return (
@@ -73,7 +80,7 @@ export default function Landing() {
                             <button
                                 type="button"
                                 className="auth-entry__portal-button"
-                                onClick={() => handlePortalEntry("login")}
+                                onClick={handleLoginClick}
                                 disabled={Boolean(pendingAction)}
                             >
                                 <span className="auth-entry__portal-button-icon" aria-hidden="true">
@@ -85,7 +92,7 @@ export default function Landing() {
                             <button
                                 type="button"
                                 className="auth-entry__portal-button auth-entry__portal-button--secondary"
-                                onClick={() => handlePortalEntry("register")}
+                                onClick={handleRegisterClick}
                                 disabled={Boolean(pendingAction)}
                             >
                                 <span className="auth-entry__portal-button-icon" aria-hidden="true">
