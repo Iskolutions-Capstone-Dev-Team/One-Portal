@@ -17,6 +17,7 @@ type Routes struct {
 	UserAccessHandler *v1.UserAccessHandler
 	UserHandler       *v1.UserHandler
 	OTP               *v1.OTPHandler
+	Announcement      *v1.AnnouncementHandler
 }
 
 // NewRoutes creates a route container with all handlers.
@@ -28,6 +29,7 @@ func NewRoutes(handlers *initializers.Handlers) *Routes {
 		UserAccessHandler: handlers.UserAccess,
 		UserHandler: handlers.User,
 		OTP:         handlers.OTP,
+		Announcement: handlers.Announcement,
 	}
 }
 
@@ -39,6 +41,7 @@ func (r *Routes) Register(router *gin.Engine) {
 
 	v1Group.Use(middleware.APIKeyAuthMiddleware)
 	v1Group.GET("/logs", r.LogHandler.HandleGetLogs)
+	v1Group.GET("/announcement", r.Announcement.HandleGetAnnouncement)
 
 	authGroup := v1Group.Group("/auth")
 	authGroup.POST("/callback", r.AuthHandler.HandleCallback)
