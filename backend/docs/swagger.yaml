@@ -61,6 +61,13 @@ definitions:
       name_suffix:
         type: string
     type: object
+  dto.OTPRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
   dto.SuccessResponse:
     properties:
       message:
@@ -89,6 +96,16 @@ definitions:
     required:
     - first_name
     - last_name
+    type: object
+  dto.VerifyOTPRequest:
+    properties:
+      email:
+        type: string
+      otp:
+        type: string
+    required:
+    - email
+    - otp
     type: object
   models.Log:
     properties:
@@ -237,6 +254,67 @@ paths:
       summary: Refresh Session
       tags:
       - Auth
+  /otp/send:
+    post:
+      consumes:
+      - application/json
+      description: Generates a 6-digit numeric OTP and sends it via email through
+        IDP.
+      parameters:
+      - description: OTP Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.OTPRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Send OTP Code
+      tags:
+      - otp
+  /otp/verify:
+    post:
+      consumes:
+      - application/json
+      description: Verifies a 6-digit numeric OTP for a user through IDP.
+      parameters:
+      - description: Verify OTP Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.VerifyOTPRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Verify OTP Code
+      tags:
+      - otp
   /user/{id}/name:
     patch:
       consumes:
