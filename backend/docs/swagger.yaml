@@ -31,6 +31,25 @@ definitions:
           $ref: '#/definitions/models.Log'
         type: array
     type: object
+  dto.MeResponse:
+    properties:
+      allowed_clients:
+        items:
+          type: string
+        type: array
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: string
+      last_name:
+        type: string
+      middle_name:
+        type: string
+      name_suffix:
+        type: string
+    type: object
   models.Log:
     properties:
       action:
@@ -178,6 +197,33 @@ paths:
       summary: Refresh Session
       tags:
       - Auth
+  /userinfo:
+    get:
+      description: Fetches the current user's profile from the IDP or database.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MeResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user info
+      tags:
+      - User
   /users/access:
     get:
       description: Fetches detailed access information by proxying to the IDP.
@@ -205,4 +251,10 @@ paths:
       summary: Get detailed user access
       tags:
       - User Access
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer <your_token>"
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"
