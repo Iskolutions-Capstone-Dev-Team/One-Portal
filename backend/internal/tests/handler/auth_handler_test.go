@@ -146,9 +146,9 @@ func TestAuthHandlerLogout(t *testing.T) {
 
 	// Mock IDP logout
 	os.Setenv("IDP_LOGOUT_URL", "http://idp/logout")
-	os.Setenv("VITE_CLIENT_ID", "test-client")
+	os.Setenv("CLIENT_ID", "test-client")
 	defer os.Unsetenv("IDP_LOGOUT_URL")
-	defer os.Unsetenv("VITE_CLIENT_ID")
+	defer os.Setenv("CLIENT_ID", "")
 
 	// Set fake transport to capture IDP call
 	origTransport := v1.Client.Transport
@@ -203,7 +203,8 @@ func TestAuthHandlerLogout(t *testing.T) {
 	// 3. Check if IDP was notified
 	if fTripper.lastRequest == nil {
 		t.Error("expected IDP logout notification")
-	} else if fTripper.lastRequest.URL.String() != "http://idp/logout" {
+	} else if !bytes.HasPrefix([]byte(fTripper.lastRequest.URL.String()), 
+		[]byte("http://idp/logout")) {
 		t.Errorf("wrong IDP URL: %s", fTripper.lastRequest.URL.String())
 	}
 }
@@ -213,12 +214,13 @@ func TestAuthHandlerHandleAuthorization(t *testing.T) {
 	router, key := setupTestRouter(authSvc)
 
 	os.Setenv("IDP_AUTH_URL", "http://idp/auth")
-	defer os.Unsetenv("IDP_AUTH_URL")
-
-	origTransport := v1.Client.Transport
-	fTripper := &fakeRoundTripper{}
-	v1.Client.Transport = fTripper
-	defer func() { v1.Client.Transport = origTransport }()
+	os.Setenv("CLIENT_ID", "test-client")
+	os.Setenv("VITE_REDIRECT_URI", "http://app/callback")
+	defer func() {
+		os.Unsetenv("IDP_AUTH_URL")
+		os.Unsetenv("CLIENT_ID")
+		os.Unsetenv("VITE_REDIRECT_URI")
+	}()
 
 	req := httptest.NewRequest(
 		http.MethodGet, 
@@ -230,16 +232,14 @@ func TestAuthHandlerHandleAuthorization(t *testing.T) {
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
-	// Since current implementation just does Client.Get and does not return
-	// content to ctx, we expect 200 but mostly check if the IDP was called.
-	if w.Code != http.StatusOK {
-		t.Errorf("expected 200, got %d", w.Code)
+	// Implementation now returns 302 redirect
+	if w.Code != http.StatusFound {
+		t.Errorf("expected 302, got %d", w.Code)
 	}
 
-	if fTripper.lastRequest == nil {
-		t.Fatal("expected IDP auth call")
-	}
-	if fTripper.lastRequest.URL.String() != "http://idp/auth" {
-		t.Errorf("expected http://idp/auth, got %s", fTripper.lastRequest.URL.String())
+	loc := w.Header().Get("Location")
+	expectedPrefix := "http://idp/auth?client_id=test-client"
+	if !bytes.HasPrefix([]byte(loc), []byte(expectedPrefix)) {
+		t.Errorf("expected prefix %s, got %s", expectedPrefix, loc)
 	}
 }

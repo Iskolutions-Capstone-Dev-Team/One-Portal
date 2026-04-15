@@ -1,54 +1,62 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { completeAuthorization } from "../services/auth";
+import { completeAuthorization, startAuthorization } from "../services/auth";
 
-export default function Callback() {
+export default function Login() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const [errorMessage, setErrorMessage] = useState("");
+    const [hasAuthorizationError, setHasAuthorizationError] = useState(false);
+
     const identityProviderError = searchParams.get("error");
-    const identityProviderMessage = searchParams.get("error_description");
     const code = searchParams.get("code");
 
     useEffect(() => {
         let isMounted = true;
 
-        const finishAuthorization = async () => {
+        const handleLoginFlow = async () => {
             if (identityProviderError) {
                 if (isMounted) {
-                    setErrorMessage(identityProviderMessage || identityProviderError);
+                    setHasAuthorizationError(true);
                 }
 
                 return;
             }
 
-            if (!code) {
-                if (isMounted) {
-                    setErrorMessage("The callback is missing the authorization code.");
+            if (code) {
+                try {
+                    await completeAuthorization(code);
+
+                    if (isMounted) {
+                        navigate("/portal", { replace: true });
+                    }
+                } catch (error) {
+                    if (isMounted) {
+                        setHasAuthorizationError(true);
+                    }
                 }
 
                 return;
+            }
+
+            if (isMounted) {
+                setHasAuthorizationError(false);
             }
 
             try {
-                await completeAuthorization(code);
-
-                if (isMounted) {
-                    navigate("/portal", { replace: true });
-                }
+                await startAuthorization();
             } catch (error) {
                 if (isMounted) {
-                    setErrorMessage(error.message);
+                    setHasAuthorizationError(true);
                 }
             }
         };
 
-        finishAuthorization();
+        void handleLoginFlow();
 
         return () => {
             isMounted = false;
         };
-    }, [code, identityProviderError, identityProviderMessage, navigate]);
+    }, [code, identityProviderError, navigate]);
 
     return (
         <div className="relative min-h-screen overflow-hidden bg-[#250508] font-[Poppins] text-white">
@@ -63,20 +71,13 @@ export default function Callback() {
             </div>
 
             <div className="relative flex min-h-screen flex-col items-center justify-center gap-5 px-4 text-center">
-                <img src="/assets/images/PUPlogo.png" alt="PUP Logo" className="float-logo w-28 sm:w-32"/>
+                <img src="/assets/images/PUPlogo.png" alt="PUP Logo" className="float-logo w-28 sm:w-32" />
 
-                <p className="text-xs font-medium uppercase tracking-[0.28em] text-white/75 sm:text-sm">
-                    Signing You In
-                </p>
-
-                {errorMessage ? (
-                    <p className="max-w-xl text-sm leading-7 text-white/85 sm:text-base">
-                        {errorMessage}
-                    </p>
-                ) : null}
-
-                {errorMessage && (
-                    <Link to="/" className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#f8d24e] px-6 py-3 text-sm font-semibold text-[#5c0b10] shadow-[0_18px_40px_rgba(0,0,0,0.28)] transition hover:-translate-y-0.5 hover:bg-[#ffe27a]">
+                {hasAuthorizationError && (
+                    <Link
+                        to="/"
+                        className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#f8d24e] px-6 py-3 text-sm font-semibold text-[#5c0b10] shadow-[0_18px_40px_rgba(0,0,0,0.28)] transition hover:-translate-y-0.5 hover:bg-[#ffe27a]"
+                    >
                         Return to home page
                     </Link>
                 )}

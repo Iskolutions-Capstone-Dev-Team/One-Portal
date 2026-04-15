@@ -3,6 +3,7 @@ package v1
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -53,22 +54,29 @@ func NewAuthHandler(
 // @Failure      500  {object}  dto.ErrorResponse
 // @Router       /auth/authorize [get]
 func (h *AuthHandler) HandleAuthorization(c *gin.Context) {
-	authorizeURL := os.Getenv("IDP_AUTH_URL")
-	resp, err := Client.Get(authorizeURL)
-	if err != nil {
-		log.Printf(
-			"[HandleAuthorization] Failed to redirect: %v",
-			err,
-		)
+	authorizeBaseURL := os.Getenv("IDP_AUTH_URL")
+	clientID := os.Getenv("CLIENT_ID")
+	redirectURI := os.Getenv("VITE_REDIRECT_URI")
+
+	if authorizeBaseURL == "" || clientID == "" || redirectURI == "" {
+		log.Printf("[HandleAuthorization] Config: missing env variables")
 		c.JSON(
 			http.StatusInternalServerError,
 			dto.ErrorResponse{
-				Error: "Authorization redirect failed",
+				Error: "Authorization configuration failed",
 			},
 		)
 		return
 	}
-	defer resp.Body.Close()
+
+	authorizeURL := fmt.Sprintf(
+		"%s?client_id=%s&redirect_uri=%s&response_type=code",
+		authorizeBaseURL,
+		clientID,
+		redirectURI,
+	)
+
+	c.JSON(http.StatusOK, gin.H{"url": authorizeURL})
 }
 
 // HandleCallback handles the callback from the IDP after successful auth.
@@ -97,8 +105,8 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 	}
 
 	payload, err := json.Marshal(dto.CallbackPayload{
-		ClientID:     os.Getenv("VITE_CLIENT_ID"),
-		ClientSecret: os.Getenv("VITE_CLIENT_SECRET"),
+		ClientID:     os.Getenv("CLIENT_ID"),
+		ClientSecret: os.Getenv("CLIENT_SECRET"),
 		Code:         req.Code,
 	})
 	if err != nil {
@@ -275,11 +283,20 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 
 	// Always clear the access token cookie
 	c.SetCookie(dto.AccessCookieName, "", -1, "/", "", true, true)
+	c.SetCookie(dto.SessionCookieName, "", -1, "/", "", true, true)
 
 	// Notify the Identity Provider about the logout
-	h.notifyIDPLogout()
+	url := h.notifyIDPLogout(c)
+	if url != "" {
+		resp, err := Client.Get(url)
+		if err != nil {
+			log.Printf("[Logout] IDP Notification: %v", err)
+		} else {
+			resp.Body.Close()
+		}
+	}
 
-	c.JSON(http.StatusOK, gin.H{"status": "logged out"})
+	c.JSON(http.StatusOK, gin.H{"url": url})
 }
 
 // HandleRefresh handles requesting new access and refresh tokens from the IDP.
@@ -448,22 +465,32 @@ func (h *AuthHandler) processTokenDeletion(c *gin.Context, tokenStr string) {
 }
 
 // notifyIDPLogout sends a logout notification to the IDP.
-func (h *AuthHandler) notifyIDPLogout() {
+func (h *AuthHandler) notifyIDPLogout(c *gin.Context) string {
 	logoutURL := os.Getenv("IDP_LOGOUT_URL")
-	clientID := os.Getenv("VITE_CLIENT_ID")
+	clientID := os.Getenv("CLIENT_ID")
 	if logoutURL == "" || clientID == "" {
-		return
+		return ""
 	}
 
-	payload, _ := json.Marshal(map[string]string{
-		"client_id": clientID,
-	})
-	_, err := Client.Post(
-		logoutURL,
-		"application/json",
-		bytes.NewBuffer(payload),
-	)
-	if err != nil {
-		log.Printf("[Logout] IDP Logout Request: %v", err)
+	accessToken, _ := c.Cookie(dto.AccessCookieName)
+	if accessToken == "" {
+		return logoutURL
 	}
+
+	claims, err := middleware.ValidateAccessToken(accessToken)
+	if err != nil {
+		return logoutURL
+	}
+
+	userID, ok := claims["userId"].(string)
+	if !ok {
+		return logoutURL
+	}
+
+	return fmt.Sprintf(
+		"%s?client_id=%s&user_id=%s",
+		logoutURL,
+		clientID,
+		userID,
+	)
 }

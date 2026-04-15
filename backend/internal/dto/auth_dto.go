@@ -33,4 +33,7 @@ type JWK struct {
 	Y   string `json:"y"`
 }
 
-const AccessCookieName = "access_token"
+const (
+	AccessCookieName  = "access_token"
+	SessionCookieName = "session_cookie"
+)
