@@ -2,7 +2,9 @@ import { apiRequest, fetchApiResponse, getApiUrl, readApiResponse } from "./api"
 
 const SESSION_REFRESH_TIMESTAMP_KEY = "one-portal:last-session-refresh-at";
 const AUTHORIZATION_PATH = "/auth/authorize";
+const LANDING_ROUTE_PATH = "/landingRoute";
 let authorizationRequestPromise = null;
+let authorizationCompletionPromise = null;
 
 function hasLocalStorage() {
     return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
@@ -70,7 +72,7 @@ export function getLoginPageUrl() {
 }
 
 export function getLandingPageUrl() {
-    return getAppUrl("/");
+    return getAppUrl(LANDING_ROUTE_PATH);
 }
 
 export function getLogoutFallbackUrl() {
@@ -183,14 +185,24 @@ export async function startAuthorization() {
 }
 
 export async function completeAuthorization(code) {
-    const data = await apiRequest("/auth/callback", {
-        method: "POST",
-        data: { code },
-    });
+    if (!authorizationCompletionPromise) {
+        authorizationCompletionPromise = (async () => {
+            const data = await apiRequest("/auth/callback", {
+                method: "POST",
+                data: { code },
+            });
 
-    writeSessionRefreshTimestamp();
+            writeSessionRefreshTimestamp();
 
-    return data;
+            return data;
+        })();
+    }
+
+    try {
+        return await authorizationCompletionPromise;
+    } finally {
+        authorizationCompletionPromise = null;
+    }
 }
 
 export async function logoutSession() {

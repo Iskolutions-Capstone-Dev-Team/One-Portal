@@ -6,15 +6,14 @@ export default function Callback() {
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
     const [errorMessage, setErrorMessage] = useState("");
+    const identityProviderError = searchParams.get("error");
+    const identityProviderMessage = searchParams.get("error_description");
+    const code = searchParams.get("code");
 
     useEffect(() => {
         let isMounted = true;
 
         const finishAuthorization = async () => {
-            const identityProviderError = searchParams.get("error");
-            const identityProviderMessage = searchParams.get("error_description");
-            const code = searchParams.get("code");
-
             if (identityProviderError) {
                 if (isMounted) {
                     setErrorMessage(identityProviderMessage || identityProviderError);
@@ -49,7 +48,7 @@ export default function Callback() {
         return () => {
             isMounted = false;
         };
-    }, [navigate, searchParams]);
+    }, [code, identityProviderError, identityProviderMessage, navigate]);
 
     return (
         <div className="relative min-h-screen overflow-hidden bg-[#250508] font-[Poppins] text-white">
