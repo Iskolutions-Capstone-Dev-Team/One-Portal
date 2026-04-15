@@ -1,8 +1,23 @@
 import { useEffect, useRef } from "react";
 import ErrorAlert from "../ErrorAlert";
 
-export default function OtpVerificationStep({ otp, setOtp, timer, canResend, onResend, onVerify, onClose, errorMessage, onClearError }) {
+export default function OtpVerificationStep({
+    otp,
+    setOtp,
+    timer,
+    canResend,
+    onResend,
+    onVerify,
+    onClose,
+    errorMessage,
+    onClearError,
+    email = "",
+    isResending = false,
+    isVerifying = false,
+}) {
     const inputsRef = useRef([]);
+    const otpValue = otp.join("");
+    const isVerifyDisabled = otpValue.length !== 6 || isVerifying;
 
     const handleChange = (index, value) => {
         if (!/^\d?$/.test(value)) return;
@@ -61,7 +76,7 @@ export default function OtpVerificationStep({ otp, setOtp, timer, canResend, onR
                         <h4 className="profile-otp__title">Check Your Email</h4>
                         <p className="profile-otp__text">
                             We've sent a 6-digit verification code to
-                            <span className="profile-otp__email">juan.delacruz@iskolarngbayan.pup.edu.ph</span>
+                            <span className="profile-otp__email">{email || "your email address"}</span>
                         </p>
                         <p className="profile-otp__timer-note">The code will expire in 10 minutes</p>
                     </div>
@@ -76,8 +91,8 @@ export default function OtpVerificationStep({ otp, setOtp, timer, canResend, onR
 
                     <div className="profile-otp__resend">
                         <p className="profile-otp__resend-text">Didn't receive the code?</p>
-                        <button type="button" disabled={!canResend} onClick={onResend} className="profile-link-button">
-                            Resend OTP
+                        <button type="button" disabled={!canResend || isResending} onClick={onResend} className="profile-link-button">
+                            {isResending ? "Resending..." : "Resend OTP"}
                         </button>
                         <p className="profile-otp__resend-timer">
                             Resend available in <span>00:{String(timer).padStart(2, "0")}</span>
@@ -88,8 +103,8 @@ export default function OtpVerificationStep({ otp, setOtp, timer, canResend, onR
 
             <div className="profile-modal__footer profile-modal__footer--center">
                 <div className="profile-modal__actions">
-                    <button type="button" className="profile-action profile-action--primary" onClick={() => onVerify()}>
-                        Verify &amp; Change Password
+                    <button type="button" className="profile-action profile-action--primary" onClick={() => onVerify()} disabled={isVerifyDisabled}>
+                        {isVerifying ? "Verifying..." : "Verify &amp; Change Password"}
                     </button>
                 </div>
             </div>

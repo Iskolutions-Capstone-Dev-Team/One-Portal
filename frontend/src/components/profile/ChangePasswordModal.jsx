@@ -3,8 +3,18 @@ import ChangePasswordStep from "./ChangePasswordStep";
 import OtpVerificationStep from "./OtpVerificationStep";
 import SuccessStep from "./SuccessStep";
 import SuccessAlert from "../SuccessAlert";
+import { changeCurrentUserPassword, sendProfileOtp, verifyProfileOtp } from "../../services/userSecurity";
+import { formatTimestamp } from "../../utils/formatTimestamp";
 
-export default function ChangePasswordModal({ isOpen, onClose, showCurrentPassword = true, addAuditLog, setToastMessage, enableSuccessAlert = false }) {
+export default function ChangePasswordModal({
+    isOpen,
+    onClose,
+    email = "",
+    showCurrentPassword = true,
+    addAuditLog,
+    setToastMessage,
+    enableSuccessAlert = false,
+}) {
     const [step, setStep] = useState(1);
     const [form, setForm] = useState({
         currentPassword: "",
@@ -15,18 +25,20 @@ export default function ChangePasswordModal({ isOpen, onClose, showCurrentPasswo
     const [timer, setTimer] = useState(60);
     const [canResend, setCanResend] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
+    const [passwordError, setPasswordError] = useState("");
     const [otpError, setOtpError] = useState("");
+    const [isSendingOtp, setIsSendingOtp] = useState(false);
+    const [isResendingOtp, setIsResendingOtp] = useState(false);
+    const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
 
     useEffect(() => {
-        if (step !== 2) return;
+        if (step !== 2 || canResend) {
+            return undefined;
+        }
 
-        setTimer(60);
-        setCanResend(false);
-
-        const interval = setInterval(() => {
+        const timeoutId = window.setTimeout(() => {
             setTimer((currentTime) => {
                 if (currentTime <= 1) {
-                    clearInterval(interval);
                     setCanResend(true);
                     return 0;
                 }
@@ -35,8 +47,8 @@ export default function ChangePasswordModal({ isOpen, onClose, showCurrentPasswo
             });
         }, 1000);
 
-        return () => clearInterval(interval);
-    }, [step]);
+        return () => window.clearTimeout(timeoutId);
+    }, [step, timer, canResend]);
 
     useEffect(() => {
         if (!isOpen) {
@@ -48,7 +60,13 @@ export default function ChangePasswordModal({ isOpen, onClose, showCurrentPasswo
             });
             setOtp(["", "", "", "", "", ""]);
             setSuccessMessage("");
+            setPasswordError("");
             setOtpError("");
+            setIsSendingOtp(false);
+            setIsResendingOtp(false);
+            setIsVerifyingOtp(false);
+            setTimer(60);
+            setCanResend(false);
         }
     }, [isOpen]);
 
@@ -73,7 +91,53 @@ export default function ChangePasswordModal({ isOpen, onClose, showCurrentPasswo
         }
     }, [step, setToastMessage, enableSuccessAlert]);
 
-    const verifyOTP = (submittedCode = otp.join("")) => {
+    const resetOtpTimer = () => {
+        setTimer(60);
+        setCanResend(false);
+    };
+
+    const handleRequestOtp = async () => {
+        if (!email) {
+            setPasswordError("Email is unavailable for OTP verification.");
+            return;
+        }
+
+        setPasswordError("");
+        setOtpError("");
+        setIsSendingOtp(true);
+
+        try {
+            await sendProfileOtp(email);
+            setOtp(["", "", "", "", "", ""]);
+            resetOtpTimer();
+            setStep(2);
+        } catch (error) {
+            setPasswordError(error.message || "Failed to send OTP.");
+        } finally {
+            setIsSendingOtp(false);
+        }
+    };
+
+    const handleResendOtp = async () => {
+        if (!canResend || !email) {
+            return;
+        }
+
+        setOtpError("");
+        setIsResendingOtp(true);
+
+        try {
+            await sendProfileOtp(email);
+            setOtp(["", "", "", "", "", ""]);
+            resetOtpTimer();
+        } catch (error) {
+            setOtpError(error.message || "Failed to resend OTP.");
+        } finally {
+            setIsResendingOtp(false);
+        }
+    };
+
+    const verifyOTP = async (submittedCode = otp.join("")) => {
         const code = Array.isArray(submittedCode) ? submittedCode.join("") : submittedCode;
 
         if (code.length !== 6 || !/^\d+$/.test(code)) {
@@ -82,17 +146,30 @@ export default function ChangePasswordModal({ isOpen, onClose, showCurrentPasswo
         }
 
         setOtpError("");
+        setIsVerifyingOtp(true);
 
-        if (addAuditLog) {
-            addAuditLog({
-                timestamp: new Date().toISOString().replace("T", " ").slice(0, 19),
-                action: "PASSWORD_CHANGE",
-                details: "Password changed successfully",
-                color: "yellow",
+        try {
+            await verifyProfileOtp(email, code);
+            await changeCurrentUserPassword({
+                currentPassword: form.currentPassword,
+                newPassword: form.newPassword,
             });
-        }
 
-        setStep(3);
+            if (addAuditLog) {
+                addAuditLog({
+                    timestamp: formatTimestamp(new Date().toISOString()),
+                    action: "PASSWORD_CHANGE",
+                    details: "Password changed successfully",
+                    color: "yellow",
+                });
+            }
+
+            setStep(3);
+        } catch (error) {
+            setOtpError(error.message || "Failed to verify OTP or change password.");
+        } finally {
+            setIsVerifyingOtp(false);
+        }
     };
 
     if (!isOpen) return null;
@@ -106,8 +183,11 @@ export default function ChangePasswordModal({ isOpen, onClose, showCurrentPasswo
                             form={form}
                             setForm={setForm}
                             onClose={onClose}
-                            onNext={() => setStep(2)}
+                            onNext={handleRequestOtp}
                             showCurrentPassword={showCurrentPassword}
+                            errorMessage={passwordError}
+                            isSubmitting={isSendingOtp}
+                            onClearError={() => setPasswordError("")}
                         />
                     )}
 
@@ -117,15 +197,14 @@ export default function ChangePasswordModal({ isOpen, onClose, showCurrentPasswo
                             setOtp={setOtp}
                             timer={timer}
                             canResend={canResend}
-                            onResend={() => {
-                                setOtp(["", "", "", "", "", ""]);
-                                setOtpError("");
-                                setStep(1);
-                            }}
+                            onResend={handleResendOtp}
                             onVerify={verifyOTP}
                             onClose={onClose}
                             errorMessage={otpError}
                             onClearError={() => setOtpError("")}
+                            email={email}
+                            isResending={isResendingOtp}
+                            isVerifying={isVerifyingOtp}
                         />
                     )}
 

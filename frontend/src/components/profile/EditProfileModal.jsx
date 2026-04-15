@@ -1,16 +1,20 @@
 import { useEffect, useState } from "react";
 import ErrorAlert from "../ErrorAlert";
 import { formatTimestamp } from "../../utils/formatTimestamp";
+import { updateCurrentUserProfile } from "../../services/userProfile";
 
 export default function EditProfileModal({ open, close, profileData, updateProfile, addAuditLog, allowEmailEdit = false }) {
     const [profile, setProfile] = useState({
+        id: "",
         firstName: "",
         middleName: "",
         lastName: "",
+        nameSuffix: "",
         email: "",
     });
     const [errors, setErrors] = useState({});
     const [showErrorAlert, setShowErrorAlert] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
 
     const personalFields = [
         {
@@ -21,18 +25,25 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
             required: true,
         },
         {
-            name: "middleName",
-            label: "Middle Name",
-            placeholder: "Enter middle name",
-            helper: "Optional",
-            required: false,
-        },
-        {
             name: "lastName",
             label: "Last Name",
             placeholder: "Enter last name",
             helper: "Max 50 characters",
             required: true,
+        },
+        {
+            name: "middleName",
+            label: "Middle Name",
+            placeholder: "Enter middle name",
+            helper: "Max 50 characters",
+            required: false,
+        },
+        {
+            name: "nameSuffix",
+            label: "Suffix",
+            placeholder: "Enter suffix",
+            helper: "Optional",
+            required: false,
         },
     ];
 
@@ -45,6 +56,7 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
 
         setErrors({});
         setShowErrorAlert(false);
+        setIsSaving(false);
 
         if (profileData) {
             setProfile(profileData);
@@ -72,7 +84,7 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
         });
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         const nextErrors = {};
 
         if (!profile.firstName.trim()) {
@@ -95,21 +107,33 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
 
         setErrors({});
         setShowErrorAlert(false);
+        setIsSaving(true);
 
-        if (updateProfile) {
-            updateProfile(profile);
-        }
+        try {
+            const savedProfile = await updateCurrentUserProfile(profile);
 
-        if (addAuditLog) {
-            addAuditLog({
-                timestamp: formatTimestamp(new Date().toISOString()),
-                action: "PROFILE_UPDATE",
-                details: "Updated profile information",
-                color: "blue",
+            if (updateProfile) {
+                updateProfile(savedProfile);
+            }
+
+            if (addAuditLog) {
+                addAuditLog({
+                    timestamp: formatTimestamp(new Date().toISOString()),
+                    action: "PROFILE_UPDATE",
+                    details: "Updated profile information",
+                    color: "blue",
+                });
+            }
+
+            close();
+        } catch (error) {
+            setErrors({
+                form: error.message || "Failed to update profile.",
             });
+            setShowErrorAlert(true);
+        } finally {
+            setIsSaving(false);
         }
-
-        close();
     };
 
     if (!open) return null;
@@ -182,8 +206,8 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
                         <button type="button" className="profile-action profile-action--secondary" onClick={close}>
                             Cancel
                         </button>
-                        <button type="button" className="profile-action profile-action--primary" onClick={handleSave}>
-                            Save Changes
+                        <button type="button" className="profile-action profile-action--primary" onClick={handleSave} disabled={isSaving}>
+                            {isSaving ? "Saving..." : "Save Changes"}
                         </button>
                     </div>
                 </div>
