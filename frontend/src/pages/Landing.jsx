@@ -62,7 +62,7 @@ export default function Landing() {
                             <span className="auth-entry__title-accent"> systems in one portal.</span>
                         </h1>
                         <p className="auth-entry__description">
-                            Open academic, administrative, and campus services from a single secure starting point.
+                            Academic, administrative, and campus services from a single secure starting point.
                         </p>
                     </section>
 
@@ -72,9 +72,6 @@ export default function Landing() {
                         </div>
 
                         <h2 className="auth-entry__portal-title">Portal Access</h2>
-                        <p className="auth-entry__portal-copy">
-                            Continue with your campus identity to reach the systems available to your account.
-                        </p>
 
                         <div className="auth-entry__portal-actions">
                             <button
@@ -101,8 +98,6 @@ export default function Landing() {
                                 <span>{pendingAction === "register" ? "Opening..." : "Register"}</span>
                             </button>
                         </div>
-
-                        <p className="auth-entry__portal-note">Use the campus identity page to continue into One Portal.</p>
                     </aside>
                 </main>
             </div>
