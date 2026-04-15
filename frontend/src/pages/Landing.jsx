@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { navigateToLoginPage } from "../services/auth";
+import { navigateToLoginPage, navigateToRegisterPage } from "../services/auth";
 import "../styles/AuthEntry.css";
 
 function LoginIcon() {
@@ -25,9 +25,14 @@ function RegisterIcon() {
 export default function Landing() {
     const [pendingAction, setPendingAction] = useState("");
 
-    const handlePortalEntry = (action) => {
-        setPendingAction(action);
+    const handleLoginClick = () => {
+        setPendingAction("login");
         navigateToLoginPage();
+    };
+
+    const handleRegisterClick = () => {
+        setPendingAction("register");
+        navigateToRegisterPage();
     };
 
     return (
@@ -55,7 +60,7 @@ export default function Landing() {
                             <span className="auth-entry__title-accent"> systems in one portal.</span>
                         </h1>
                         <p className="auth-entry__description">
-                            Open academic, administrative, and campus services from a single secure starting point.
+                            Academic, administrative, and campus services from a single secure starting point.
                         </p>
                     </section>
 
@@ -65,15 +70,12 @@ export default function Landing() {
                         </div>
 
                         <h2 className="auth-entry__portal-title">Portal Access</h2>
-                        <p className="auth-entry__portal-copy">
-                            Continue with your campus identity to reach the systems available to your account.
-                        </p>
 
                         <div className="auth-entry__portal-actions">
                             <button
                                 type="button"
                                 className="auth-entry__portal-button"
-                                onClick={() => handlePortalEntry("login")}
+                                onClick={handleLoginClick}
                                 disabled={Boolean(pendingAction)}
                             >
                                 <span className="auth-entry__portal-button-icon" aria-hidden="true">
@@ -85,7 +87,7 @@ export default function Landing() {
                             <button
                                 type="button"
                                 className="auth-entry__portal-button auth-entry__portal-button--secondary"
-                                onClick={() => handlePortalEntry("register")}
+                                onClick={handleRegisterClick}
                                 disabled={Boolean(pendingAction)}
                             >
                                 <span className="auth-entry__portal-button-icon" aria-hidden="true">
@@ -94,8 +96,6 @@ export default function Landing() {
                                 <span>{pendingAction === "register" ? "Opening..." : "Register"}</span>
                             </button>
                         </div>
-
-                        <p className="auth-entry__portal-note">Use the campus identity page to continue into One Portal.</p>
                     </aside>
                 </main>
             </div>
