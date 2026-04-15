@@ -4,18 +4,14 @@ import PortalHero from "../components/dashboard/PortalHero";
 import PortalToolbar from "../components/dashboard/PortalToolbar";
 import SystemGrid from "../components/dashboard/SystemGrid";
 import Pagination from "../components/Pagination";
-import { navigateToLoginPage } from "../services/auth";
+import { clearSessionState, navigateToLandingPage } from "../services/auth";
 import { getUserAccessSystems } from "../services/userAccess";
 
 const CARDS_PER_PAGE = 6;
 
-function getEmptyStateMessage({ isLoadingSystems, systemsError, systemsErrorStatus, searchQuery, hasSystems }) {
+function getEmptyStateMessage({ isLoadingSystems, systemsError, searchQuery, hasSystems }) {
     if (isLoadingSystems) {
         return "Loading your available systems...";
-    }
-
-    if (systemsErrorStatus === 401) {
-        return "Sign in to view the systems available to your account.";
     }
 
     if (systemsError) {
@@ -40,7 +36,6 @@ export default function OnePortalHome() {
     const [isLoadingSystems, setIsLoadingSystems] = useState(true);
     const [systemsError, setSystemsError] = useState("");
     const [systemsErrorStatus, setSystemsErrorStatus] = useState(null);
-    const [isRedirectingToLogin, setIsRedirectingToLogin] = useState(false);
 
     useEffect(() => {
         setCurrentPage(1);
@@ -84,16 +79,23 @@ export default function OnePortalHome() {
         };
     }, []);
 
+    useEffect(() => {
+        if (systemsErrorStatus !== 401) {
+            return;
+        }
+
+        clearSessionState();
+        navigateToLandingPage();
+    }, [systemsErrorStatus]);
+
     const normalizedQuery = searchQuery.toLowerCase();
     const filteredSystems = availableSystems.filter((system) =>
         system.title.toLowerCase().includes(normalizedQuery)
     );
     const totalPages = Math.max(1, Math.ceil(filteredSystems.length / CARDS_PER_PAGE));
-    const showSignInButton = systemsErrorStatus === 401;
     const emptyStateMessage = getEmptyStateMessage({
         isLoadingSystems,
         systemsError,
-        systemsErrorStatus,
         searchQuery,
         hasSystems: availableSystems.length > 0,
     });
@@ -104,33 +106,20 @@ export default function OnePortalHome() {
         }
     }, [currentPage, totalPages]);
 
-    const handleSignIn = () => {
-        setIsRedirectingToLogin(true);
-        navigateToLoginPage();
-    };
+    if (systemsErrorStatus === 401) {
+        return null;
+    }
 
     return (
         <OnePortalLayout>
             <div className="portal-home">
-                <PortalHero>
-                    {showSignInButton ? (
-                        <div className="header-actions">
-                            <button type="button" className="header-action-button" onClick={handleSignIn} disabled={isRedirectingToLogin}>
-                                {isRedirectingToLogin ? "Opening login..." : "Login with IDP"}
-                            </button>
-
-                            <p className="header-note">
-                                Access is personalized. Continue through the IDP login page to load your available systems.
-                            </p>
-                        </div>
-                    ) : null}
-                </PortalHero>
+                <PortalHero />
                 <main className="portal-home__main">
                     <div className="portal-home__shell">
                         <PortalToolbar
                             searchQuery={searchQuery}
                             setSearchQuery={setSearchQuery}
-                            isSearchDisabled={isLoadingSystems || showSignInButton || Boolean(systemsError)}
+                            isSearchDisabled={isLoadingSystems || Boolean(systemsError)}
                         />
 
                         <SystemGrid

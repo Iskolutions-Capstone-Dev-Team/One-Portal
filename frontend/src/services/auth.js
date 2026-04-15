@@ -3,11 +3,16 @@ import { apiRequest, fetchApiResponse, getApiUrl, readApiResponse } from "./api"
 const SESSION_REFRESH_TIMESTAMP_KEY = "one-portal:last-session-refresh-at";
 const AUTHORIZATION_PATH = "/auth/authorize";
 const LANDING_ROUTE_PATH = "/landingRoute";
+const SESSION_COOKIE_NAMES = ["access_token", "session_cookie"];
 let authorizationRequestPromise = null;
 let authorizationCompletionPromise = null;
 
 function hasLocalStorage() {
     return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
+}
+
+function hasDocument() {
+    return typeof document !== "undefined";
 }
 
 function readSessionRefreshTimestamp() {
@@ -83,6 +88,18 @@ function isCurrentPage(url) {
     return window.location.href === url;
 }
 
+export function navigateToLandingPage() {
+    const landingPageUrl = getLandingPageUrl();
+
+    if (isCurrentPage(landingPageUrl)) {
+        return false;
+    }
+
+    window.location.assign(landingPageUrl);
+
+    return true;
+}
+
 export function navigateToLoginPage() {
     const loginPageUrl = getLoginPageUrl();
 
@@ -103,6 +120,14 @@ function getAuthorizationResponseUrl(data) {
     const authorizationUrl = data.redirect_url ?? data.redirectUrl ?? data.url;
 
     return typeof authorizationUrl === "string" ? authorizationUrl.trim() : "";
+}
+
+function getLogoutResponseUrl(data) {
+    if (!data || typeof data === "string") {
+        return "";
+    }
+
+    return typeof data.url === "string" ? data.url.trim() : "";
 }
 
 function getAuthorizationLocationUrl(response) {
@@ -205,10 +230,67 @@ export async function completeAuthorization(code) {
     }
 }
 
-export async function logoutSession() {
-    await apiRequest("/auth/logout", {
-        method: "POST",
+export function clearSessionCookies() {
+    if (!hasDocument()) {
+        return;
+    }
+
+    SESSION_COOKIE_NAMES.forEach((cookieName) => {
+        document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
     });
+}
+
+async function notifyBrowserLogout(logoutUrl) {
+    if (!logoutUrl || !hasDocument() || !document.body) {
+        return;
+    }
+
+    await new Promise((resolve) => {
+        const logoutFrame = document.createElement("iframe");
+        const cleanup = () => {
+            window.clearTimeout(timeoutId);
+
+            if (logoutFrame.parentNode) {
+                logoutFrame.parentNode.removeChild(logoutFrame);
+            }
+        };
+        const finish = () => {
+            cleanup();
+            resolve();
+        };
+        const timeoutId = window.setTimeout(finish, 2000);
+
+        logoutFrame.style.display = "none";
+        logoutFrame.setAttribute("aria-hidden", "true");
+        logoutFrame.onload = finish;
+        logoutFrame.onerror = finish;
+        logoutFrame.src = logoutUrl;
+
+        document.body.appendChild(logoutFrame);
+    });
+}
+
+export function clearSessionState() {
+    authorizationRequestPromise = null;
+    authorizationCompletionPromise = null;
+    clearSessionRefreshTimestamp();
+    clearSessionCookies();
+}
+
+export async function logoutSession() {
+    let logoutUrl = "";
+
+    try {
+        const data = await apiRequest("/auth/logout", {
+            method: "POST",
+        });
+
+        logoutUrl = getLogoutResponseUrl(data);
+    } finally {
+        clearSessionState();
+    }
+
+    await notifyBrowserLogout(logoutUrl);
 
     return getLogoutFallbackUrl();
 }

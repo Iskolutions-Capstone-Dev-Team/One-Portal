@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import OnePortalLayout from "../layouts/OnePortalLayout";
 import ProfileCard from "../components/profile/ProfileCard";
 import AuditLogs from "../components/profile/AuditLogs";
+import { clearSessionState, navigateToLandingPage } from "../services/auth";
 import { getRecentAuditLogs } from "../services/logs";
 
 export default function Profile() {
@@ -9,6 +10,7 @@ export default function Profile() {
     const [localLogs, setLocalLogs] = useState([]);
     const [isLoadingLogs, setIsLoadingLogs] = useState(true);
     const [logsError, setLogsError] = useState("");
+    const [logsErrorStatus, setLogsErrorStatus] = useState(null);
 
     const profile = {
         firstName: "Juan",
@@ -29,10 +31,12 @@ export default function Profile() {
                 if (isMounted) {
                     setBackendLogs(recentLogs);
                     setLogsError("");
+                    setLogsErrorStatus(null);
                 }
             } catch (error) {
                 if (isMounted) {
                     setLogsError(error.message);
+                    setLogsErrorStatus(error.status ?? null);
                 }
             } finally {
                 if (isMounted) {
@@ -48,11 +52,24 @@ export default function Profile() {
         };
     }, []);
 
+    useEffect(() => {
+        if (logsErrorStatus !== 401) {
+            return;
+        }
+
+        clearSessionState();
+        navigateToLandingPage();
+    }, [logsErrorStatus]);
+
     const handleAddAuditLog = (log) => {
         setLocalLogs((currentLogs) => [log, ...currentLogs]);
     };
 
     const logs = [...localLogs, ...backendLogs];
+
+    if (logsErrorStatus === 401) {
+        return null;
+    }
 
     return (
         <OnePortalLayout>
