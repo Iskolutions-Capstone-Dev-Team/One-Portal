@@ -4,23 +4,49 @@ import ProfileCard from "../components/profile/ProfileCard";
 import AuditLogs from "../components/profile/AuditLogs";
 import { clearSessionState, navigateToLandingPage } from "../services/auth";
 import { getRecentAuditLogs } from "../services/logs";
+import { createEmptyProfile, getCurrentUserProfile } from "../services/userProfile";
 
 export default function Profile() {
+    const [profile, setProfile] = useState(createEmptyProfile());
+    const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+    const [profileError, setProfileError] = useState("");
+    const [profileErrorStatus, setProfileErrorStatus] = useState(null);
     const [backendLogs, setBackendLogs] = useState([]);
     const [localLogs, setLocalLogs] = useState([]);
     const [isLoadingLogs, setIsLoadingLogs] = useState(true);
     const [logsError, setLogsError] = useState("");
     const [logsErrorStatus, setLogsErrorStatus] = useState(null);
 
-    const profile = {
-        firstName: "Juan",
-        middleName: "Miguel",
-        lastName: "Dela Cruz",
-        email: "juan.delacruz@iskolarngbayan.pup.edu.ph",
-    };
-
     useEffect(() => {
         let isMounted = true;
+
+        const loadProfile = async () => {
+            setIsLoadingProfile(true);
+
+            try {
+                const userProfile = await getCurrentUserProfile();
+
+                if (!isMounted) {
+                    return;
+                }
+
+                setProfile(userProfile);
+                setProfileError("");
+                setProfileErrorStatus(null);
+            } catch (error) {
+                if (!isMounted) {
+                    return;
+                }
+
+                setProfile(createEmptyProfile());
+                setProfileError(error.message);
+                setProfileErrorStatus(error.status ?? null);
+            } finally {
+                if (isMounted) {
+                    setIsLoadingProfile(false);
+                }
+            }
+        };
 
         const loadLogs = async () => {
             setIsLoadingLogs(true);
@@ -45,7 +71,8 @@ export default function Profile() {
             }
         };
 
-        loadLogs();
+        void loadProfile();
+        void loadLogs();
 
         return () => {
             isMounted = false;
@@ -53,21 +80,27 @@ export default function Profile() {
     }, []);
 
     useEffect(() => {
-        if (logsErrorStatus !== 401) {
+        if (profileErrorStatus !== 401 && logsErrorStatus !== 401) {
             return;
         }
 
         clearSessionState();
         navigateToLandingPage();
-    }, [logsErrorStatus]);
+    }, [profileErrorStatus, logsErrorStatus]);
 
     const handleAddAuditLog = (log) => {
         setLocalLogs((currentLogs) => [log, ...currentLogs]);
     };
 
+    const hasUnauthorizedError = profileErrorStatus === 401 || logsErrorStatus === 401;
     const logs = [...localLogs, ...backendLogs];
+    const pageDescription = profileError
+        ? profileError
+        : isLoadingProfile
+            ? "Loading your account details..."
+            : "Review your account details and recent activity in one place.";
 
-    if (logsErrorStatus === 401) {
+    if (hasUnauthorizedError) {
         return null;
     }
 
@@ -75,6 +108,12 @@ export default function Profile() {
         <OnePortalLayout>
             <main className="profile-page">
                 <div className="profile-page__shell">
+                    <section className="profile-page__intro">
+                        <p className="profile-page__eyebrow">Account Profile</p>
+                        <h1 className="profile-page__title">Your Profile</h1>
+                        <p className="profile-page__description">{pageDescription}</p>
+                    </section>
+
                     <ProfileCard
                         profile={profile}
                         addAuditLog={handleAddAuditLog}

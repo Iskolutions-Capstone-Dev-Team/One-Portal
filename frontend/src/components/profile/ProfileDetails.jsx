@@ -6,15 +6,15 @@ export default function ProfileDetails({ profile }) {
     ];
 
     const auditFields = [
-        { id: "createdAt", label: "Created At", value: "2023-08-15 10:30:45" },
-        { id: "updatedAt", label: "Updated At", value: "2024-01-20 14:25:10" },
+        { id: "createdAt", label: "Created At", value: profile.createdAt || "Not available" },
+        { id: "updatedAt", label: "Updated At", value: profile.updatedAt || "Not available" },
     ];
 
     return (
         <section className="profile-details">
             <div className="profile-details__grid">
                 {detailFields.map((field) => (
-                        <div key={field.id} className="profile-detail-card">
+                    <div key={field.id} className="profile-detail-card">
                         <div className="profile-detail-card__label">
                             <span className="profile-detail-card__icon" aria-hidden="true">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
@@ -25,7 +25,7 @@ export default function ProfileDetails({ profile }) {
                         </div>
 
                         <div className="profile-detail-card__value" id={field.id}>
-                            {field.value}
+                            {field.value || "Not available"}
                         </div>
                     </div>
                 ))}
