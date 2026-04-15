@@ -1727,7 +1727,7 @@ input[type="checkbox"] {
 
 .profile-details__grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
 }
 
@@ -1794,10 +1794,15 @@ input[type="checkbox"] {
 }
 
 .profile-detail-card__value {
+  min-height: 1.5rem;
   margin-top: 0.95rem;
   color: var(--profile-text);
   font-size: 1.03rem;
   font-weight: 700;
+}
+
+.profile-detail-card__empty {
+  display: block;
 }
 
 .profile-details__audit {

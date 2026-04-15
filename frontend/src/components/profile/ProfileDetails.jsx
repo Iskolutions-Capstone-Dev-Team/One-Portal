@@ -1,13 +1,9 @@
 export default function ProfileDetails({ profile }) {
     const detailFields = [
         { id: "firstName", label: "First Name", value: profile.firstName },
-        { id: "middleName", label: "Middle Name", value: profile.middleName ?? "" },
         { id: "lastName", label: "Last Name", value: profile.lastName },
-    ];
-
-    const auditFields = [
-        { id: "createdAt", label: "Created At", value: profile.createdAt || "Not available" },
-        { id: "updatedAt", label: "Updated At", value: profile.updatedAt || "Not available" },
+        { id: "middleName", label: "Middle Name", value: profile.middleName ?? "", keepBlank: true },
+        { id: "nameSuffix", label: "Suffix", value: profile.nameSuffix ?? "", keepBlank: true },
     ];
 
     return (
@@ -25,25 +21,10 @@ export default function ProfileDetails({ profile }) {
                         </div>
 
                         <div className="profile-detail-card__value" id={field.id}>
-                            {field.value || "Not available"}
+                            {field.value || (field.keepBlank ? <span className="profile-detail-card__empty" aria-hidden="true">&nbsp;</span> : "Not available")}
                         </div>
                     </div>
                 ))}
-            </div>
-
-            <div className="profile-details__audit">
-                <h3 className="profile-details__section-title">Audit Information</h3>
-
-                <div className="profile-details__audit-grid">
-                    {auditFields.map((field) => (
-                        <article key={field.id} className="profile-audit-card">
-                            <p className="profile-audit-card__label">{field.label}</p>
-                            <p className="profile-audit-card__value" id={field.id}>
-                                {field.value}
-                            </p>
-                        </article>
-                    ))}
-                </div>
             </div>
         </section>
     );

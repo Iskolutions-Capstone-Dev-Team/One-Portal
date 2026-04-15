@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import EditProfileModal from "./EditProfileModal";
 import ChangePasswordModal from "./ChangePasswordModal";
 import ProfileDetails from "./ProfileDetails";
-import EmailStatus from "./EmailStatus";
 import ActionButtons from "./ActionButtons";
 import SuccessAlert from "../SuccessAlert";
 
@@ -20,6 +19,7 @@ export default function ProfileCard({ profile, addAuditLog, allowEmailEdit = fal
         currentProfile.firstName,
         currentProfile.middleName,
         currentProfile.lastName,
+        currentProfile.nameSuffix,
     ]
         .filter(Boolean)
         .join(" ");
@@ -61,7 +61,6 @@ export default function ProfileCard({ profile, addAuditLog, allowEmailEdit = fal
 
                 <div className="profile-card__body">
                     <ProfileDetails profile={currentProfile} />
-                    <EmailStatus />
                     <ActionButtons
                         openEdit={() => setEditOpen(true)}
                         openPassword={() => setPasswordOpen(true)}
