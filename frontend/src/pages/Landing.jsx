@@ -1,8 +1,6 @@
 import { useState } from "react";
-import { navigateToLoginPage } from "../services/auth";
+import { navigateToLoginPage, navigateToRegisterPage } from "../services/auth";
 import "../styles/AuthEntry.css";
-
-const registerPageUrl = import.meta.env.VITE_REGISTER_PAGE_URL?.trim();
 
 function LoginIcon() {
     return (
@@ -34,7 +32,7 @@ export default function Landing() {
 
     const handleRegisterClick = () => {
         setPendingAction("register");
-        window.location.assign(registerPageUrl || new URL("/register", window.location.origin).toString());
+        navigateToRegisterPage();
     };
 
     return (

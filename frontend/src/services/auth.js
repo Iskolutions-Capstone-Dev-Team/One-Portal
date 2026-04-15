@@ -65,6 +65,41 @@ function getConfiguredLoginPageUrl() {
     return new URL("/login", window.location.origin).toString();
 }
 
+function getConfiguredRegisterPageUrl() {
+    const registerPageUrl = import.meta.env.VITE_REGISTER_PAGE_URL;
+
+    if (registerPageUrl) {
+        try {
+            return new URL(registerPageUrl).toString();
+        } catch (error) {
+            console.error("Invalid VITE_REGISTER_PAGE_URL value.", error);
+        }
+    }
+
+    const redirectUri = import.meta.env.VITE_REDIRECT_URI;
+
+    if (redirectUri) {
+        try {
+            return new URL("/register", redirectUri).toString();
+        } catch (error) {
+            console.error("Invalid VITE_REDIRECT_URI value.", error);
+        }
+    }
+
+    return new URL("/register", window.location.origin).toString();
+}
+
+export function getRegisterPageUrl() {
+    const registerUrl = new URL(getConfiguredRegisterPageUrl());
+    const clientId = import.meta.env.VITE_CLIENT_ID;
+
+    if (clientId) {
+        registerUrl.searchParams.set("client_id", clientId);
+    }
+
+    return registerUrl.toString();
+}
+
 export function getLoginPageUrl() {
     const loginUrl = new URL(getConfiguredLoginPageUrl());
     const clientId = import.meta.env.VITE_CLIENT_ID;
@@ -108,6 +143,18 @@ export function navigateToLoginPage() {
     }
 
     window.location.assign(loginPageUrl);
+
+    return true;
+}
+
+export function navigateToRegisterPage() {
+    const registerPageUrl = getRegisterPageUrl();
+
+    if (isCurrentPage(registerPageUrl)) {
+        return false;
+    }
+
+    window.location.assign(registerPageUrl);
 
     return true;
 }
