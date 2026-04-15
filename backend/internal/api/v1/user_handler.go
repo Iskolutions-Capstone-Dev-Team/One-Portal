@@ -116,7 +116,7 @@ func (h *UserHandler) PatchUserName(c *gin.Context) {
 	userID, err := uuid.Parse(id)
 	if err != nil {
 		c.JSON(
-			http.StatusBadRequest, 
+			http.StatusBadRequest,
 			dto.ErrorResponse{Error: "Invalid ID"},
 		)
 		return
@@ -125,7 +125,7 @@ func (h *UserHandler) PatchUserName(c *gin.Context) {
 	var req dto.UpdateUserNameRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(
-			http.StatusBadRequest, 
+			http.StatusBadRequest,
 			dto.ErrorResponse{Error: "Invalid request"},
 		)
 		return
@@ -136,11 +136,12 @@ func (h *UserHandler) PatchUserName(c *gin.Context) {
 	idpURL := fmt.Sprintf("%s/%s/name", os.Getenv("IDP_USER_URL"), id)
 	body, _ := json.Marshal(req)
 	proxyReq, _ := http.NewRequest(
-		http.MethodPatch, 
-		idpURL, 
+		http.MethodPatch,
+		idpURL,
 		bytes.NewBuffer(body),
 	)
 	proxyReq.Header.Set("Content-Type", "application/json")
+	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
 	if token != "" {
 		proxyReq.Header.Set("Authorization", "Bearer "+token)
 	}
@@ -189,6 +190,7 @@ func (h *UserHandler) PatchUserPasswordByEmail(c *gin.Context) {
 	body, _ := json.Marshal(req)
 	proxyReq, _ := http.NewRequest(http.MethodPatch, idpURL, bytes.NewBuffer(body))
 	proxyReq.Header.Set("Content-Type", "application/json")
+	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
 
 	resp, err := Client.Do(proxyReq)
 	if err != nil || resp.StatusCode != http.StatusOK {
@@ -226,6 +228,7 @@ func (h *UserHandler) PatchChangePassword(c *gin.Context) {
 	body, _ := json.Marshal(req)
 	proxyReq, _ := http.NewRequest(http.MethodPatch, idpURL, bytes.NewBuffer(body))
 	proxyReq.Header.Set("Content-Type", "application/json")
+	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
 
 	token, _ := c.Cookie(dto.AccessCookieName)
 	if token != "" {
