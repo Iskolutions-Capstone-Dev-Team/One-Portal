@@ -54,7 +54,9 @@ func NewAuthHandler(
 // @Failure      500  {object}  dto.ErrorResponse
 // @Router       /auth/authorize [get]
 func (h *AuthHandler) HandleAuthorization(c *gin.Context) {
-	authorizeURL := os.Getenv("IDP_AUTH_URL")
+	authorizeBaseURL := os.Getenv("IDP_AUTH_URL")
+	clientID := os.Getenv("VITE_CLIENT_ID")
+	authorizeURL := fmt.Sprintf("%s?client_id=%s", authorizeBaseURL, clientID)
 	resp, err := Client.Get(authorizeURL)
 	if err != nil {
 		log.Printf(
