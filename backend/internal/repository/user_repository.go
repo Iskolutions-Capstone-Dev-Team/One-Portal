@@ -11,6 +11,7 @@ import (
 type UserRepository interface {
 	CreateUser(ctx context.Context, user models.User) error
 	GetUserByID(ctx context.Context, id uuid.UUID) (models.User, error)
+	UpdateUser(ctx context.Context, id uuid.UUID, user models.User) error
 }
 
 type userRepository struct {
@@ -65,4 +66,22 @@ func (r *userRepository) GetUserByID(
 	}
 
 	return user, nil
+}
+
+func (r *userRepository) UpdateUser(
+	ctx context.Context, 
+	id uuid.UUID, 
+	user models.User,
+) error {
+	q := `UPDATE users SET first_name = ?, middle_name = ?, last_name = ?, 
+		name_suffix = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`
+	
+	idBytes, err := id.MarshalBinary()
+	if err != nil {
+		return err
+	}
+
+	_, err = r.db.ExecContext(ctx, q, user.FirstName, user.MiddleName, 
+		user.LastName, user.NameSuffix, idBytes)
+	return err
 }

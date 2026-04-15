@@ -31,3 +31,20 @@ type MeResponse struct {
 	Email          string    `json:"email"`
 	AllowedClients []string  `json:"allowed_clients"`
 }
+
+type UpdateUserNameRequest struct {
+	FirstName  string `json:"first_name" binding:"required"`
+	MiddleName string `json:"middle_name"`
+	LastName   string `json:"last_name" binding:"required"`
+	NameSuffix string `json:"name_suffix"`
+}
+
+type UpdatePasswordByEmailRequest struct {
+	Email       string `json:"email" binding:"required,email"`
+	NewPassword string `json:"new_password" binding:"required"`
+}
+
+type ChangePasswordRequest struct {
+	OldPassword string `json:"old_password" binding:"required"`
+	NewPassword string `json:"new_password" binding:"required,min=8"`
+}

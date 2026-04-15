@@ -99,7 +99,15 @@ func (f *fakeUserRepoService) GetUserByID(
 	ctx context.Context, 
 	id uuid.UUID,
 ) (models.User, error) {
-	return models.User{ID: id}, nil
+	return models.User{ID: id, Email: "test@example.com"}, nil
+}
+
+func (f *fakeUserRepoService) UpdateUserName(
+	ctx context.Context, 
+	id uuid.UUID, 
+	req dto.UpdateUserNameRequest,
+) error {
+	return nil
 }
 
 type fakeRoundTripper struct {
