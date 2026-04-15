@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import PortalNavbar from "../components/dashboard/PortalNavbar";
 import PortalFooter from "../components/dashboard/PortalFooter";
 import FloatingActionMenu from "../components/FloatingActionMenu";
 import { usePortalTheme } from "../context/PortalThemeContext";
-import { getSessionRefreshDelay, refreshSession } from "../services/auth";
+import { clearSessionRefreshTimestamp, getLoginPageUrl, getSessionRefreshDelay, refreshSession } from "../services/auth";
 
 const REFRESH_INTERVAL_MS = 10 * 60 * 1000;
 const SKELETON_CARDS = Array.from({ length: 6 });
@@ -111,7 +110,6 @@ function PortalLayoutSkeleton() {
 
 export default function OnePortalLayout({ children }) {
     const { theme } = usePortalTheme();
-    const navigate = useNavigate();
     const [isSessionReady, setIsSessionReady] = useState(() => getSessionRefreshDelay(REFRESH_INTERVAL_MS) > 0);
 
     useEffect(() => {
@@ -134,7 +132,8 @@ export default function OnePortalLayout({ children }) {
                 }
 
                 if (error.status === 401) {
-                    navigate("/", { replace: true });
+                    clearSessionRefreshTimestamp();
+                    window.location.assign(getLoginPageUrl());
                     return;
                 }
 
@@ -165,7 +164,7 @@ export default function OnePortalLayout({ children }) {
             window.clearTimeout(timeoutId);
             window.clearInterval(intervalId);
         };
-    }, [navigate]);
+    }, []);
 
     if (!isSessionReady) {
         return (

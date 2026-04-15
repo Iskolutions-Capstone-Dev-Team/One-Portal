@@ -1,9 +1,9 @@
 import SystemCard from "./SystemCard";
 import MotionWrapper from "../MotionWrapper";
 
-export default function SystemGrid({ systems, currentPage = 1, cardsPerPage = 6 }) {
+export default function SystemGrid({ systems, currentPage = 1, cardsPerPage = 6, emptyMessage = "No systems found" }) {
     if (!systems.length) {
-        return <p className="portal-systems__empty">No systems found</p>;
+        return <p className="portal-systems__empty">{emptyMessage}</p>;
     }
 
     const startIndex = (currentPage - 1) * cardsPerPage;

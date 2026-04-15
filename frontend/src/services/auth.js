@@ -1,4 +1,4 @@
-import { apiRequest, fetchApiResponse, readApiResponse } from "./api";
+import { apiRequest } from "./api";
 
 const SESSION_REFRESH_TIMESTAMP_KEY = "one-portal:last-session-refresh-at";
 
@@ -28,53 +28,54 @@ function writeSessionRefreshTimestamp(timestamp = Date.now()) {
     window.localStorage.setItem(SESSION_REFRESH_TIMESTAMP_KEY, String(timestamp));
 }
 
-function getResponseRedirectUrl(response) {
-    if (!response.redirected || !response.url) {
-        return null;
+function getConfiguredLoginPageUrl() {
+    const loginPageUrl = import.meta.env.VITE_LOGIN_PAGE_URL;
+
+    if (loginPageUrl) {
+        try {
+            return new URL(loginPageUrl).toString();
+        } catch (error) {
+            console.error("Invalid VITE_LOGIN_PAGE_URL value.", error);
+        }
     }
 
-    return response.url;
+    const redirectUri = import.meta.env.VITE_REDIRECT_URI;
+
+    if (redirectUri) {
+        try {
+            return new URL("/login", redirectUri).toString();
+        } catch (error) {
+            console.error("Invalid VITE_REDIRECT_URI value.", error);
+        }
+    }
+
+    return new URL("/login", window.location.origin).toString();
 }
 
-function createAuthError(response, data) {
-    const error = new Error(
-        data?.error ?? data?.message ?? `Request failed with status ${response.status}`
-    );
+export function getLoginPageUrl() {
+    const loginUrl = new URL(getConfiguredLoginPageUrl());
+    const clientId = import.meta.env.VITE_CLIENT_ID;
 
-    error.status = response.status;
-    error.data = data;
+    if (clientId) {
+        loginUrl.searchParams.set("client_id", clientId);
+    }
 
-    return error;
+    return loginUrl.toString();
 }
 
 export function getLogoutFallbackUrl() {
-    return new URL("/", window.location.origin).toString();
+    return getLoginPageUrl();
 }
 
 export async function startAuthorization() {
-    const response = await fetchApiResponse("/auth/authorize", {
-        method: "GET",
-    });
-
-    const redirectUrl = getResponseRedirectUrl(response);
-
-    if (redirectUrl) {
-        window.location.assign(redirectUrl);
-        return true;
-    }
-
-    if (!response.ok) {
-        const data = await readApiResponse(response);
-        throw createAuthError(response, data);
-    }
-
-    return false;
+    window.location.assign(getLoginPageUrl());
+    return true;
 }
 
 export async function completeAuthorization(code) {
     const data = await apiRequest("/auth/callback", {
         method: "POST",
-        body: JSON.stringify({ code }),
+        data: { code },
     });
 
     writeSessionRefreshTimestamp();
@@ -83,21 +84,9 @@ export async function completeAuthorization(code) {
 }
 
 export async function logoutSession() {
-    const response = await fetchApiResponse("/auth/logout", {
+    await apiRequest("/auth/logout", {
         method: "POST",
     });
-
-    const redirectUrl = getResponseRedirectUrl(response);
-
-    if (redirectUrl) {
-        return redirectUrl;
-    }
-
-    const data = await readApiResponse(response);
-
-    if (!response.ok) {
-        throw createAuthError(response, data);
-    }
 
     return getLogoutFallbackUrl();
 }

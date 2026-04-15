@@ -1,4 +1,9 @@
+import axios from "axios";
+
 const DEV_API_BASE_URL = "/api/v1";
+const apiClient = axios.create({
+    withCredentials: true,
+});
 
 function normalizeBaseUrl(baseUrl) {
     if (!baseUrl) {
@@ -12,20 +17,65 @@ function normalizePath(path) {
     return path.startsWith("/") ? path : `/${path}`;
 }
 
+function toHeaderObject(headers = {}) {
+    const normalizedHeaders = new Headers(headers);
+    const headerObject = {};
+
+    normalizedHeaders.forEach((value, key) => {
+        headerObject[key] = value;
+    });
+
+    return headerObject;
+}
+
+function hasHeader(headers, headerName) {
+    return Object.keys(headers).some((key) => key.toLowerCase() === headerName.toLowerCase());
+}
+
 function buildHeaders(headers = {}, body) {
-    const requestHeaders = new Headers(headers);
+    const requestHeaders = toHeaderObject(headers);
 
-    requestHeaders.set("Accept", "application/json");
-
-    if (body && !(body instanceof FormData) && !requestHeaders.has("Content-Type")) {
-        requestHeaders.set("Content-Type", "application/json");
+    if (!hasHeader(requestHeaders, "Accept")) {
+        requestHeaders.Accept = "application/json";
     }
 
-    if (!import.meta.env.DEV && import.meta.env.VITE_BACKEND_API_KEY && !requestHeaders.has("X-API-Key")) {
-        requestHeaders.set("X-API-Key", import.meta.env.VITE_BACKEND_API_KEY);
+    if (body && !(body instanceof FormData) && !hasHeader(requestHeaders, "Content-Type")) {
+        requestHeaders["Content-Type"] = "application/json";
+    }
+
+    if (!import.meta.env.DEV && import.meta.env.VITE_BACKEND_API_KEY && !hasHeader(requestHeaders, "X-API-Key")) {
+        requestHeaders["X-API-Key"] = import.meta.env.VITE_BACKEND_API_KEY;
     }
 
     return requestHeaders;
+}
+
+function getErrorMessage(data, status) {
+    if (typeof data === "string" && data.trim()) {
+        return data;
+    }
+
+    return data?.error ?? data?.message ?? `Request failed with status ${status}`;
+}
+
+function createApiError(status, data) {
+    const error = new Error(getErrorMessage(data, status));
+
+    error.status = status;
+    error.data = data;
+
+    return error;
+}
+
+function buildAxiosRequestConfig(options = {}) {
+    const { headers, body, data, ...restOptions } = options;
+    const requestData = data ?? body;
+
+    return {
+        ...restOptions,
+        data: requestData,
+        headers: buildHeaders(headers, requestData),
+    };
 }
 
 export function getApiUrl(path) {
@@ -60,19 +110,30 @@ export async function fetchApiResponse(path, options = {}) {
 }
 
 export async function apiRequest(path, options = {}) {
-    const response = await fetchApiResponse(path, options);
-    const data = await readApiResponse(response);
+    try {
+        const response = await apiClient.request({
+            url: getApiUrl(path),
+            validateStatus: () => true,
+            ...buildAxiosRequestConfig(options),
+        });
 
-    if (!response.ok) {
-        const error = new Error(
-            data?.error ?? data?.message ?? `Request failed with status ${response.status}`
-        );
+        if (response.status < 200 || response.status >= 300) {
+            throw createApiError(response.status, response.data);
+        }
 
-        error.status = response.status;
-        error.data = data;
+        return response.data;
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            if (error.response) {
+                throw createApiError(error.response.status, error.response.data);
+            }
+
+            const networkError = new Error(error.message || "Network request failed");
+            networkError.cause = error;
+
+            throw networkError;
+        }
 
         throw error;
     }
-
-    return data;
 }
