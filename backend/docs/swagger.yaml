@@ -6,6 +6,17 @@ definitions:
     required:
     - code
     type: object
+  dto.ChangePasswordRequest:
+    properties:
+      new_password:
+        minLength: 8
+        type: string
+      old_password:
+        type: string
+    required:
+    - new_password
+    - old_password
+    type: object
   dto.ClientDetailedAccessResponse:
     properties:
       base_url:
@@ -30,6 +41,71 @@ definitions:
         items:
           $ref: '#/definitions/models.Log'
         type: array
+    type: object
+  dto.MeResponse:
+    properties:
+      allowed_clients:
+        items:
+          type: string
+        type: array
+      email:
+        type: string
+      first_name:
+        type: string
+      id:
+        type: string
+      last_name:
+        type: string
+      middle_name:
+        type: string
+      name_suffix:
+        type: string
+    type: object
+  dto.OTPRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  dto.SuccessResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  dto.UpdatePasswordByEmailRequest:
+    properties:
+      email:
+        type: string
+      new_password:
+        type: string
+    required:
+    - email
+    - new_password
+    type: object
+  dto.UpdateUserNameRequest:
+    properties:
+      first_name:
+        type: string
+      last_name:
+        type: string
+      middle_name:
+        type: string
+      name_suffix:
+        type: string
+    required:
+    - first_name
+    - last_name
+    type: object
+  dto.VerifyOTPRequest:
+    properties:
+      email:
+        type: string
+      otp:
+        type: string
+    required:
+    - email
+    - otp
     type: object
   models.Log:
     properties:
@@ -178,6 +254,198 @@ paths:
       summary: Refresh Session
       tags:
       - Auth
+  /otp/send:
+    post:
+      consumes:
+      - application/json
+      description: Generates a 6-digit numeric OTP and sends it via email through
+        IDP.
+      parameters:
+      - description: OTP Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.OTPRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Send OTP Code
+      tags:
+      - otp
+  /otp/verify:
+    post:
+      consumes:
+      - application/json
+      description: Verifies a 6-digit numeric OTP for a user through IDP.
+      parameters:
+      - description: Verify OTP Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.VerifyOTPRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Verify OTP Code
+      tags:
+      - otp
+  /user/{id}/name:
+    patch:
+      consumes:
+      - application/json
+      description: Proxies name update to IDP and synchronizes with local database.
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Name Data
+        in: body
+        name: name
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateUserNameRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update user name
+      tags:
+      - User
+  /user/password/change:
+    patch:
+      consumes:
+      - application/json
+      description: Proxies current user's password change request to the Identity
+        Provider.
+      parameters:
+      - description: Password Data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Change password
+      tags:
+      - User
+  /user/password/forgot:
+    patch:
+      consumes:
+      - application/json
+      description: Proxies password reset request by email to the Identity Provider.
+      parameters:
+      - description: Email Data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdatePasswordByEmailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      summary: Forgot password
+      tags:
+      - User
+  /userinfo:
+    get:
+      description: Fetches the current user's profile from the IDP or database.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.MeResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user info
+      tags:
+      - User
   /users/access:
     get:
       description: Fetches detailed access information by proxying to the IDP.
@@ -205,4 +473,10 @@ paths:
       summary: Get detailed user access
       tags:
       - User Access
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer <your_token>"
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

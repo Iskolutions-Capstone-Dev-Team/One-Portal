@@ -1,7 +1,16 @@
 import { useState } from "react";
 import ErrorAlert from "../ErrorAlert";
 
-export default function ChangePasswordStep({ form, setForm, onNext, onClose, showCurrentPassword = true }) {
+export default function ChangePasswordStep({
+    form,
+    setForm,
+    onNext,
+    onClose,
+    showCurrentPassword = true,
+    errorMessage = "",
+    isSubmitting = false,
+    onClearError,
+}) {
     const [showPassword, setShowPassword] = useState({
         currentPassword: false,
         newPassword: false,
@@ -43,6 +52,7 @@ export default function ChangePasswordStep({ form, setForm, onNext, onClose, sho
     const handleChange = (event) => {
         const { name, value } = event.target;
         setForm((prev) => ({ ...prev, [name]: value }));
+        onClearError?.();
     };
 
     const toggleShowPassword = (field) => {
@@ -77,6 +87,7 @@ export default function ChangePasswordStep({ form, setForm, onNext, onClose, sho
         return showValidationError && Boolean(fieldErrors[field]);
     };
 
+    const isContinueDisabled = Object.keys(fieldErrors).length > 0 || isSubmitting;
     const alertMessage = Object.values(fieldErrors)[0] ?? "";
 
     return (
@@ -96,6 +107,13 @@ export default function ChangePasswordStep({ form, setForm, onNext, onClose, sho
 
             <div className="profile-modal__body">
                 <form className="profile-form" onSubmit={(event) => event.preventDefault()}>
+                    {errorMessage && (
+                        <ErrorAlert
+                            message={errorMessage}
+                            onClose={onClearError}
+                        />
+                    )}
+
                     {showErrorAlert && showValidationError && alertMessage && (
                         <ErrorAlert
                             message={alertMessage}
@@ -158,8 +176,8 @@ export default function ChangePasswordStep({ form, setForm, onNext, onClose, sho
                     <button type="button" className="profile-action profile-action--secondary" onClick={onClose}>
                         Cancel
                     </button>
-                    <button type="button" className="profile-action profile-action--primary" onClick={handleNext}>
-                        Continue
+                    <button type="button" className="profile-action profile-action--primary" onClick={handleNext} disabled={isContinueDisabled}>
+                        {isSubmitting ? "Sending OTP..." : "Continue"}
                     </button>
                 </div>
             </div>

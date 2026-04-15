@@ -15,6 +15,8 @@ type Routes struct {
 	AuthHandler *v1.AuthHandler
 	ClientHandler *v1.ClientHandler
 	UserAccessHandler *v1.UserAccessHandler
+	UserHandler       *v1.UserHandler
+	OTP               *v1.OTPHandler
 }
 
 // NewRoutes creates a route container with all handlers.
@@ -24,6 +26,8 @@ func NewRoutes(handlers *initializers.Handlers) *Routes {
 		AuthHandler: handlers.Auth,
 		ClientHandler: handlers.Client,
 		UserAccessHandler: handlers.UserAccess,
+		UserHandler: handlers.User,
+		OTP:         handlers.OTP,
 	}
 }
 
@@ -50,4 +54,18 @@ func (r *Routes) Register(router *gin.Engine) {
 	clientsGroup.DELETE("/:id", r.ClientHandler.DeleteClient)
 
 	v1Group.GET("/users/access", r.UserAccessHandler.GetUserDetailedAccess)
+	v1Group.GET("/userinfo", middleware.JWTAuthMiddleware, r.UserHandler.HandleUserInfo)
+
+	userGroup := v1Group.Group("/user")
+	{
+		userGroup.PATCH("/:id/name", r.UserHandler.PatchUserName)
+		userGroup.PATCH("/password/forgot", r.UserHandler.PatchUserPasswordByEmail)
+		userGroup.PATCH("/password/change", middleware.JWTAuthMiddleware, r.UserHandler.PatchChangePassword)
+	}
+
+	otpGroup := v1Group.Group("/otp")
+	{
+		otpGroup.POST("/send", r.OTP.SendOTP)
+		otpGroup.POST("/verify", r.OTP.VerifyOTP)
+	}
 }
