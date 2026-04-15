@@ -3,7 +3,7 @@ import PortalNavbar from "../components/dashboard/PortalNavbar";
 import PortalFooter from "../components/dashboard/PortalFooter";
 import FloatingActionMenu from "../components/FloatingActionMenu";
 import { usePortalTheme } from "../context/PortalThemeContext";
-import { clearSessionRefreshTimestamp, getSessionRefreshDelay, refreshSession, startAuthorization } from "../services/auth";
+import { clearSessionRefreshTimestamp, getSessionRefreshDelay, navigateToLoginPage, refreshSession } from "../services/auth";
 
 const REFRESH_INTERVAL_MS = 10 * 60 * 1000;
 const SKELETON_CARDS = Array.from({ length: 6 });
@@ -133,13 +133,7 @@ export default function OnePortalLayout({ children }) {
 
                 if (error.status === 401) {
                     clearSessionRefreshTimestamp();
-
-                    try {
-                        await startAuthorization();
-                    } catch (authorizationError) {
-                        console.error("Failed to redirect to the authorization flow.", authorizationError);
-                    }
-
+                    navigateToLoginPage();
                     return;
                 }
 

@@ -4,7 +4,7 @@ import PortalHero from "../components/dashboard/PortalHero";
 import PortalToolbar from "../components/dashboard/PortalToolbar";
 import SystemGrid from "../components/dashboard/SystemGrid";
 import Pagination from "../components/Pagination";
-import { startAuthorization } from "../services/auth";
+import { navigateToLoginPage } from "../services/auth";
 import { getUserAccessSystems } from "../services/userAccess";
 
 const CARDS_PER_PAGE = 6;
@@ -40,8 +40,7 @@ export default function OnePortalHome() {
     const [isLoadingSystems, setIsLoadingSystems] = useState(true);
     const [systemsError, setSystemsError] = useState("");
     const [systemsErrorStatus, setSystemsErrorStatus] = useState(null);
-    const [isStartingAuthorization, setIsStartingAuthorization] = useState(false);
-    const [authorizationError, setAuthorizationError] = useState("");
+    const [isRedirectingToLogin, setIsRedirectingToLogin] = useState(false);
 
     useEffect(() => {
         setCurrentPage(1);
@@ -105,17 +104,9 @@ export default function OnePortalHome() {
         }
     }, [currentPage, totalPages]);
 
-    const handleSignIn = async () => {
-        setIsStartingAuthorization(true);
-        setAuthorizationError("");
-
-        try {
-            await startAuthorization();
-        } catch (error) {
-            setAuthorizationError(error.message);
-        } finally {
-            setIsStartingAuthorization(false);
-        }
+    const handleSignIn = () => {
+        setIsRedirectingToLogin(true);
+        navigateToLoginPage();
     };
 
     return (
@@ -124,12 +115,12 @@ export default function OnePortalHome() {
                 <PortalHero>
                     {showSignInButton ? (
                         <div className="header-actions">
-                            <button type="button" className="header-action-button" onClick={handleSignIn} disabled={isStartingAuthorization}>
-                                {isStartingAuthorization ? "Redirecting..." : "Sign in to continue"}
+                            <button type="button" className="header-action-button" onClick={handleSignIn} disabled={isRedirectingToLogin}>
+                                {isRedirectingToLogin ? "Opening login..." : "Login with IDP"}
                             </button>
 
-                            <p className={`header-note ${authorizationError ? "header-note--error" : ""}`}>
-                                {authorizationError || "Access is personalized. Sign in to load your available systems."}
+                            <p className="header-note">
+                                Access is personalized. Continue through the IDP login page to load your available systems.
                             </p>
                         </div>
                     ) : null}

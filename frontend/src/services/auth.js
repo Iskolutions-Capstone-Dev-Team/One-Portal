@@ -2,6 +2,7 @@ import { apiRequest, fetchApiResponse, getApiUrl, readApiResponse } from "./api"
 
 const SESSION_REFRESH_TIMESTAMP_KEY = "one-portal:last-session-refresh-at";
 const AUTHORIZATION_PATH = "/auth/authorize";
+let authorizationRequestPromise = null;
 
 function hasLocalStorage() {
     return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
@@ -27,6 +28,10 @@ function writeSessionRefreshTimestamp(timestamp = Date.now()) {
     }
 
     window.localStorage.setItem(SESSION_REFRESH_TIMESTAMP_KEY, String(timestamp));
+}
+
+function getAppUrl(pathname) {
+    return new URL(pathname, window.location.origin).toString();
 }
 
 function getConfiguredLoginPageUrl() {
@@ -64,8 +69,28 @@ export function getLoginPageUrl() {
     return loginUrl.toString();
 }
 
+export function getLandingPageUrl() {
+    return getAppUrl("/");
+}
+
 export function getLogoutFallbackUrl() {
-    return getLoginPageUrl();
+    return getLandingPageUrl();
+}
+
+function isCurrentPage(url) {
+    return window.location.href === url;
+}
+
+export function navigateToLoginPage() {
+    const loginPageUrl = getLoginPageUrl();
+
+    if (isCurrentPage(loginPageUrl)) {
+        return false;
+    }
+
+    window.location.assign(loginPageUrl);
+
+    return true;
 }
 
 function getAuthorizationResponseUrl(data) {
@@ -105,6 +130,14 @@ function createAuthorizationError(status, data) {
     return error;
 }
 
+function createMissingAuthorizationRedirectError() {
+    const error = new Error("The authorization redirect is unavailable.");
+
+    error.status = 500;
+
+    return error;
+}
+
 async function getAuthorizationUrl() {
     const response = await fetchApiResponse(AUTHORIZATION_PATH, {
         method: "GET",
@@ -122,20 +155,30 @@ async function getAuthorizationUrl() {
         throw createAuthorizationError(response.status, data);
     }
 
-    return getAuthorizationResponseUrl(data) || getLoginPageUrl();
+    const authorizationUrl = getAuthorizationResponseUrl(data);
+
+    if (authorizationUrl) {
+        return authorizationUrl;
+    }
+
+    throw createMissingAuthorizationRedirectError();
 }
 
 export async function startAuthorization() {
+    if (!authorizationRequestPromise) {
+        authorizationRequestPromise = (async () => {
+            const authorizationUrl = await getAuthorizationUrl();
+
+            window.location.assign(authorizationUrl);
+
+            return true;
+        })();
+    }
+
     try {
-        const authorizationUrl = await getAuthorizationUrl();
-
-        window.location.assign(authorizationUrl);
-        return true;
-    } catch (error) {
-        console.error("Failed to start authorization through /auth/authorize. Falling back to the login page.", error);
-
-        window.location.assign(getLoginPageUrl());
-        return false;
+        return await authorizationRequestPromise;
+    } finally {
+        authorizationRequestPromise = null;
     }
 }
 
