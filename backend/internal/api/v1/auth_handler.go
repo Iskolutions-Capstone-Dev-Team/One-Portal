@@ -3,6 +3,7 @@ package v1
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -277,9 +278,9 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 	c.SetCookie(dto.AccessCookieName, "", -1, "/", "", true, true)
 
 	// Notify the Identity Provider about the logout
-	h.notifyIDPLogout()
+	url := h.notifyIDPLogout(c)
 
-	c.JSON(http.StatusOK, gin.H{"status": "logged out"})
+	c.JSON(http.StatusOK, gin.H{"url": url})
 }
 
 // HandleRefresh handles requesting new access and refresh tokens from the IDP.
@@ -448,22 +449,32 @@ func (h *AuthHandler) processTokenDeletion(c *gin.Context, tokenStr string) {
 }
 
 // notifyIDPLogout sends a logout notification to the IDP.
-func (h *AuthHandler) notifyIDPLogout() {
+func (h *AuthHandler) notifyIDPLogout(c *gin.Context) string {
 	logoutURL := os.Getenv("IDP_LOGOUT_URL")
 	clientID := os.Getenv("VITE_CLIENT_ID")
 	if logoutURL == "" || clientID == "" {
-		return
+		return ""
 	}
 
-	payload, _ := json.Marshal(map[string]string{
-		"client_id": clientID,
-	})
-	_, err := Client.Post(
-		logoutURL,
-		"application/json",
-		bytes.NewBuffer(payload),
-	)
-	if err != nil {
-		log.Printf("[Logout] IDP Logout Request: %v", err)
+	accessToken, _ := c.Cookie(dto.AccessCookieName)
+	if accessToken == "" {
+		return logoutURL
 	}
+
+	claims, err := middleware.ValidateAccessToken(accessToken)
+	if err != nil {
+		return logoutURL
+	}
+
+	userID, ok := claims["userId"].(string)
+	if !ok {
+		return logoutURL
+	}
+
+	return fmt.Sprintf(
+		"%s?client_id=%s&user_id=%s",
+		logoutURL,
+		clientID,
+		userID,
+	)
 }
