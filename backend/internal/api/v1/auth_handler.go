@@ -55,23 +55,28 @@ func NewAuthHandler(
 // @Router       /auth/authorize [get]
 func (h *AuthHandler) HandleAuthorization(c *gin.Context) {
 	authorizeBaseURL := os.Getenv("IDP_AUTH_URL")
-	clientID := os.Getenv("VITE_CLIENT_ID")
-	authorizeURL := fmt.Sprintf("%s?client_id=%s", authorizeBaseURL, clientID)
-	resp, err := Client.Get(authorizeURL)
-	if err != nil {
-		log.Printf(
-			"[HandleAuthorization] Failed to redirect: %v",
-			err,
-		)
+	clientID := os.Getenv("CLIENT_ID")
+	redirectURI := os.Getenv("VITE_REDIRECT_URI")
+
+	if authorizeBaseURL == "" || clientID == "" || redirectURI == "" {
+		log.Printf("[HandleAuthorization] Config: missing env variables")
 		c.JSON(
 			http.StatusInternalServerError,
 			dto.ErrorResponse{
-				Error: "Authorization redirect failed",
+				Error: "Authorization configuration failed",
 			},
 		)
 		return
 	}
-	defer resp.Body.Close()
+
+	authorizeURL := fmt.Sprintf(
+		"%s?client_id=%s&redirect_uri=%s&response_type=code",
+		authorizeBaseURL,
+		clientID,
+		redirectURI,
+	)
+
+	c.Redirect(http.StatusFound, authorizeURL)
 }
 
 // HandleCallback handles the callback from the IDP after successful auth.
@@ -100,8 +105,8 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 	}
 
 	payload, err := json.Marshal(dto.CallbackPayload{
-		ClientID:     os.Getenv("VITE_CLIENT_ID"),
-		ClientSecret: os.Getenv("VITE_CLIENT_SECRET"),
+		ClientID:     os.Getenv("CLIENT_ID"),
+		ClientSecret: os.Getenv("CLIENT_SECRET"),
 		Code:         req.Code,
 	})
 	if err != nil {
@@ -461,7 +466,7 @@ func (h *AuthHandler) processTokenDeletion(c *gin.Context, tokenStr string) {
 // notifyIDPLogout sends a logout notification to the IDP.
 func (h *AuthHandler) notifyIDPLogout(c *gin.Context) string {
 	logoutURL := os.Getenv("IDP_LOGOUT_URL")
-	clientID := os.Getenv("VITE_CLIENT_ID")
+	clientID := os.Getenv("CLIENT_ID")
 	if logoutURL == "" || clientID == "" {
 		return ""
 	}
