@@ -76,13 +76,21 @@ func ValidateAccessToken(tokenStr string) (jwt.MapClaims, error) {
 	return claims, nil
 }
 
-// JWTAuthMiddleware checks the access token cookie and validates its claims.
+// JWTAuthMiddleware checks the access token in a cookie or Authorization header.
 func JWTAuthMiddleware(c *gin.Context) {
-	tStr, _ := c.Cookie(dto.AccessCookieName)
+	tStr, err := c.Cookie(dto.AccessCookieName)
+	if err != nil || tStr == "" {
+		// Fallback to Authorization header for simulation/Swagger
+		authHeader := c.GetHeader("Authorization")
+		if len(authHeader) > 7 && authHeader[:7] == "Bearer " {
+			tStr = authHeader[7:]
+		}
+	}
+
 	if tStr == "" {
 		c.AbortWithStatusJSON(
 			http.StatusUnauthorized,
-			dto.ErrorResponse{Error: "Unauthorized"},
+			dto.ErrorResponse{Error: "Unauthorized or missing token"},
 		)
 		return
 	}
