@@ -39,7 +39,6 @@ func (r *Routes) Register(router *gin.Engine) {
 	apiGroup := router.Group("/api")
 	v1Group := apiGroup.Group("/v1")
 
-	v1Group.Use(middleware.APIKeyAuthMiddleware)
 	v1Group.GET("/logs", r.LogHandler.HandleGetLogs)
 	v1Group.GET("/announcement", r.Announcement.HandleGetAnnouncement)
 
