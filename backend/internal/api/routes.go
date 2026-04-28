@@ -1,19 +1,19 @@
 package api
 
 import (
+	_ "github.com/Iskolutions-Capstone-Dev-Team/One-Portal/docs"
 	v1 "github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/api/v1"
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/initializers"
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/middleware"
 	"github.com/gin-gonic/gin"
-	_ "github.com/Iskolutions-Capstone-Dev-Team/One-Portal/docs"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Routes struct {
-	LogHandler  *v1.LogHandler
-	AuthHandler *v1.AuthHandler
-	ClientHandler *v1.ClientHandler
+	LogHandler        *v1.LogHandler
+	AuthHandler       *v1.AuthHandler
+	ClientHandler     *v1.ClientHandler
 	UserAccessHandler *v1.UserAccessHandler
 	UserHandler       *v1.UserHandler
 	OTP               *v1.OTPHandler
@@ -23,13 +23,13 @@ type Routes struct {
 // NewRoutes creates a route container with all handlers.
 func NewRoutes(handlers *initializers.Handlers) *Routes {
 	return &Routes{
-		LogHandler:  handlers.Log,
-		AuthHandler: handlers.Auth,
-		ClientHandler: handlers.Client,
+		LogHandler:        handlers.Log,
+		AuthHandler:       handlers.Auth,
+		ClientHandler:     handlers.Client,
 		UserAccessHandler: handlers.UserAccess,
-		UserHandler: handlers.User,
-		OTP:         handlers.OTP,
-		Announcement: handlers.Announcement,
+		UserHandler:       handlers.User,
+		OTP:               handlers.OTP,
+		Announcement:      handlers.Announcement,
 	}
 }
 

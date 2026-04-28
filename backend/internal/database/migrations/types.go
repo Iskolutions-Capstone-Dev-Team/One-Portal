@@ -6,7 +6,7 @@ type MigrationPart struct {
 }
 
 type MigrationStep struct {
-	ID  string 
+	ID  string
 	SQL string
 }
 

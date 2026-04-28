@@ -25,24 +25,24 @@ func NewUserRepository(db *sqlx.DB) UserRepository {
 func (r *userRepository) CreateUser(ctx context.Context, user models.User) error {
 	q := `INSERT INTO users (id, username, first_name, middle_name, last_name, 
 		name_suffix, email) VALUES (?, ?, ?, ?, ?, ?, ?)`
-	
+
 	idBytes, err := user.ID.MarshalBinary()
 	if err != nil {
 		return err
 	}
 
-	_, err = r.db.ExecContext(ctx, q, idBytes, user.Username, user.FirstName, 
+	_, err = r.db.ExecContext(ctx, q, idBytes, user.Username, user.FirstName,
 		user.MiddleName, user.LastName, user.NameSuffix, user.Email)
 	return err
 }
 
 func (r *userRepository) GetUserByID(
-	ctx context.Context, 
+	ctx context.Context,
 	id uuid.UUID,
 ) (models.User, error) {
 	q := `SELECT id, username, first_name, middle_name, last_name, name_suffix, 
 		email, created_at, updated_at, last_login FROM users WHERE id = ?`
-	
+
 	idBytes, err := id.MarshalBinary()
 	if err != nil {
 		return models.User{}, err
@@ -52,8 +52,8 @@ func (r *userRepository) GetUserByID(
 	var idFromDB []byte
 	row := r.db.QueryRowContext(ctx, q, idBytes)
 	err = row.Scan(
-		&idFromDB, &user.Username, &user.FirstName, &user.MiddleName, 
-		&user.LastName, &user.NameSuffix, &user.Email, &user.CreatedAt, 
+		&idFromDB, &user.Username, &user.FirstName, &user.MiddleName,
+		&user.LastName, &user.NameSuffix, &user.Email, &user.CreatedAt,
 		&user.UpdatedAt, &user.LastLogin,
 	)
 	if err != nil {
@@ -69,19 +69,19 @@ func (r *userRepository) GetUserByID(
 }
 
 func (r *userRepository) UpdateUser(
-	ctx context.Context, 
-	id uuid.UUID, 
+	ctx context.Context,
+	id uuid.UUID,
 	user models.User,
 ) error {
 	q := `UPDATE users SET first_name = ?, middle_name = ?, last_name = ?, 
 		name_suffix = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`
-	
+
 	idBytes, err := id.MarshalBinary()
 	if err != nil {
 		return err
 	}
 
-	_, err = r.db.ExecContext(ctx, q, user.FirstName, user.MiddleName, 
+	_, err = r.db.ExecContext(ctx, q, user.FirstName, user.MiddleName,
 		user.LastName, user.NameSuffix, idBytes)
 	return err
 }

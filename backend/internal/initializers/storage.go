@@ -28,7 +28,7 @@ func InitS3Storage() error {
 	if publicEndpoint == "" {
 		signedEndpoint = endpoint
 	}
-	
+
 	client, err := minio.New(signedEndpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(accessKey, secretKey, ""),
 		Secure: useSSL,
