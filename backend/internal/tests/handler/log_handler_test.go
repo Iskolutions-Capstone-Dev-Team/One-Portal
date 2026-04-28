@@ -1,7 +1,6 @@
 package handler_test
 
 import (
-	"context"
 	"crypto/rand"
 	"encoding/hex"
 	"net/http"
@@ -13,27 +12,15 @@ import (
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/initializers"
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/middleware"
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/models"
+	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/tests/mocks"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/mock/gomock"
 )
 
-// fakeLogService is a test stub for service.LogService.
-type fakeLogService struct{}
-
-func (f *fakeLogService) LogAction(
-	ctx context.Context, actor, action string,
-) error {
-	return nil
-}
-
-func (f *fakeLogService) GetLogs(
-	ctx context.Context, actor string, limit, offset int,
-) ([]models.Log, error) {
-	return []models.Log{
-		{ID: 1, Actor: "test", Action: "x", Result: "ok"},
-	}, nil
-}
-
 func TestRoutesRegisterAndLogHandler(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
 
@@ -46,7 +33,14 @@ func TestRoutesRegisterAndLogHandler(t *testing.T) {
 	os.Setenv("VITE_BACKEND_API_KEY", validAPIKey)
 	defer os.Unsetenv("VITE_BACKEND_API_KEY")
 
-	services := &initializers.Services{Log: &fakeLogService{}}
+	logSvc := mocks.NewMockLogService(ctrl)
+
+	logSvc.EXPECT().
+		GetLogs(gomock.Any(), "", 20, 0).
+		Return([]models.Log{{ID: 1, Actor: "test", Action: "x", Result: "ok"}}, nil).
+		Times(1)
+
+	services := &initializers.Services{Log: logSvc}
 	handlers := initializers.InitHandlers(services)
 	routes := api.NewRoutes(handlers)
 	routes.Register(router)
