@@ -5,12 +5,12 @@ import (
 )
 
 type Handlers struct {
-	Log  *v1.LogHandler
-	Auth *v1.AuthHandler
-	Client *v1.ClientHandler
-	User       *v1.UserHandler
-	UserAccess *v1.UserAccessHandler
-	OTP        *v1.OTPHandler
+	Log          *v1.LogHandler
+	Auth         *v1.AuthHandler
+	Client       *v1.ClientHandler
+	User         *v1.UserHandler
+	UserAccess   *v1.UserAccessHandler
+	OTP          *v1.OTPHandler
 	Announcement *v1.AnnouncementHandler
 }
 
@@ -18,12 +18,12 @@ type Handlers struct {
 // Add new handlers here in future and expose via Handlers.
 func InitHandlers(services *Services) *Handlers {
 	return &Handlers{
-		Log:        v1.NewLogHandler(services.Log),
-		Auth:       v1.NewAuthHandler(services.Log, services.RefreshToken, services.User),
-		User:       v1.NewUserHandler(services.User),
-		Client:     v1.NewClientHandler(services.Client),
-		UserAccess: v1.NewUserAccessHandler(),
-		OTP:        v1.NewOTPHandler(),
+		Log:          v1.NewLogHandler(services.Log),
+		Auth:         v1.NewAuthHandler(services.Log, services.RefreshToken, services.User),
+		User:         v1.NewUserHandler(services.User),
+		Client:       v1.NewClientHandler(services.Client),
+		UserAccess:   v1.NewUserAccessHandler(),
+		OTP:          v1.NewOTPHandler(),
 		Announcement: v1.NewAnnouncementHandler(),
 	}
 }

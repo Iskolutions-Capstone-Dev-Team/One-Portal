@@ -29,36 +29,36 @@ type fakeAuthRepoService struct {
 }
 
 func (f *fakeAuthRepoService) CreateToken(
-	ctx context.Context, 
+	ctx context.Context,
 	token models.RefreshToken,
 ) error {
 	return nil
 }
 
 func (f *fakeAuthRepoService) GetToken(
-	ctx context.Context, 
+	ctx context.Context,
 	token string,
 ) (models.RefreshToken, error) {
 	return models.RefreshToken{}, nil
 }
 
 func (f *fakeAuthRepoService) UpdateToken(
-	ctx context.Context, 
-	token string, 
+	ctx context.Context,
+	token string,
 	expiresAt time.Time,
 ) error {
 	return nil
 }
 
 func (f *fakeAuthRepoService) DeleteToken(
-	ctx context.Context, 
+	ctx context.Context,
 	token string,
 ) error {
 	return nil
 }
 
 func (f *fakeAuthRepoService) DeleteTokensByUserID(
-	ctx context.Context, 
+	ctx context.Context,
 	userID []byte,
 ) error {
 	f.deletedUserID = userID
@@ -66,14 +66,14 @@ func (f *fakeAuthRepoService) DeleteTokensByUserID(
 }
 
 func (f *fakeAuthRepoService) GetTokenByUserID(
-	ctx context.Context, 
+	ctx context.Context,
 	userID []byte,
 ) (models.RefreshToken, error) {
 	return models.RefreshToken{Token: "fake-rt"}, nil
 }
 
 func (f *fakeAuthRepoService) DeleteExpiredTokens(
-	ctx context.Context, 
+	ctx context.Context,
 	at time.Time,
 ) (int64, error) {
 	return 0, nil
@@ -82,29 +82,29 @@ func (f *fakeAuthRepoService) DeleteExpiredTokens(
 type fakeUserRepoService struct{}
 
 func (f *fakeUserRepoService) CreateUser(
-	ctx context.Context, 
+	ctx context.Context,
 	user models.User,
 ) error {
 	return nil
 }
 
 func (f *fakeUserRepoService) CreateUserFromMe(
-	ctx context.Context, 
+	ctx context.Context,
 	me dto.MeResponse,
 ) error {
 	return nil
 }
 
 func (f *fakeUserRepoService) GetUserByID(
-	ctx context.Context, 
+	ctx context.Context,
 	id uuid.UUID,
 ) (models.User, error) {
 	return models.User{ID: id, Email: "test@example.com"}, nil
 }
 
 func (f *fakeUserRepoService) UpdateUserName(
-	ctx context.Context, 
-	id uuid.UUID, 
+	ctx context.Context,
+	id uuid.UUID,
 	req dto.UpdateUserNameRequest,
 ) error {
 	return nil
@@ -171,8 +171,8 @@ func TestAuthHandlerLogout(t *testing.T) {
 	token := "eyJhbGciOiJub25lIn0." + b64Pld + ".sig"
 
 	req := httptest.NewRequest(
-		http.MethodPost, 
-		"/api/v1/auth/logout", 
+		http.MethodPost,
+		"/api/v1/auth/logout",
 		nil,
 	)
 	req.Header.Set(middleware.APIHeaderKey, key)
@@ -211,7 +211,7 @@ func TestAuthHandlerLogout(t *testing.T) {
 	// 3. Check if IDP was notified
 	if fTripper.lastRequest == nil {
 		t.Error("expected IDP logout notification")
-	} else if !bytes.HasPrefix([]byte(fTripper.lastRequest.URL.String()), 
+	} else if !bytes.HasPrefix([]byte(fTripper.lastRequest.URL.String()),
 		[]byte("http://idp/logout")) {
 		t.Errorf("wrong IDP URL: %s", fTripper.lastRequest.URL.String())
 	}
@@ -231,8 +231,8 @@ func TestAuthHandlerHandleAuthorization(t *testing.T) {
 	}()
 
 	req := httptest.NewRequest(
-		http.MethodGet, 
-		"/api/v1/auth/authorize", 
+		http.MethodGet,
+		"/api/v1/auth/authorize",
 		nil,
 	)
 	req.Header.Set(middleware.APIHeaderKey, key)

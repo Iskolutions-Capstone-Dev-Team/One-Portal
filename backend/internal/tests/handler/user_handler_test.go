@@ -23,7 +23,9 @@ type mockUserSyncService struct {
 }
 
 func (m *mockUserSyncService) CreateUser(ctx context.Context, user models.User) error { return nil }
-func (m *mockUserSyncService) CreateUserFromMe(ctx context.Context, me dto.MeResponse) error { return nil }
+func (m *mockUserSyncService) CreateUserFromMe(ctx context.Context, me dto.MeResponse) error {
+	return nil
+}
 func (m *mockUserSyncService) GetUserByID(ctx context.Context, id uuid.UUID) (models.User, error) {
 	return models.User{ID: id}, nil
 }
@@ -36,7 +38,7 @@ func (m *mockUserSyncService) UpdateUserName(ctx context.Context, id uuid.UUID, 
 
 func TestUserHandler_PatchUserName(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	
+
 	// Mock IDP Server
 	idpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPatch {
@@ -46,13 +48,13 @@ func TestUserHandler_PatchUserName(t *testing.T) {
 		json.NewEncoder(w).Encode(dto.SuccessResponse{Message: "IDP Success"})
 	}))
 	defer idpServer.Close()
-	
+
 	os.Setenv("IDP_USER_URL", idpServer.URL)
 	defer os.Unsetenv("IDP_USER_URL")
 
 	svc := &mockUserSyncService{}
 	h := v1.NewUserHandler(svc)
-	
+
 	r := gin.New()
 	r.PATCH("/user/:id/name", h.PatchUserName)
 
@@ -62,10 +64,10 @@ func TestUserHandler_PatchUserName(t *testing.T) {
 		LastName:  "Doe",
 	}
 	body, _ := json.Marshal(reqBody)
-	
+
 	req := httptest.NewRequest(http.MethodPatch, "/user/"+userID.String()+"/name", bytes.NewBuffer(body))
 	w := httptest.NewRecorder()
-	
+
 	r.ServeHTTP(w, req)
 
 	if w.Code != http.StatusOK {
@@ -84,13 +86,13 @@ func TestUserHandler_PatchUserName(t *testing.T) {
 
 func TestUserHandler_ProxyPasswordEndpoints(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	
+
 	mockIDP := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(dto.SuccessResponse{Message: "IDP Success"})
 	}))
 	defer mockIDP.Close()
-	
+
 	os.Setenv("IDP_USER_URL", mockIDP.URL)
 	defer os.Unsetenv("IDP_USER_URL")
 
@@ -102,7 +104,7 @@ func TestUserHandler_ProxyPasswordEndpoints(t *testing.T) {
 
 	// 1. Test forgot password
 	forgotBody, _ := json.Marshal(dto.UpdatePasswordByEmailRequest{
-		Email: "test@example.com", 
+		Email:       "test@example.com",
 		NewPassword: "newpassword123",
 	})
 	req1 := httptest.NewRequest(http.MethodPatch, "/user/password/forgot", bytes.NewBuffer(forgotBody))
@@ -114,7 +116,7 @@ func TestUserHandler_ProxyPasswordEndpoints(t *testing.T) {
 
 	// 2. Test change password
 	changeBody, _ := json.Marshal(dto.ChangePasswordRequest{
-		OldPassword: "oldpassword", 
+		OldPassword: "oldpassword",
 		NewPassword: "newpassword123",
 	})
 	req2 := httptest.NewRequest(http.MethodPatch, "/user/password/change", bytes.NewBuffer(changeBody))
