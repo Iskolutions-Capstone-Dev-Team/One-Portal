@@ -37,10 +37,10 @@ func (h *OTPHandler) SendOTP(c *gin.Context) {
 
 	idpURL := fmt.Sprintf("%s/send", os.Getenv("IDP_OTP_URL"))
 	body, _ := json.Marshal(req)
-	
+
 	proxyReq, _ := http.NewRequest(
-		http.MethodPost, 
-		idpURL, 
+		http.MethodPost,
+		idpURL,
 		bytes.NewBuffer(body),
 	)
 	proxyReq.Header.Set("Content-Type", "application/json")
@@ -80,8 +80,8 @@ func (h *OTPHandler) VerifyOTP(c *gin.Context) {
 	body, _ := json.Marshal(req)
 
 	proxyReq, _ := http.NewRequest(
-		http.MethodPost, 
-		idpURL, 
+		http.MethodPost,
+		idpURL,
 		bytes.NewBuffer(body),
 	)
 	proxyReq.Header.Set("Content-Type", "application/json")
@@ -97,7 +97,7 @@ func (h *OTPHandler) VerifyOTP(c *gin.Context) {
 	defer resp.Body.Close()
 
 	c.JSON(
-		http.StatusOK, 
+		http.StatusOK,
 		dto.SuccessResponse{Message: "OTP verified successfully"},
 	)
 }

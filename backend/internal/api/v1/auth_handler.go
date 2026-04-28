@@ -76,7 +76,7 @@ func (h *AuthHandler) HandleAuthorization(c *gin.Context) {
 		redirectURI,
 	)
 
-	c.JSON(http.StatusOK, gin.H{"url": authorizeURL})
+	c.Redirect(http.StatusFound, authorizeURL)
 }
 
 // HandleCallback handles the callback from the IDP after successful auth.
