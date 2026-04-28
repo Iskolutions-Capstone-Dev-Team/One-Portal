@@ -2,113 +2,25 @@ package handler_test
 
 import (
 	"bytes"
-	"context"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/hex"
+	"encoding/json"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
-	"time"
 
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/api"
 	v1 "github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/api/v1"
-	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/dto"
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/initializers"
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/middleware"
-	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/models"
+	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/tests/mocks"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"go.uber.org/mock/gomock"
 )
-
-// fakeAuthRepoService for AuthService stubbing
-type fakeAuthRepoService struct {
-	deletedUserID []byte
-}
-
-func (f *fakeAuthRepoService) CreateToken(
-	ctx context.Context,
-	token models.RefreshToken,
-) error {
-	return nil
-}
-
-func (f *fakeAuthRepoService) GetToken(
-	ctx context.Context,
-	token string,
-) (models.RefreshToken, error) {
-	return models.RefreshToken{}, nil
-}
-
-func (f *fakeAuthRepoService) UpdateToken(
-	ctx context.Context,
-	token string,
-	expiresAt time.Time,
-) error {
-	return nil
-}
-
-func (f *fakeAuthRepoService) DeleteToken(
-	ctx context.Context,
-	token string,
-) error {
-	return nil
-}
-
-func (f *fakeAuthRepoService) DeleteTokensByUserID(
-	ctx context.Context,
-	userID []byte,
-) error {
-	f.deletedUserID = userID
-	return nil
-}
-
-func (f *fakeAuthRepoService) GetTokenByUserID(
-	ctx context.Context,
-	userID []byte,
-) (models.RefreshToken, error) {
-	return models.RefreshToken{Token: "fake-rt"}, nil
-}
-
-func (f *fakeAuthRepoService) DeleteExpiredTokens(
-	ctx context.Context,
-	at time.Time,
-) (int64, error) {
-	return 0, nil
-}
-
-type fakeUserRepoService struct{}
-
-func (f *fakeUserRepoService) CreateUser(
-	ctx context.Context,
-	user models.User,
-) error {
-	return nil
-}
-
-func (f *fakeUserRepoService) CreateUserFromMe(
-	ctx context.Context,
-	me dto.MeResponse,
-) error {
-	return nil
-}
-
-func (f *fakeUserRepoService) GetUserByID(
-	ctx context.Context,
-	id uuid.UUID,
-) (models.User, error) {
-	return models.User{ID: id, Email: "test@example.com"}, nil
-}
-
-func (f *fakeUserRepoService) UpdateUserName(
-	ctx context.Context,
-	id uuid.UUID,
-	req dto.UpdateUserNameRequest,
-) error {
-	return nil
-}
 
 type fakeRoundTripper struct {
 	lastRequest *http.Request
@@ -123,8 +35,8 @@ func (f *fakeRoundTripper) RoundTrip(r *http.Request) (*http.Response, error) {
 }
 
 func setupTestRouter(
-	authSvc *fakeAuthRepoService,
-) (*gin.Engine, string) {
+	ctrl *gomock.Controller,
+) (*gin.Engine, string, *mocks.MockAuthService, *mocks.MockUserService, *mocks.MockLogService) {
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
 
@@ -136,21 +48,27 @@ func setupTestRouter(
 		os.Setenv("VITE_BACKEND_API_KEY", validAPIKey)
 	}
 
+	authSvc := mocks.NewMockAuthService(ctrl)
+	userSvc := mocks.NewMockUserService(ctrl)
+	logSvc := mocks.NewMockLogService(ctrl)
+
 	services := &initializers.Services{
-		Log:          &fakeLogService{},
+		Log:          logSvc,
 		RefreshToken: authSvc,
-		User:         &fakeUserRepoService{},
+		User:         userSvc,
 	}
 	handlers := initializers.InitHandlers(services)
 	routes := api.NewRoutes(handlers)
 	routes.Register(r)
 
-	return r, validAPIKey
+	return r, validAPIKey, authSvc, userSvc, logSvc
 }
 
 func TestAuthHandlerLogout(t *testing.T) {
-	authSvc := &fakeAuthRepoService{}
-	router, key := setupTestRouter(authSvc)
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	router, key, authSvc, _, _ := setupTestRouter(ctrl)
 
 	// Mock IDP logout
 	os.Setenv("IDP_LOGOUT_URL", "http://idp/logout")
@@ -182,20 +100,16 @@ func TestAuthHandlerLogout(t *testing.T) {
 	})
 
 	w := httptest.NewRecorder()
+
+	authSvc.EXPECT().DeleteTokensByUserID(gomock.Any(), uid[:]).Return(nil).Times(1)
+
 	router.ServeHTTP(w, req)
 
 	if w.Code != http.StatusOK {
 		t.Errorf("expected status 200, got %d", w.Code)
 	}
 
-	// 1. Check if token was deleted in db
-	if authSvc.deletedUserID == nil {
-		t.Error("expected RefreshToken deletion attempt")
-	} else if !bytes.Equal(authSvc.deletedUserID, uid[:]) {
-		t.Errorf("wrong userID deleted: %v", authSvc.deletedUserID)
-	}
-
-	// 2. Check if cookie was cleared
+	// Check if cookie was cleared
 	cookies := w.Result().Cookies()
 	cleared := false
 	for _, c := range cookies {
@@ -208,7 +122,7 @@ func TestAuthHandlerLogout(t *testing.T) {
 		t.Error("expected access_token cookie to be cleared")
 	}
 
-	// 3. Check if IDP was notified
+	// Check if IDP was notified
 	if fTripper.lastRequest == nil {
 		t.Error("expected IDP logout notification")
 	} else if !bytes.HasPrefix([]byte(fTripper.lastRequest.URL.String()),
@@ -218,8 +132,10 @@ func TestAuthHandlerLogout(t *testing.T) {
 }
 
 func TestAuthHandlerHandleAuthorization(t *testing.T) {
-	authSvc := &fakeAuthRepoService{}
-	router, key := setupTestRouter(authSvc)
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	router, key, _, _, _ := setupTestRouter(ctrl)
 
 	os.Setenv("IDP_AUTH_URL", "http://idp/auth")
 	os.Setenv("CLIENT_ID", "test-client")
@@ -240,14 +156,18 @@ func TestAuthHandlerHandleAuthorization(t *testing.T) {
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
 
-	// Implementation now returns 302 redirect
-	if w.Code != http.StatusFound {
-		t.Errorf("expected 302, got %d", w.Code)
+	// Implementation now returns 200 JSON
+	if w.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d", w.Code)
 	}
 
-	loc := w.Header().Get("Location")
+	var resp map[string]string
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
+
 	expectedPrefix := "http://idp/auth?client_id=test-client"
-	if !bytes.HasPrefix([]byte(loc), []byte(expectedPrefix)) {
-		t.Errorf("expected prefix %s, got %s", expectedPrefix, loc)
+	if !bytes.HasPrefix([]byte(resp["url"]), []byte(expectedPrefix)) {
+		t.Errorf("expected prefix %s, got %s", expectedPrefix, resp["url"])
 	}
 }
