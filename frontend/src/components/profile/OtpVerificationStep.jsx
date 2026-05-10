@@ -1,6 +1,13 @@
 import { useEffect, useRef } from "react";
 import ErrorAlert from "../ErrorAlert";
 
+function formatTimer(secondsRemaining) {
+    const minutes = Math.floor(secondsRemaining / 60);
+    const seconds = secondsRemaining % 60;
+
+    return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
+}
+
 export default function OtpVerificationStep({
     otp,
     setOtp,
@@ -78,7 +85,7 @@ export default function OtpVerificationStep({
                             We've sent a 6-digit verification code to
                             <span className="profile-otp__email">{email || "your email address"}</span>
                         </p>
-                        <p className="profile-otp__timer-note">The code will expire in 10 minutes</p>
+                        <p className="profile-otp__timer-note">The code will expire in 3 minutes</p>
                     </div>
 
                     <div className="profile-otp__inputs">
@@ -95,7 +102,7 @@ export default function OtpVerificationStep({
                             {isResending ? "Resending..." : "Resend OTP"}
                         </button>
                         <p className="profile-otp__resend-timer">
-                            Resend available in <span>00:{String(timer).padStart(2, "0")}</span>
+                            Resend available in <span>{formatTimer(timer)}</span>
                         </p>
                     </div>
                 </div>

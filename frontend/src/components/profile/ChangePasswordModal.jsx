@@ -6,6 +6,8 @@ import SuccessAlert from "../SuccessAlert";
 import { changeCurrentUserPassword, sendProfileOtp, verifyProfileOtp } from "../../services/userSecurity";
 import { formatTimestamp } from "../../utils/formatTimestamp";
 
+const OTP_TIMER_SECONDS = 3 * 60;
+
 export default function ChangePasswordModal({
     isOpen,
     onClose,
@@ -22,7 +24,7 @@ export default function ChangePasswordModal({
         confirmPassword: "",
     });
     const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-    const [timer, setTimer] = useState(60);
+    const [timer, setTimer] = useState(OTP_TIMER_SECONDS);
     const [canResend, setCanResend] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
     const [passwordError, setPasswordError] = useState("");
@@ -65,7 +67,7 @@ export default function ChangePasswordModal({
             setIsSendingOtp(false);
             setIsResendingOtp(false);
             setIsVerifyingOtp(false);
-            setTimer(60);
+            setTimer(OTP_TIMER_SECONDS);
             setCanResend(false);
         }
     }, [isOpen]);
@@ -92,7 +94,7 @@ export default function ChangePasswordModal({
     }, [step, setToastMessage, enableSuccessAlert]);
 
     const resetOtpTimer = () => {
-        setTimer(60);
+        setTimer(OTP_TIMER_SECONDS);
         setCanResend(false);
     };
 
