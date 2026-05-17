@@ -34,8 +34,7 @@ services:
       VITE_CLIENT_SECRET: ${VITE_CLIENT_SECRET}
       VITE_BACKEND_URL: ${VITE_BACKEND_URL}
       VITE_BACKEND_API_KEY: ${VITE_BACKEND_API_KEY}
-      VITE_ONE_PORTAL_URL: ${VITE_ONE_PORTAL_URL}
-      BACKEND_PROXY_TARGET: ${BACKEND_PROXY_TARGET}
+      VITE_PROXY_TARGET_URL: ${VITE_PROXY_TARGET_URL}
     ports:
       - "5173:5173"
     networks:
@@ -64,7 +63,7 @@ services:
     networks:
       - one_portal_network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p$${MYSQL_ROOT_PASSWORD}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -105,8 +104,8 @@ services:
       mc mb local/${S3_BUCKET} --ignore-existing;
       mc anonymous set download local/${S3_BUCKET};
       JSON='[{\"AllowedOrigins\":[\"*\"],\"AllowedMethods\":[\"GET\"]}';
-      JSON=\"${JSON},\"'\"AllowedHeaders\":[\"*\"]}]';
-      echo \$JSON > /tmp/cors.json;
+      JSON=\"$${JSON},\"'\"AllowedHeaders\":[\"*\"]}]';
+      echo $$JSON > /tmp/cors.json;
       mc cors set local/${S3_BUCKET} /tmp/cors.json;
       exit 0;
       "
