@@ -46,7 +46,7 @@ export default function ProfileCard({ profile, onProfileChange, addAuditLog, all
                         </div>
 
                         <div className="profile-card__summary">
-                            <h2 className="profile-card__name">{fullName || "Profile details"}</h2>
+                            <h2 className="profile-card__name">{fullName || "Profile Details"}</h2>
 
                             <div className="profile-card__chips">
                                 <span className="profile-card__chip">
