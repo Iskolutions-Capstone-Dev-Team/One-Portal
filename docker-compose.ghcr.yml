@@ -1,54 +1,48 @@
 services:
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: one_portal_frontend
-    restart: always
-    env_file: ./.env
-    ports:
-      - "5174:5173"
-    environment:
-      VITE_API_BASE_URL: ${VITE_API_BASE_URL}
-      VITE_BACKEND_URL: ${VITE_BACKEND_URL}
-      VITE_PROXY_TARGET_URL: ${VITE_PROXY_TARGET_URL}
-      VITE_BACKEND_API_KEY: ${VITE_BACKEND_API_KEY}
-    volumes:
-      - ./frontend:/app
-      - ./.env:/app/.env:ro
-      - /app/node_modules
-    working_dir: /app
-    networks:
-      - one_portal_network
-
-# Backend Application
+  # One Portal Backend (GHCR Image)
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: ghcr.io/iskolutions-capstone-dev-team/one-portal-backend:latest
     container_name: one_portal_backend
     restart: always
     env_file: ./.env
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "localhost:host-gateway"
     environment:
       - GODEBUG=http2debug=0,asyncpreemptoff=1
     ports:
-      - "8000:8080"
+      - "8080:8080"
     volumes:
       - .env:/app/.env
+      - ./certs:/app/certs:ro
     working_dir: /app
     networks:
       - one_portal_network
     depends_on:
       oneportal_database:
         condition: service_healthy
-    # Log rotation configuration
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "30m"
-        max-file: "3"
 
-# Database Application
+  # One Portal Frontend (GHCR Image)
+  frontend:
+    image: ghcr.io/iskolutions-capstone-dev-team/one-portal-frontend:latest
+    container_name: one_portal_frontend
+    restart: always
+    environment:
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL}
+      VITE_CLIENT_ID: ${VITE_CLIENT_ID}
+      VITE_REDIRECT_URI: ${VITE_REDIRECT_URI}
+      VITE_CLIENT_SECRET: ${VITE_CLIENT_SECRET}
+      VITE_BACKEND_URL: ${VITE_BACKEND_URL}
+      VITE_BACKEND_API_KEY: ${VITE_BACKEND_API_KEY}
+      VITE_PROXY_TARGET_URL: ${VITE_PROXY_TARGET_URL}
+    ports:
+      - "5173:5173"
+    networks:
+      - one_portal_network
+    depends_on:
+      - backend
+
+  # Database Service
   oneportal_database:
     image: mysql:8.4
     container_name: one_portal_database
@@ -62,7 +56,7 @@ services:
       APP_USER: ${APP_USER}
       APP_PASSWORD: ${APP_PASSWORD}
     ports:
-      - "3361:3306"
+      - "3360:3306"
     volumes:
       - db_data:/var/lib/mysql
       - ./scripts/init.sh:/docker-entrypoint-initdb.d/init.sh:ro
@@ -74,9 +68,9 @@ services:
       timeout: 5s
       retries: 5
 
+volumes:
+  db_data:
+
 networks:
   one_portal_network:
     driver: bridge
-
-volumes:
-  db_data:

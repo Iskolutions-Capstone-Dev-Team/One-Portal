@@ -15,7 +15,7 @@ type AuthService interface {
 	DeleteToken(ctx context.Context, token string) error
 	DeleteTokensByUserID(ctx context.Context, userID []byte) error
 	GetTokenByUserID(ctx context.Context, userID []byte) (
-		models.RefreshToken, 
+		models.RefreshToken,
 		error,
 	)
 	DeleteExpiredTokens(ctx context.Context, at time.Time) (int64, error)

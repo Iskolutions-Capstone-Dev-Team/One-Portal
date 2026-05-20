@@ -24,7 +24,7 @@ export default function ChangePasswordStep({
         { key: "length", label: "At least 8 characters", valid: password.length >= 8 },
         { key: "uppercase", label: "One uppercase letter", valid: /[A-Z]/.test(password) },
         { key: "number", label: "One number", valid: /[0-9]/.test(password) },
-        { key: "special", label: "One special character", valid: /[!@#$%^&*(),.?\":{}|<>]/.test(password) },
+        { key: "special", label: "One special character", valid: /[!@#$%^&*(),.?":{}|<>]/.test(password) },
     ];
 
     const fields = showCurrentPassword

@@ -21,7 +21,7 @@ func InitJWKS() {
 		// Fallback to IDP_JWKS_URL if ID_JWKS_URL is not set
 		jwksURL = os.Getenv("IDP_JWKS_URL")
 	}
-	
+
 	if jwksURL == "" {
 		log.Fatal("[InitJWKS] IDP_JWKS_URL not set")
 	}
