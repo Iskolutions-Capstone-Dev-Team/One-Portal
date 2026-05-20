@@ -29,7 +29,7 @@ func (s *userService) CreateUser(ctx context.Context, user models.User) error {
 }
 
 func (s *userService) CreateUserFromMe(
-	ctx context.Context, 
+	ctx context.Context,
 	me dto.MeResponse,
 ) error {
 	user := models.User{
@@ -45,15 +45,15 @@ func (s *userService) CreateUserFromMe(
 }
 
 func (s *userService) GetUserByID(
-	ctx context.Context, 
+	ctx context.Context,
 	id uuid.UUID,
 ) (models.User, error) {
 	return s.repo.GetUserByID(ctx, id)
 }
 
 func (s *userService) UpdateUserName(
-	ctx context.Context, 
-	id uuid.UUID, 
+	ctx context.Context,
+	id uuid.UUID,
 	req dto.UpdateUserNameRequest,
 ) error {
 	user := models.User{

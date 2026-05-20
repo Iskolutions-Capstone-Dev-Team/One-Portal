@@ -15,7 +15,7 @@ import (
 
 func TestOTPHandler_SendOTP(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	
+
 	idpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			t.Errorf("expected POST, got %s", r.Method)
@@ -24,7 +24,7 @@ func TestOTPHandler_SendOTP(t *testing.T) {
 		json.NewEncoder(w).Encode(dto.SuccessResponse{Message: "IDP Success"})
 	}))
 	defer idpServer.Close()
-	
+
 	os.Setenv("IDP_OTP_URL", idpServer.URL)
 	defer os.Unsetenv("IDP_OTP_URL")
 
@@ -36,7 +36,7 @@ func TestOTPHandler_SendOTP(t *testing.T) {
 	body, _ := json.Marshal(reqBody)
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/otp/send", bytes.NewBuffer(body))
 	w := httptest.NewRecorder()
-	
+
 	r.ServeHTTP(w, req)
 
 	if w.Code != http.StatusOK {
@@ -46,13 +46,13 @@ func TestOTPHandler_SendOTP(t *testing.T) {
 
 func TestOTPHandler_VerifyOTP(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	
+
 	idpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(dto.SuccessResponse{Message: "IDP Success"})
 	}))
 	defer idpServer.Close()
-	
+
 	os.Setenv("IDP_OTP_URL", idpServer.URL)
 	defer os.Unsetenv("IDP_OTP_URL")
 
@@ -64,7 +64,7 @@ func TestOTPHandler_VerifyOTP(t *testing.T) {
 	body, _ := json.Marshal(reqBody)
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/otp/verify", bytes.NewBuffer(body))
 	w := httptest.NewRecorder()
-	
+
 	r.ServeHTTP(w, req)
 
 	if w.Code != http.StatusOK {
