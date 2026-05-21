@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import FaqSection from "../components/landing/FaqSection";
 import FeaturesSection from "../components/landing/FeaturesSection";
 import HeroSection from "../components/landing/HeroSection";
 import LandingNavbar from "../components/landing/LandingNavbar";
-import { navigateToLoginPage, navigateToRegisterPage } from "../services/auth";
+import { navigateToRegisterPage, startAuthorization } from "../services/auth";
+import { getCurrentUserProfile } from "../services/userProfile";
 import "../styles/AuthEntry.css";
 
 function useLandingReveal() {
@@ -34,14 +36,26 @@ function useLandingReveal() {
 }
 
 export default function Landing() {
+    const navigate = useNavigate();
     const [pendingAction, setPendingAction] = useState("");
     const [openFaqIndex, setOpenFaqIndex] = useState(null);
 
     useLandingReveal();
 
-    const handleLoginClick = () => {
+    const handleLoginClick = async () => {
         setPendingAction("login");
-        navigateToLoginPage();
+
+        try {
+            await getCurrentUserProfile();
+            navigate("/portal", { replace: true });
+        } catch {
+            try {
+                await startAuthorization();
+            } catch (authorizationError) {
+                console.error("Unable to start authorization.", authorizationError);
+                setPendingAction("");
+            }
+        }
     };
 
     const handleRegisterClick = () => {
