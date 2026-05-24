@@ -1,4 +1,5 @@
 import { apiRequest, fetchApiResponse, getApiUrl, readApiResponse } from "./api";
+import { clearCurrentUserProfileCache } from "./userProfile";
 
 const SESSION_REFRESH_TIMESTAMP_KEY = "one-portal:last-session-refresh-at";
 const AUTHORIZATION_PATH = "/auth/authorize";
@@ -101,6 +102,8 @@ export function getRegisterPageUrl() {
         registerUrl.searchParams.set("client_id", clientId);
     }
 
+    registerUrl.searchParams.set("redirect_uri", getCallbackUrl());
+
     return registerUrl.toString();
 }
 
@@ -111,6 +114,8 @@ export function getLoginPageUrl() {
     if (clientId) {
         loginUrl.searchParams.set("client_id", clientId);
     }
+
+    loginUrl.searchParams.set("redirect_uri", getCallbackUrl());
 
     return loginUrl.toString();
 }
@@ -178,7 +183,7 @@ function prepareAuthorizationUrl(authorizationUrl) {
         const url = new URL(authorizationUrl);
 
         url.searchParams.set("redirect_uri", getCallbackUrl());
-        url.searchParams.set("prompt", "none");
+        url.searchParams.delete("prompt");
 
         return url.toString();
     } catch (error) {
@@ -277,6 +282,8 @@ export async function startAuthorization() {
 export async function completeAuthorization(code) {
     if (!authorizationCompletionPromise) {
         authorizationCompletionPromise = (async () => {
+            clearCurrentUserProfileCache();
+
             const data = await apiRequest("/auth/callback", {
                 method: "POST",
                 data: { code },
@@ -338,6 +345,7 @@ async function notifyBrowserLogout(logoutUrl) {
 export function clearSessionState() {
     authorizationRequestPromise = null;
     authorizationCompletionPromise = null;
+    clearCurrentUserProfileCache();
     clearSessionRefreshTimestamp();
     clearSessionCookies();
 }

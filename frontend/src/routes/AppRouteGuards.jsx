@@ -14,14 +14,20 @@ export function LandingRoute() {
 
 export function PortalEntryRoute() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [isCheckingUser, setIsCheckingUser] = useState(true);
+  const hasAuthorizationParams = searchParams.has("code") || searchParams.has("error");
 
   useEffect(() => {
+    if (hasAuthorizationParams) {
+      return undefined;
+    }
+
     let isMounted = true;
 
     const openPortalIfUserExists = async () => {
       try {
-        await getCurrentUserProfile();
+        await getCurrentUserProfile({ forceRefresh: true });
 
         if (isMounted) {
           navigate("/portal", { replace: true });
@@ -44,7 +50,11 @@ export function PortalEntryRoute() {
     return () => {
       isMounted = false;
     };
-  }, [navigate]);
+  }, [hasAuthorizationParams, navigate]);
+
+  if (hasAuthorizationParams) {
+    return <Callback />;
+  }
 
   return isCheckingUser ? null : <Landing />;
 }
@@ -58,7 +68,7 @@ export function ProtectedPortalRoute({ children }) {
 
     const verifyCurrentUser = async () => {
       try {
-        await getCurrentUserProfile();
+        await getCurrentUserProfile({ forceRefresh: true });
 
         if (isMounted) {
           setIsCheckingUser(false);
