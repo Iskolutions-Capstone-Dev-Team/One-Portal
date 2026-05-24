@@ -1,15 +1,9 @@
-import { useEffect, useEffect, useState } from "react";
-import FaqSection from "../components/landing/FaqSection";
-import FeaturesSection from "../components/landing/FeaturesSection";
-import HeroSection from "../components/landing/HeroSection";
-import LandingNavbar from "../components/landing/LandingNavbar";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import FaqSection from "../components/landing/FaqSection";
 import FeaturesSection from "../components/landing/FeaturesSection";
 import HeroSection from "../components/landing/HeroSection";
 import LandingNavbar from "../components/landing/LandingNavbar";
 import { navigateToRegisterPage, startAuthorization } from "../services/auth";
-import { getCurrentUserProfile } from "../services/userProfile";
 import "../styles/AuthEntry.css";
 
 function useLandingReveal() {
