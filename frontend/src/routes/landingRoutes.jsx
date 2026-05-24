@@ -1,8 +1,7 @@
-import { Navigate } from "react-router-dom";
-import { LandingRoute, PortalEntryRoute } from "./AppRouteGuards";
+import { LandingRoute, PortalEntryRoute, PortalShortcutRoute } from "./AppRouteGuards";
 
 export const landingRoutes = [
   { path: "/", element: <PortalEntryRoute /> },
   { path: "/landing", element: <LandingRoute /> },
-  { path: "/landingRoute", element: <Navigate to="/landing" replace /> },
+  { path: "/landingRoute", element: <PortalShortcutRoute /> },
 ];

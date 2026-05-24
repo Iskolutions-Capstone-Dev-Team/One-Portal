@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Callback from "../pages/Callback";
 import Landing from "../pages/Landing";
-import { clearSessionState } from "../services/auth";
+import { clearSessionState, startAuthorization } from "../services/auth";
 import { getCurrentUserProfile } from "../services/userProfile";
 
 export function LandingRoute() {
@@ -12,16 +12,60 @@ export function LandingRoute() {
   return hasAuthorizationParams ? <Callback /> : <Landing />;
 }
 
-export function PortalEntryRoute() {
-  const navigate = useNavigate();
-  const [isCheckingUser, setIsCheckingUser] = useState(true);
+export function PortalShortcutRoute() {
+  const [searchParams] = useSearchParams();
+  const [hasAuthorizationError, setHasAuthorizationError] = useState(false);
+  const hasAuthorizationParams = searchParams.has("code") || searchParams.has("error");
 
   useEffect(() => {
+    if (hasAuthorizationParams) {
+      return undefined;
+    }
+
+    let isMounted = true;
+
+    const openPortal = async () => {
+      try {
+        await startAuthorization();
+      } catch (error) {
+        console.error("Unable to open One Portal shortcut.", error);
+
+        if (isMounted) {
+          setHasAuthorizationError(true);
+        }
+      }
+    };
+
+    void openPortal();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [hasAuthorizationParams]);
+
+  if (hasAuthorizationParams) {
+    return <Callback />;
+  }
+
+  return hasAuthorizationError ? <Landing /> : null;
+}
+
+export function PortalEntryRoute() {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const [isCheckingUser, setIsCheckingUser] = useState(true);
+  const hasAuthorizationParams = searchParams.has("code") || searchParams.has("error");
+
+  useEffect(() => {
+    if (hasAuthorizationParams) {
+      return undefined;
+    }
+
     let isMounted = true;
 
     const openPortalIfUserExists = async () => {
       try {
-        await getCurrentUserProfile();
+        await getCurrentUserProfile({ forceRefresh: true });
 
         if (isMounted) {
           navigate("/portal", { replace: true });
@@ -44,7 +88,11 @@ export function PortalEntryRoute() {
     return () => {
       isMounted = false;
     };
-  }, [navigate]);
+  }, [hasAuthorizationParams, navigate]);
+
+  if (hasAuthorizationParams) {
+    return <Callback />;
+  }
 
   return isCheckingUser ? null : <Landing />;
 }
@@ -58,7 +106,7 @@ export function ProtectedPortalRoute({ children }) {
 
     const verifyCurrentUser = async () => {
       try {
-        await getCurrentUserProfile();
+        await getCurrentUserProfile({ forceRefresh: true });
 
         if (isMounted) {
           setIsCheckingUser(false);
