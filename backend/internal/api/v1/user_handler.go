@@ -48,11 +48,25 @@ func (h *UserHandler) HandleUserInfo(c *gin.Context) {
 		} else {
 			req.Header.Set("Authorization", "Bearer "+accessToken)
 			resp, err := Client.Do(req)
-			if err == nil {
+			if err != nil {
+				log.Printf("[HandleUserInfo] IDP Request: %v", err)
+			} else {
 				defer resp.Body.Close()
-				if resp.StatusCode == http.StatusOK {
+				if resp.StatusCode != http.StatusOK {
+					log.Printf(
+						"[HandleUserInfo] IDP Response: "+
+							"unexpected status %d",
+						resp.StatusCode,
+					)
+				} else {
 					var me dto.MeResponse
-					if err := json.NewDecoder(resp.Body).Decode(&me); err == nil {
+					if err := json.NewDecoder(resp.Body).
+						Decode(&me); err != nil {
+						log.Printf(
+							"[HandleUserInfo] IDP Decode: %v",
+							err,
+						)
+					} else {
 						c.JSON(http.StatusOK, me)
 						return
 					}

@@ -40,7 +40,6 @@ function useLandingReveal() {
 }
 
 export default function Landing() {
-    const navigate = useNavigate();
     const [pendingAction, setPendingAction] = useState("");
     const [openFaqIndex, setOpenFaqIndex] = useState(null);
 
@@ -50,15 +49,10 @@ export default function Landing() {
         setPendingAction("login");
 
         try {
-            await getCurrentUserProfile();
-            navigate("/portal", { replace: true });
-        } catch {
-            try {
-                await startAuthorization();
-            } catch (authorizationError) {
-                console.error("Unable to start authorization.", authorizationError);
-                setPendingAction("");
-            }
+            await startAuthorization();
+        } catch (authorizationError) {
+            console.error("Unable to start authorization.", authorizationError);
+            setPendingAction("");
         }
     };
 
