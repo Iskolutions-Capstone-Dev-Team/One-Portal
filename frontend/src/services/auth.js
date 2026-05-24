@@ -2,7 +2,7 @@ import { apiRequest, fetchApiResponse, getApiUrl, readApiResponse } from "./api"
 
 const SESSION_REFRESH_TIMESTAMP_KEY = "one-portal:last-session-refresh-at";
 const AUTHORIZATION_PATH = "/auth/authorize";
-const LANDING_ROUTE_PATH = "/landingRoute";
+const LANDING_ROUTE_PATH = "/landing";
 const SESSION_COOKIE_NAMES = ["access_token", "session_cookie"];
 let authorizationRequestPromise = null;
 let authorizationCompletionPromise = null;
@@ -39,6 +39,10 @@ function writeSessionRefreshTimestamp(timestamp = Date.now()) {
 
 function getAppUrl(pathname) {
     return new URL(pathname, window.location.origin).toString();
+}
+
+function getCallbackUrl() {
+    return getAppUrl("/callback");
 }
 
 function getConfiguredLoginPageUrl() {
@@ -169,6 +173,20 @@ function getAuthorizationResponseUrl(data) {
     return typeof authorizationUrl === "string" ? authorizationUrl.trim() : "";
 }
 
+function prepareAuthorizationUrl(authorizationUrl) {
+    try {
+        const url = new URL(authorizationUrl);
+
+        url.searchParams.set("redirect_uri", getCallbackUrl());
+        url.searchParams.set("prompt", "none");
+
+        return url.toString();
+    } catch (error) {
+        console.error("Invalid authorization URL.", error);
+        return authorizationUrl;
+    }
+}
+
 function getLogoutResponseUrl(data) {
     if (!data || typeof data === "string") {
         return "";
@@ -243,7 +261,7 @@ export async function startAuthorization() {
             });
             const authorizationUrl = await readAuthorizationUrl(response);
 
-            window.location.href = authorizationUrl;
+            window.location.href = prepareAuthorizationUrl(authorizationUrl);
 
             return true;
         })();
