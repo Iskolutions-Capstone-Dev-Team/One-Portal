@@ -42,17 +42,34 @@ func (h *UserHandler) HandleUserInfo(c *gin.Context) {
 	accessToken, _ := c.Cookie(dto.AccessCookieName)
 	if accessToken != "" {
 		userInfoURL := os.Getenv("IDP_USERINFO_URL")
-		req, _ := http.NewRequest("GET", userInfoURL, nil)
-		req.Header.Set("Authorization", "Bearer "+accessToken)
-
-		resp, err := Client.Do(req)
-		if err == nil {
-			defer resp.Body.Close()
-			if resp.StatusCode == http.StatusOK {
-				var me dto.MeResponse
-				if err := json.NewDecoder(resp.Body).Decode(&me); err == nil {
-					c.JSON(http.StatusOK, me)
-					return
+		req, err := http.NewRequest("GET", userInfoURL, nil)
+		if err != nil {
+			log.Printf("[HandleUserInfo] Build Request: %v", err)
+		} else {
+			req.Header.Set("Authorization", "Bearer "+accessToken)
+			resp, err := Client.Do(req)
+			if err != nil {
+				log.Printf("[HandleUserInfo] IDP Request: %v", err)
+			} else {
+				defer resp.Body.Close()
+				if resp.StatusCode != http.StatusOK {
+					log.Printf(
+						"[HandleUserInfo] IDP Response: "+
+							"unexpected status %d",
+						resp.StatusCode,
+					)
+				} else {
+					var me dto.MeResponse
+					if err := json.NewDecoder(resp.Body).
+						Decode(&me); err != nil {
+						log.Printf(
+							"[HandleUserInfo] IDP Decode: %v",
+							err,
+						)
+					} else {
+						c.JSON(http.StatusOK, me)
+						return
+					}
 				}
 			}
 		}
