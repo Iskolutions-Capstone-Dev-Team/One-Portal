@@ -253,6 +253,7 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 		return
 	}
 
+	c.SetSameSite(http.SameSiteStrictMode)
 	c.SetCookie(
 		dto.AccessCookieName,
 		tokenResp.AccessToken,
@@ -375,8 +376,8 @@ func (h *AuthHandler) HandleRefresh(c *gin.Context) {
 	payload, _ := json.Marshal(map[string]string{
 		"grant_type":    "refresh_token",
 		"refresh_token": oldRT.Token,
-		"client_id":     os.Getenv("VITE_CLIENT_ID"),
-		"client_secret": os.Getenv("VITE_CLIENT_SECRET"),
+		"client_id":     os.Getenv("CLIENT_ID"),
+		"client_secret": os.Getenv("CLIENT_SECRET"),
 	})
 
 	resp, err := Client.Post(
@@ -414,6 +415,7 @@ func (h *AuthHandler) HandleRefresh(c *gin.Context) {
 	}
 
 	// 4. Update access token cookie
+	c.SetSameSite(http.SameSiteStrictMode)
 	c.SetCookie(
 		dto.AccessCookieName,
 		tokenResp.AccessToken,
