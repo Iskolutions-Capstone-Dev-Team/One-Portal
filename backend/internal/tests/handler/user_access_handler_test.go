@@ -28,8 +28,7 @@ func TestUserAccessHandler(t *testing.T) {
 		os.Unsetenv("VITE_BACKEND_API_KEY")
 	}()
 
-	// Pass nil cache: handler degrades gracefully to live IDP proxy.
-	h := v1.NewUserAccessHandler(nil)
+	h := v1.NewUserAccessHandler()
 	r := gin.New()
 	r.GET("/users/access", h.GetUserDetailedAccess)
 

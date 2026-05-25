@@ -3,7 +3,7 @@ import FaqSection from "../components/landing/FaqSection";
 import FeaturesSection from "../components/landing/FeaturesSection";
 import HeroSection from "../components/landing/HeroSection";
 import LandingNavbar from "../components/landing/LandingNavbar";
-import { navigateToRegisterPage, startAuthorization } from "../services/auth";
+import { navigateToLoginPage, navigateToRegisterPage } from "../services/auth";
 import "../styles/AuthEntry.css";
 
 function useLandingReveal() {
@@ -39,15 +39,9 @@ export default function Landing() {
 
     useLandingReveal();
 
-    const handleLoginClick = async () => {
+    const handleLoginClick = () => {
         setPendingAction("login");
-
-        try {
-            await startAuthorization();
-        } catch (authorizationError) {
-            console.error("Unable to start authorization.", authorizationError);
-            setPendingAction("");
-        }
+        navigateToLoginPage();
     };
 
     const handleRegisterClick = () => {
@@ -61,7 +55,6 @@ export default function Landing() {
 
     return (
         <div className="auth-entry auth-entry--landing">
-            <div className="landing-pattern" aria-hidden="true" />
             <div className="landing-pattern" aria-hidden="true" />
 
             <div className="auth-entry__shell">

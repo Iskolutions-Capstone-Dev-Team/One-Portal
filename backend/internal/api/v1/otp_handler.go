@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 
@@ -27,7 +26,6 @@ func NewOTPHandler() *OTPHandler {
 // @Param request body dto.OTPRequest true "OTP Request"
 // @Success 200 {object} dto.SuccessResponse
 // @Failure 400 {object} dto.ErrorResponse
-// @Failure 429 {object} dto.ErrorResponse
 // @Failure 500 {object} dto.ErrorResponse
 // @Router /otp/send [post]
 func (h *OTPHandler) SendOTP(c *gin.Context) {
@@ -40,24 +38,16 @@ func (h *OTPHandler) SendOTP(c *gin.Context) {
 	idpURL := fmt.Sprintf("%s/send", os.Getenv("IDP_OTP_URL"))
 	body, _ := json.Marshal(req)
 
-	proxyReq, err := http.NewRequest(
+	proxyReq, _ := http.NewRequest(
 		http.MethodPost,
 		idpURL,
 		bytes.NewBuffer(body),
 	)
-	if err != nil {
-		log.Printf("[SendOTP] Build Request: %v", err)
-		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-			Error: "Failed to build OTP request",
-		})
-		return
-	}
 	proxyReq.Header.Set("Content-Type", "application/json")
 	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
 
 	resp, err := Client.Do(proxyReq)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		log.Printf("[SendOTP] IDP Request: %v", err)
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error: "Failed to send OTP via IDP",
 		})
@@ -89,24 +79,16 @@ func (h *OTPHandler) VerifyOTP(c *gin.Context) {
 	idpURL := fmt.Sprintf("%s/verify", os.Getenv("IDP_OTP_URL"))
 	body, _ := json.Marshal(req)
 
-	proxyReq, err := http.NewRequest(
+	proxyReq, _ := http.NewRequest(
 		http.MethodPost,
 		idpURL,
 		bytes.NewBuffer(body),
 	)
-	if err != nil {
-		log.Printf("[VerifyOTP] Build Request: %v", err)
-		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-			Error: "Failed to build OTP verify request",
-		})
-		return
-	}
 	proxyReq.Header.Set("Content-Type", "application/json")
 	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
 
 	resp, err := Client.Do(proxyReq)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		log.Printf("[VerifyOTP] IDP Request: %v", err)
 		c.JSON(http.StatusUnauthorized, dto.ErrorResponse{
 			Error: "OTP verification failed in IDP",
 		})

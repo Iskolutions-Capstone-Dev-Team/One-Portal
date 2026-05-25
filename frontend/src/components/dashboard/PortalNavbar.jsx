@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { usePortalTheme } from "../../context/PortalThemeContext";
+import { clearSessionRefreshTimestamp, getLogoutFallbackUrl, logoutSession } from "../../services/auth";
 
 export default function PortalNavbar() {
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -21,7 +22,18 @@ export default function PortalNavbar() {
     const handleLogout = async () => {
         setIsLoggingOut(true);
         setDropdownOpen(false);
-        navigate("/logout");
+
+        try {
+            const redirectUrl = await logoutSession();
+            clearSessionRefreshTimestamp();
+            window.location.assign(redirectUrl);
+        } catch (error) {
+            console.error("Logout request failed.", error);
+            clearSessionRefreshTimestamp();
+            window.location.assign(getLogoutFallbackUrl());
+        } finally {
+            setIsLoggingOut(false);
+        }
     };
 
     useEffect(() => {

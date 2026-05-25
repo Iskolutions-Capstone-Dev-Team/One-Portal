@@ -1,9 +1,8 @@
 import { apiRequest, fetchApiResponse, getApiUrl, readApiResponse } from "./api";
-import { clearCurrentUserProfileCache } from "./userProfile";
 
 const SESSION_REFRESH_TIMESTAMP_KEY = "one-portal:last-session-refresh-at";
 const AUTHORIZATION_PATH = "/auth/authorize";
-const LANDING_ROUTE_PATH = "/landing";
+const LANDING_ROUTE_PATH = "/landingRoute";
 const SESSION_COOKIE_NAMES = ["access_token", "session_cookie"];
 let authorizationRequestPromise = null;
 let authorizationCompletionPromise = null;
@@ -40,10 +39,6 @@ function writeSessionRefreshTimestamp(timestamp = Date.now()) {
 
 function getAppUrl(pathname) {
     return new URL(pathname, window.location.origin).toString();
-}
-
-function getCallbackUrl() {
-    return getAppUrl("/callback");
 }
 
 function getConfiguredLoginPageUrl() {
@@ -102,8 +97,6 @@ export function getRegisterPageUrl() {
         registerUrl.searchParams.set("client_id", clientId);
     }
 
-    registerUrl.searchParams.set("redirect_uri", getCallbackUrl());
-
     return registerUrl.toString();
 }
 
@@ -114,8 +107,6 @@ export function getLoginPageUrl() {
     if (clientId) {
         loginUrl.searchParams.set("client_id", clientId);
     }
-
-    loginUrl.searchParams.set("redirect_uri", getCallbackUrl());
 
     return loginUrl.toString();
 }
@@ -176,20 +167,6 @@ function getAuthorizationResponseUrl(data) {
     const authorizationUrl = data.redirect_url ?? data.redirectUrl ?? data.url;
 
     return typeof authorizationUrl === "string" ? authorizationUrl.trim() : "";
-}
-
-function prepareAuthorizationUrl(authorizationUrl) {
-    try {
-        const url = new URL(authorizationUrl);
-
-        url.searchParams.set("redirect_uri", getCallbackUrl());
-        url.searchParams.delete("prompt");
-
-        return url.toString();
-    } catch (error) {
-        console.error("Invalid authorization URL.", error);
-        return authorizationUrl;
-    }
 }
 
 function getLogoutResponseUrl(data) {
@@ -266,7 +243,7 @@ export async function startAuthorization() {
             });
             const authorizationUrl = await readAuthorizationUrl(response);
 
-            window.location.href = prepareAuthorizationUrl(authorizationUrl);
+            window.location.href = authorizationUrl;
 
             return true;
         })();
@@ -282,8 +259,6 @@ export async function startAuthorization() {
 export async function completeAuthorization(code) {
     if (!authorizationCompletionPromise) {
         authorizationCompletionPromise = (async () => {
-            clearCurrentUserProfileCache();
-
             const data = await apiRequest("/auth/callback", {
                 method: "POST",
                 data: { code },
@@ -345,7 +320,6 @@ async function notifyBrowserLogout(logoutUrl) {
 export function clearSessionState() {
     authorizationRequestPromise = null;
     authorizationCompletionPromise = null;
-    clearCurrentUserProfileCache();
     clearSessionRefreshTimestamp();
     clearSessionCookies();
 }

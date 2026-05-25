@@ -8,8 +8,7 @@ import (
 
 func TestInitServicesBasic(t *testing.T) {
 	repos := &initializers.Repositories{Log: nil, RefreshToken: nil}
-	// Pass nil cache: services degrade gracefully to DB-only mode.
-	services := initializers.InitServices(repos, nil)
+	services := initializers.InitServices(repos)
 	if services == nil {
 		t.Fatal("expected non-nil services")
 	}

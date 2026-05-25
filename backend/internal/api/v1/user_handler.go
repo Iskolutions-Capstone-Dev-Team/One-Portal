@@ -42,34 +42,17 @@ func (h *UserHandler) HandleUserInfo(c *gin.Context) {
 	accessToken, _ := c.Cookie(dto.AccessCookieName)
 	if accessToken != "" {
 		userInfoURL := os.Getenv("IDP_USERINFO_URL")
-		req, err := http.NewRequest("GET", userInfoURL, nil)
-		if err != nil {
-			log.Printf("[HandleUserInfo] Build Request: %v", err)
-		} else {
-			req.Header.Set("Authorization", "Bearer "+accessToken)
-			resp, err := Client.Do(req)
-			if err != nil {
-				log.Printf("[HandleUserInfo] IDP Request: %v", err)
-			} else {
-				defer resp.Body.Close()
-				if resp.StatusCode != http.StatusOK {
-					log.Printf(
-						"[HandleUserInfo] IDP Response: "+
-							"unexpected status %d",
-						resp.StatusCode,
-					)
-				} else {
-					var me dto.MeResponse
-					if err := json.NewDecoder(resp.Body).
-						Decode(&me); err != nil {
-						log.Printf(
-							"[HandleUserInfo] IDP Decode: %v",
-							err,
-						)
-					} else {
-						c.JSON(http.StatusOK, me)
-						return
-					}
+		req, _ := http.NewRequest("GET", userInfoURL, nil)
+		req.Header.Set("Authorization", "Bearer "+accessToken)
+
+		resp, err := Client.Do(req)
+		if err == nil {
+			defer resp.Body.Close()
+			if resp.StatusCode == http.StatusOK {
+				var me dto.MeResponse
+				if err := json.NewDecoder(resp.Body).Decode(&me); err == nil {
+					c.JSON(http.StatusOK, me)
+					return
 				}
 			}
 		}
@@ -152,18 +135,11 @@ func (h *UserHandler) PatchUserName(c *gin.Context) {
 	token, _ := c.Cookie(dto.AccessCookieName)
 	idpURL := fmt.Sprintf("%s/%s/name", os.Getenv("IDP_USER_URL"), id)
 	body, _ := json.Marshal(req)
-	proxyReq, err := http.NewRequest(
+	proxyReq, _ := http.NewRequest(
 		http.MethodPatch,
 		idpURL,
 		bytes.NewBuffer(body),
 	)
-	if err != nil {
-		log.Printf("[PatchUserName] Build Request: %v", err)
-		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-			Error: "Failed to build IDP request",
-		})
-		return
-	}
 	proxyReq.Header.Set("Content-Type", "application/json")
 	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
 	if token != "" {
@@ -212,16 +188,7 @@ func (h *UserHandler) PatchUserPasswordByEmail(c *gin.Context) {
 
 	idpURL := fmt.Sprintf("%s/password/forgot", os.Getenv("IDP_USER_URL"))
 	body, _ := json.Marshal(req)
-	proxyReq, err := http.NewRequest(
-		http.MethodPatch, idpURL, bytes.NewBuffer(body),
-	)
-	if err != nil {
-		log.Printf("[PatchUserPasswordByEmail] Build Request: %v", err)
-		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-			Error: "Failed to build IDP request",
-		})
-		return
-	}
+	proxyReq, _ := http.NewRequest(http.MethodPatch, idpURL, bytes.NewBuffer(body))
 	proxyReq.Header.Set("Content-Type", "application/json")
 	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
 
@@ -259,16 +226,7 @@ func (h *UserHandler) PatchChangePassword(c *gin.Context) {
 
 	idpURL := fmt.Sprintf("%s/password/change", os.Getenv("IDP_USER_URL"))
 	body, _ := json.Marshal(req)
-	proxyReq, err := http.NewRequest(
-		http.MethodPatch, idpURL, bytes.NewBuffer(body),
-	)
-	if err != nil {
-		log.Printf("[PatchChangePassword] Build Request: %v", err)
-		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
-			Error: "Failed to build IDP request",
-		})
-		return
-	}
+	proxyReq, _ := http.NewRequest(http.MethodPatch, idpURL, bytes.NewBuffer(body))
 	proxyReq.Header.Set("Content-Type", "application/json")
 	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
 
