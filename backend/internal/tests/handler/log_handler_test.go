@@ -8,6 +8,7 @@ import (
 	v1 "github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/api/v1"
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/models"
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/tests/mocks"
+	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/tests/mocks"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/mock/gomock"
 )

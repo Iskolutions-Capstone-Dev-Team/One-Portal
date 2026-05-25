@@ -17,12 +17,18 @@ import (
 	"github.com/google/uuid"
 	"go.uber.org/mock/gomock"
 )
+	"go.uber.org/mock/gomock"
+)
 
 func TestUserHandler_PatchUserName(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
 	gin.SetMode(gin.TestMode)
+
 
 	// Mock IDP Server
 	idpServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -34,11 +40,14 @@ func TestUserHandler_PatchUserName(t *testing.T) {
 	}))
 	defer idpServer.Close()
 
+
 	os.Setenv("IDP_USER_URL", idpServer.URL)
 	defer os.Unsetenv("IDP_USER_URL")
 
 	svc := mocks.NewMockUserService(ctrl)
+	svc := mocks.NewMockUserService(ctrl)
 	h := v1.NewUserHandler(svc)
+
 
 	r := gin.New()
 	r.PATCH("/user/:id/name", h.PatchUserName)
@@ -50,8 +59,15 @@ func TestUserHandler_PatchUserName(t *testing.T) {
 	}
 	body, _ := json.Marshal(reqBody)
 
+
 	req := httptest.NewRequest(http.MethodPatch, "/user/"+userID.String()+"/name", bytes.NewBuffer(body))
 	w := httptest.NewRecorder()
+
+	svc.EXPECT().
+		UpdateUserName(gomock.Any(), userID, reqBody).
+		Return(nil).
+		Times(1)
+
 
 	svc.EXPECT().
 		UpdateUserName(gomock.Any(), userID, reqBody).
@@ -70,7 +86,11 @@ func TestUserHandler_ProxyPasswordEndpoints(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
 	gin.SetMode(gin.TestMode)
+
 
 	mockIDP := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -78,9 +98,11 @@ func TestUserHandler_ProxyPasswordEndpoints(t *testing.T) {
 	}))
 	defer mockIDP.Close()
 
+
 	os.Setenv("IDP_USER_URL", mockIDP.URL)
 	defer os.Unsetenv("IDP_USER_URL")
 
+	svc := mocks.NewMockUserService(ctrl)
 	svc := mocks.NewMockUserService(ctrl)
 	h := v1.NewUserHandler(svc)
 	r := gin.New()
@@ -89,6 +111,7 @@ func TestUserHandler_ProxyPasswordEndpoints(t *testing.T) {
 
 	// 1. Test forgot password
 	forgotBody, _ := json.Marshal(dto.UpdatePasswordByEmailRequest{
+		Email:       "test@example.com",
 		Email:       "test@example.com",
 		NewPassword: "newpassword123",
 	})
@@ -101,6 +124,7 @@ func TestUserHandler_ProxyPasswordEndpoints(t *testing.T) {
 
 	// 2. Test change password
 	changeBody, _ := json.Marshal(dto.ChangePasswordRequest{
+		OldPassword: "oldpassword",
 		OldPassword: "oldpassword",
 		NewPassword: "newpassword123",
 	})
