@@ -32,6 +32,14 @@ var Client = &http.Client{
 	Timeout: TimeoutDuration,
 }
 
+// isSecureCookie returns false when running in debug/dev mode so
+// that HttpOnly cookies are not silently dropped by the browser
+// on plain-HTTP origins (e.g. localhost). In production the flag
+// is always true, enforcing HTTPS-only cookie transport.
+func isSecureCookie() bool {
+	return os.Getenv("GIN_MODE") != "debug"
+}
+
 // NewAuthHandler creates a handler for authentication-related endpoints.
 func NewAuthHandler(
 	logService service.LogService,
@@ -253,13 +261,14 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 		return
 	}
 
+	c.SetSameSite(http.SameSiteStrictMode)
 	c.SetCookie(
 		dto.AccessCookieName,
 		tokenResp.AccessToken,
 		tokenResp.ExpiresIn,
 		"/",
 		"",
-		true,
+		isSecureCookie(),
 		true,
 	)
 
@@ -282,8 +291,14 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 	}
 
 	// Always clear the access token cookie
-	c.SetCookie(dto.AccessCookieName, "", -1, "/", "", true, true)
-	c.SetCookie(dto.SessionCookieName, "", -1, "/", "", true, true)
+	c.SetCookie(
+		dto.AccessCookieName, "", -1, "/", "",
+		isSecureCookie(), true,
+	)
+	c.SetCookie(
+		dto.SessionCookieName, "", -1, "/", "",
+		isSecureCookie(), true,
+	)
 
 	// Notify the Identity Provider about the logout
 	url := h.notifyIDPLogout(c)
@@ -375,8 +390,8 @@ func (h *AuthHandler) HandleRefresh(c *gin.Context) {
 	payload, _ := json.Marshal(map[string]string{
 		"grant_type":    "refresh_token",
 		"refresh_token": oldRT.Token,
-		"client_id":     os.Getenv("VITE_CLIENT_ID"),
-		"client_secret": os.Getenv("VITE_CLIENT_SECRET"),
+		"client_id":     os.Getenv("CLIENT_ID"),
+		"client_secret": os.Getenv("CLIENT_SECRET"),
 	})
 
 	resp, err := Client.Post(
@@ -414,13 +429,14 @@ func (h *AuthHandler) HandleRefresh(c *gin.Context) {
 	}
 
 	// 4. Update access token cookie
+	c.SetSameSite(http.SameSiteStrictMode)
 	c.SetCookie(
 		dto.AccessCookieName,
 		tokenResp.AccessToken,
 		tokenResp.ExpiresIn,
 		"/",
 		"",
-		true,
+		isSecureCookie(),
 		true,
 	)
 
