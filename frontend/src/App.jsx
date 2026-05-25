@@ -3,6 +3,7 @@ import Callback from "./pages/Callback";
 import Home from "./pages/Home";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
+import Logout from "./pages/Logout";
 import Profile from "./pages/Profile";
 import { PortalThemeProvider } from "./context/PortalThemeContext";
 
@@ -22,6 +23,7 @@ export default function App() {
           <Route path="/landingRoute" element={<LandingRoute />} />
           <Route path="/login" element={<Login />} />
           <Route path="/callback" element={<Callback />} />
+          <Route path="/logout" element={<Logout />} />
           <Route path="/portal" element={<Home />} />
           <Route path="/profile" element={<Profile />} />
         </Routes>
