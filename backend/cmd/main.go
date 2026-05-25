@@ -10,10 +10,12 @@ import (
 	"time"
 
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/api"
+	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/cache"
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/database"
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/initializers"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/redis/go-redis/v9"
 )
 
 const TimeOutDuration = 5 * time.Second
@@ -39,6 +41,25 @@ func main() {
 		log.Printf("[Main] S3 initialization failed (optional): %v", err)
 	}
 
+	// Initialize Redis cache (non-fatal — services degrade gracefully)
+	var appCache cache.Cache
+	if redisURL := os.Getenv("REDIS_URL"); redisURL != "" {
+		opt, err := redis.ParseURL(redisURL)
+		if err != nil {
+			log.Printf("[Main] Redis URL parse error: %v", err)
+		} else {
+			redisClient := redis.NewClient(opt)
+			if err := redisClient.Ping(context.Background()).Err(); err != nil {
+				log.Printf("[Main] Redis ping failed: %v", err)
+			} else {
+				appCache = cache.NewRedisCache(redisClient)
+				log.Println("[Main] Redis cache initialized")
+			}
+		}
+	} else {
+		log.Println("[Main] REDIS_URL not set; running without cache")
+	}
+
 	// Run database migrations and seed initial data
 	initializers.MigrateAndSeed()
 
@@ -62,8 +83,8 @@ func main() {
 	repos := initializers.InitRepositories(db)
 	defer repos.Log.Close()
 
-	services := initializers.InitServices(repos)
-	handlers := initializers.InitHandlers(services)
+	services := initializers.InitServices(repos, appCache)
+	handlers := initializers.InitHandlers(services, appCache)
 	routes := api.NewRoutes(handlers)
 	routes.Register(r)
 
