@@ -116,7 +116,6 @@ func (h *OTPHandler) VerifyOTP(c *gin.Context) {
 
 	c.JSON(
 		http.StatusOK,
-		http.StatusOK,
 		dto.SuccessResponse{Message: "OTP verified successfully"},
 	)
 }

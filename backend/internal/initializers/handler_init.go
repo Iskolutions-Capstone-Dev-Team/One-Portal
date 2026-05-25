@@ -12,12 +12,6 @@ type Handlers struct {
 	User         *v1.UserHandler
 	UserAccess   *v1.UserAccessHandler
 	OTP          *v1.OTPHandler
-	Log          *v1.LogHandler
-	Auth         *v1.AuthHandler
-	Client       *v1.ClientHandler
-	User         *v1.UserHandler
-	UserAccess   *v1.UserAccessHandler
-	OTP          *v1.OTPHandler
 	Announcement *v1.AnnouncementHandler
 }
 
