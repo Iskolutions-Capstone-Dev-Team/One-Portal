@@ -1,29 +1,24 @@
-import { BrowserRouter, Route, Routes, useSearchParams } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Callback from "./pages/Callback";
 import Home from "./pages/Home";
-import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import { PortalThemeProvider } from "./context/PortalThemeContext";
-
-function LandingRoute() {
-  const [searchParams] = useSearchParams();
-  const hasAuthorizationParams = searchParams.has("code") || searchParams.has("error");
-
-  return hasAuthorizationParams ? <Callback /> : <Landing />;
-}
+import { ProtectedPortalRoute } from "./routes/AppRouteGuards";
+import { landingRoutes } from "./routes/landingRoutes";
 
 export default function App() {
   return (
     <PortalThemeProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<LandingRoute />} />
-          <Route path="/landingRoute" element={<LandingRoute />} />
+          {landingRoutes.map(({ path, element }) => (
+            <Route key={path} path={path} element={element} />
+          ))}
           <Route path="/login" element={<Login />} />
           <Route path="/callback" element={<Callback />} />
-          <Route path="/portal" element={<Home />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/portal" element={<ProtectedPortalRoute><Home /></ProtectedPortalRoute>} />
+          <Route path="/profile" element={<ProtectedPortalRoute><Profile /></ProtectedPortalRoute>} />
         </Routes>
       </BrowserRouter>
     </PortalThemeProvider>
