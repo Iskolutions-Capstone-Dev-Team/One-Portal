@@ -17,8 +17,7 @@ func TestClientService(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockRepo := mocks.NewMockClientRepository(ctrl)
-	// Pass nil cache: the service degrades gracefully to live DB queries.
-	svc := service.NewClientService(mockRepo, nil, nil)
+	svc := service.NewClientService(mockRepo, nil)
 
 	ctx := context.Background()
 	clientID := uuid.New()

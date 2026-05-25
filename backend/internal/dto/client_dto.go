@@ -15,6 +15,7 @@ type ClientRequest struct {
 type ClientResponse struct {
 	ID            uuid.UUID `json:"id"`
 	ClientName    string    `json:"client_name"`
+	ClientSecret  string    `json:"client_secret"`
 	BaseURL       string    `json:"base_url"`
 	Description   string    `json:"description"`
 	ImageLocation string    `json:"image_location"`

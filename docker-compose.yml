@@ -21,24 +21,6 @@ services:
     networks:
       - one_portal_network
 
-# Cache
-  one_portal_redis:
-    image: redis:7-alpine
-    container_name: one_portal_redis
-    restart: always
-    # Ephemeral memory-only mode — no AOF/RDB persistence.
-    # Optimal for a 2vCPU Lightsail instance: avoids disk I/O
-    # overhead on every cache write. Data re-warms automatically
-    # on restart since all cached values have short TTLs.
-    command: redis-server --save "" --appendonly no
-    networks:
-      - one_portal_network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
 # Backend Application
   backend:
     build:
@@ -49,7 +31,6 @@ services:
     env_file: ./.env
     environment:
       - GODEBUG=http2debug=0,asyncpreemptoff=1
-      - REDIS_URL=${REDIS_URL}
     ports:
       - "8000:8080"
     volumes:
@@ -59,8 +40,6 @@ services:
       - one_portal_network
     depends_on:
       oneportal_database:
-        condition: service_healthy
-      one_portal_redis:
         condition: service_healthy
     # Log rotation configuration
     logging:

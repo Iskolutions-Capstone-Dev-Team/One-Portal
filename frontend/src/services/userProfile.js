@@ -1,8 +1,5 @@
 import { apiRequest } from "./api";
 
-let currentUserProfile = null;
-let currentUserProfileRequest = null;
-
 function readTextValue(value) {
     return typeof value === "string" ? value.trim() : "";
 }
@@ -38,34 +35,10 @@ export function mapUserInfoToProfile(userInfo = {}) {
     };
 }
 
-export function clearCurrentUserProfileCache() {
-    currentUserProfile = null;
-    currentUserProfileRequest = null;
-}
+export async function getCurrentUserProfile() {
+    const response = await apiRequest("/userinfo");
 
-export async function getCurrentUserProfile({ forceRefresh = false } = {}) {
-    if (currentUserProfile && !forceRefresh) {
-        return currentUserProfile;
-    }
-
-    if (!currentUserProfileRequest) {
-        currentUserProfileRequest = apiRequest("/userinfo")
-            .then((response) => {
-                currentUserProfile = mapUserInfoToProfile(response);
-
-                return currentUserProfile;
-            })
-            .catch((error) => {
-                clearCurrentUserProfileCache();
-
-                throw error;
-            })
-            .finally(() => {
-                currentUserProfileRequest = null;
-            });
-    }
-
-    return currentUserProfileRequest;
+    return mapUserInfoToProfile(response);
 }
 
 export async function updateCurrentUserProfile(profile) {
@@ -80,7 +53,7 @@ export async function updateCurrentUserProfile(profile) {
         data: buildUserNamePayload(profile),
     });
 
-    const updatedProfile = {
+    return {
         ...createEmptyProfile(),
         id: userId,
         firstName: readTextValue(profile.firstName),
@@ -89,8 +62,4 @@ export async function updateCurrentUserProfile(profile) {
         nameSuffix: readTextValue(profile.nameSuffix),
         email: readTextValue(profile.email),
     };
-
-    currentUserProfile = updatedProfile;
-
-    return updatedProfile;
 }
