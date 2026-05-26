@@ -152,11 +152,18 @@ func (h *UserHandler) PatchUserName(c *gin.Context) {
 	token, _ := c.Cookie(dto.AccessCookieName)
 	idpURL := fmt.Sprintf("%s/%s/name", os.Getenv("IDP_USER_URL"), id)
 	body, _ := json.Marshal(req)
-	proxyReq, _ := http.NewRequest(
+	proxyReq, err := http.NewRequest(
 		http.MethodPatch,
 		idpURL,
 		bytes.NewBuffer(body),
 	)
+	if err != nil {
+		log.Printf("[PatchUserName] Build Request: %v", err)
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to build IDP request",
+		})
+		return
+	}
 	proxyReq.Header.Set("Content-Type", "application/json")
 	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
 	if token != "" {
@@ -205,7 +212,16 @@ func (h *UserHandler) PatchUserPasswordByEmail(c *gin.Context) {
 
 	idpURL := fmt.Sprintf("%s/password/forgot", os.Getenv("IDP_USER_URL"))
 	body, _ := json.Marshal(req)
-	proxyReq, _ := http.NewRequest(http.MethodPatch, idpURL, bytes.NewBuffer(body))
+	proxyReq, err := http.NewRequest(
+		http.MethodPatch, idpURL, bytes.NewBuffer(body),
+	)
+	if err != nil {
+		log.Printf("[PatchUserPasswordByEmail] Build Request: %v", err)
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to build IDP request",
+		})
+		return
+	}
 	proxyReq.Header.Set("Content-Type", "application/json")
 	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
 
@@ -243,7 +259,16 @@ func (h *UserHandler) PatchChangePassword(c *gin.Context) {
 
 	idpURL := fmt.Sprintf("%s/password/change", os.Getenv("IDP_USER_URL"))
 	body, _ := json.Marshal(req)
-	proxyReq, _ := http.NewRequest(http.MethodPatch, idpURL, bytes.NewBuffer(body))
+	proxyReq, err := http.NewRequest(
+		http.MethodPatch, idpURL, bytes.NewBuffer(body),
+	)
+	if err != nil {
+		log.Printf("[PatchChangePassword] Build Request: %v", err)
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to build IDP request",
+		})
+		return
+	}
 	proxyReq.Header.Set("Content-Type", "application/json")
 	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
 
