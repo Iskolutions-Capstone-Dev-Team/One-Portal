@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/dto"
 	"github.com/gin-gonic/gin"
@@ -96,5 +98,23 @@ func (h *UserAccessHandler) GetUserDetailedAccess(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, accessInfo)
+	// 7. Filter out One-Portal's own client from the list
+	selfClientID := os.Getenv("CLIENT_ID")
+	if selfClientID == "" {
+		log.Printf(
+			"[GetUserDetailedAccess] Config: CLIENT_ID env var not set," +
+				" skipping filter",
+		)
+		c.JSON(http.StatusOK, accessInfo)
+		return
+	}
+
+	filtered := make([]dto.ClientDetailedAccessResponse, 0, len(accessInfo))
+	for _, entry := range accessInfo {
+		if !strings.EqualFold(entry.ID, selfClientID) {
+			filtered = append(filtered, entry)
+		}
+	}
+
+	c.JSON(http.StatusOK, filtered)
 }
