@@ -1,6 +1,7 @@
 package initializers
 
 import (
+	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/cache"
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/service"
 )
 
@@ -12,14 +13,14 @@ type Services struct {
 	UserAccess   service.UserAccessService
 }
 
-// InitServices creates and returns all service instances based on repositories.
-// Add new services here in future and expose them through Services.
-func InitServices(repos *Repositories) *Services {
+// InitServices creates and returns all service instances.
+// Add new services here and expose them through Services.
+func InitServices(repos *Repositories, c cache.Cache) *Services {
 	return &Services{
 		Log:          service.NewLogService(repos.Log),
 		RefreshToken: service.NewAuthService(repos.RefreshToken),
 		User:         service.NewUserService(repos.User),
-		Client:       service.NewClientService(repos.Client, Storage),
+		Client:       service.NewClientService(repos.Client, Storage, c),
 		UserAccess:   service.NewUserAccessService(repos.UserAccess),
 	}
 }
