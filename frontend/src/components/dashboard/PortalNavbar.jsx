@@ -1,11 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { usePortalTheme } from "../../context/PortalThemeContext";
-import { clearSessionRefreshTimestamp, getLogoutFallbackUrl, logoutSession } from "../../services/auth";
 
 export default function PortalNavbar() {
     const [dropdownOpen, setDropdownOpen] = useState(false);
-    const [isLoggingOut, setIsLoggingOut] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
     const dropdownRef = useRef(null);
@@ -19,21 +17,9 @@ export default function PortalNavbar() {
         setDropdownOpen(false);
     };
 
-    const handleLogout = async () => {
-        setIsLoggingOut(true);
+    const handleLogout = () => {
         setDropdownOpen(false);
-
-        try {
-            const redirectUrl = await logoutSession();
-            clearSessionRefreshTimestamp();
-            window.location.assign(redirectUrl);
-        } catch (error) {
-            console.error("Logout request failed.", error);
-            clearSessionRefreshTimestamp();
-            window.location.assign(getLogoutFallbackUrl());
-        } finally {
-            setIsLoggingOut(false);
-        }
+        navigate("/logout");
     };
 
     useEffect(() => {
@@ -77,58 +63,58 @@ export default function PortalNavbar() {
 
     return (
         <header className="portal-header">
-            <span className="portal-header__glow portal-header__glow--left" aria-hidden="true" />
-            <span className="portal-header__glow portal-header__glow--right" aria-hidden="true" />
+                <span className="portal-header__glow portal-header__glow--left" aria-hidden="true" />
+                <span className="portal-header__glow portal-header__glow--right" aria-hidden="true" />
 
-            <div className="portal-header__inner">
-                <div className="portal-header__brand">
-                    <img src="/assets/images/PUPlogo.png" alt="PUP Logo" className="portal-header__logo"/>
+                <div className="portal-header__inner">
+                    <div className="portal-header__brand">
+                        <img src="/assets/images/PUPlogo.png" alt="PUP Logo" className="portal-header__logo"/>
 
-                    <div className="portal-header__text">
-                        <div className="portal-header__title">PUP TAGUIG ONE PORTAL</div>
-                        <div className="portal-header__subtitle">
-                            POLYTECHNIC UNIVERSITY OF THE PHILIPPINES - TAGUIG CAMPUS
+                        <div className="portal-header__text">
+                            <div className="portal-header__title">PUP TAGUIG ONE PORTAL</div>
+                            <div className="portal-header__subtitle">
+                                POLYTECHNIC UNIVERSITY OF THE PHILIPPINES - TAGUIG CAMPUS
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="portal-header__actions" ref={dropdownRef}>
+                        <button type="button" className={`portal-header__theme-button ${isDarkMode ? "is-active" : ""}`} aria-label={themeLabel} title={themeLabel} onClick={toggleTheme}>
+                            <span className="portal-header__theme-icon-stack" aria-hidden="true">
+                                <span className={`portal-header__theme-icon-slot ${!isDarkMode ? "is-visible" : ""}`}>
+                                    {icons.moon}
+                                </span>
+                                <span className={`portal-header__theme-icon-slot ${isDarkMode ? "is-visible" : ""}`}>
+                                    {icons.sun}
+                                </span>
+                            </span>
+                            <span className="sr-only">{themeLabel}</span>
+                        </button>
+
+                        <button type="button" className={`portal-header__profile-button ${dropdownOpen ? "is-open" : ""}`} aria-expanded={dropdownOpen} aria-haspopup="menu" aria-label="Open portal menu" onClick={() => setDropdownOpen((currentOpen) => !currentOpen)}>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="portal-header__profile-icon" aria-hidden="true">
+                                <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clipRule="evenodd"/>
+                            </svg>
+                            <span className="sr-only">Quick Menu</span>
+                        </button>
+
+                        <div className={`portal-header__menu ${dropdownOpen ? "is-open" : ""}`} role="menu">
+                            <button type="button" className="portal-header__menu-item" onClick={handleFirstOption}>
+                                <span className="portal-header__menu-icon" aria-hidden="true">
+                                    {firstOption === "Dashboard" ? icons.dashboard : icons.profile}
+                                </span>
+                                <span>{firstOption}</span>
+                            </button>
+
+                            <button type="button" className="portal-header__menu-item" onClick={handleLogout}>
+                                <span className="portal-header__menu-icon" aria-hidden="true">
+                                    {icons.logout}
+                                </span>
+                                <span>Logout</span>
+                            </button>
                         </div>
                     </div>
                 </div>
-
-                <div className="portal-header__actions" ref={dropdownRef}>
-                    <button type="button" className={`portal-header__theme-button ${isDarkMode ? "is-active" : ""}`} aria-label={themeLabel} title={themeLabel} onClick={toggleTheme}>
-                        <span className="portal-header__theme-icon-stack" aria-hidden="true">
-                            <span className={`portal-header__theme-icon-slot ${!isDarkMode ? "is-visible" : ""}`}>
-                                {icons.moon}
-                            </span>
-                            <span className={`portal-header__theme-icon-slot ${isDarkMode ? "is-visible" : ""}`}>
-                                {icons.sun}
-                            </span>
-                        </span>
-                        <span className="sr-only">{themeLabel}</span>
-                    </button>
-
-                    <button type="button" className={`portal-header__profile-button ${dropdownOpen ? "is-open" : ""}`} aria-expanded={dropdownOpen} aria-haspopup="menu" aria-label="Open portal menu" onClick={() => setDropdownOpen((currentOpen) => !currentOpen)}>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="portal-header__profile-icon" aria-hidden="true">
-                            <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 1 1 9 0 4.5 4.5 0 0 1-9 0ZM3.751 20.105a8.25 8.25 0 0 1 16.498 0 .75.75 0 0 1-.437.695A18.683 18.683 0 0 1 12 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 0 1-.437-.695Z" clipRule="evenodd"/>
-                        </svg>
-                        <span className="sr-only">Quick Menu</span>
-                    </button>
-
-                    <div className={`portal-header__menu ${dropdownOpen ? "is-open" : ""}`} role="menu">
-                        <button type="button" className="portal-header__menu-item" onClick={handleFirstOption}>
-                            <span className="portal-header__menu-icon" aria-hidden="true">
-                                {firstOption === "Dashboard" ? icons.dashboard : icons.profile}
-                            </span>
-                            <span>{firstOption}</span>
-                        </button>
-
-                        <button type="button" className="portal-header__menu-item" onClick={handleLogout} disabled={isLoggingOut}>
-                            <span className="portal-header__menu-icon" aria-hidden="true">
-                                {icons.logout}
-                            </span>
-                            <span>{isLoggingOut ? "Logging out..." : "Logout"}</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
         </header>
     );
 }
