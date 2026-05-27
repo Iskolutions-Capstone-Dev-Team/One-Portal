@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Callback from "./pages/Callback";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import Logout from "./pages/Logout";
 import Profile from "./pages/Profile";
 import { PortalThemeProvider } from "./context/PortalThemeContext";
 import { ProtectedPortalRoute } from "./routes/AppRouteGuards";
@@ -17,6 +18,7 @@ export default function App() {
           ))}
           <Route path="/login" element={<Login />} />
           <Route path="/callback" element={<Callback />} />
+          <Route path="/logout" element={<Logout />} />
           <Route path="/portal" element={<ProtectedPortalRoute><Home /></ProtectedPortalRoute>} />
           <Route path="/profile" element={<ProtectedPortalRoute><Profile /></ProtectedPortalRoute>} />
         </Routes>
