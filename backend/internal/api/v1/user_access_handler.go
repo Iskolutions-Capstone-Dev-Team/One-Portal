@@ -133,7 +133,7 @@ func (h *UserAccessHandler) GetUserDetailedAccess(c *gin.Context) {
 	selfClientID := os.Getenv("CLIENT_ID")
 	if selfClientID == "" {
 		log.Printf(
-			"[GetUserDetailedAccess] Config: CLIENT_ID env var not set,"+
+			"[GetUserDetailedAccess] Config: CLIENT_ID env var not set," +
 				" skipping filter",
 		)
 		h.setCacheAndRespond(c, cacheKey, userID, accessInfo)
