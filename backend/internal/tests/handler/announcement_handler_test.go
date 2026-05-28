@@ -27,7 +27,8 @@ func TestAnnouncementHandler(t *testing.T) {
 		os.Unsetenv("ANNOUNCEMENT_API_KEY")
 	}()
 
-	h := v1.NewAnnouncementHandler()
+	// Pass nil cache: the handler degrades gracefully to live HTTP.
+	h := v1.NewAnnouncementHandler(nil)
 	r := gin.New()
 	r.GET("/announcements", h.HandleGetAnnouncement)
 
