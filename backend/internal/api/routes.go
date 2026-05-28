@@ -34,40 +34,94 @@ func NewRoutes(handlers *initializers.Handlers) *Routes {
 }
 
 // Register registers all route groups on the given Gin engine.
+//
+// Auth middleware is applied SURGICALLY per group — not globally —
+// so that IDP-facing flows (auth, otp, password/forgot) remain
+// completely open as required by the OAuth/OIDC handshake.
 func (r *Routes) Register(router *gin.Engine) {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	apiGroup := router.Group("/api")
 	v1Group := apiGroup.Group("/v1")
 
-	v1Group.GET("/logs", r.LogHandler.HandleGetLogs)
+	// --- Public endpoints (no auth) ---
+
+	// Announcement: public read-only data, cached in Redis
 	v1Group.GET("/announcement", r.Announcement.HandleGetAnnouncement)
 
+	// Auth flow: MUST remain fully open.
+	// These routes ARE the OIDC handshake — adding auth middleware
+	// here would break the login/refresh/logout cycle entirely.
 	authGroup := v1Group.Group("/auth")
 	authGroup.POST("/callback", r.AuthHandler.HandleCallback)
 	authGroup.GET("/authorize", r.AuthHandler.HandleAuthorization)
 	authGroup.POST("/logout", r.AuthHandler.Logout)
 	authGroup.POST("/refresh", r.AuthHandler.HandleRefresh)
 
-	clientsGroup := v1Group.Group("/clients")
+	// OTP: called pre-login during account recovery — rate-limited only.
+	otpGroup := v1Group.Group("/otp")
+	otpRL := middleware.RateLimitMiddleware(middleware.OTPRateLimiter)
+	otpGroup.POST("/send", otpRL, r.OTP.SendOTP)
+	otpGroup.POST("/verify", otpRL, r.OTP.VerifyOTP)
+
+	// --- JWT-protected endpoints (user session required) ---
+
+	// User access dashboard: user is already logged in when viewing this.
+	v1Group.GET(
+		"/users/access",
+		middleware.JWTAuthMiddleware,
+		r.UserAccessHandler.GetUserDetailedAccess,
+	)
+
+	// Userinfo: already had JWT — no change.
+	v1Group.GET(
+		"/userinfo",
+		middleware.JWTAuthMiddleware,
+		r.UserHandler.HandleUserInfo,
+	)
+
+	userGroup := v1Group.Group("/user")
+	{
+		// Name change: authenticated user action.
+		userGroup.PATCH(
+			"/:id/name",
+			middleware.JWTAuthMiddleware,
+			r.UserHandler.PatchUserName,
+		)
+		// Password forgot: user is locked out — rate-limited only.
+		// Intentionally unauthenticated; no token available.
+		forgotRL := middleware.RateLimitMiddleware(middleware.OTPRateLimiter)
+		userGroup.PATCH("/password/forgot", forgotRL,
+			r.UserHandler.PatchUserPasswordByEmail,
+		)
+		// Password change: already had JWT — no change.
+		userGroup.PATCH(
+			"/password/change",
+			middleware.JWTAuthMiddleware,
+			r.UserHandler.PatchChangePassword,
+		)
+	}
+
+	// --- API Key-protected endpoints (internal admin operations) ---
+
+	// Logs: frontend uses it with X-API-Key + JWT (confirmed active usage).
+	v1Group.GET(
+		"/logs",
+		middleware.APIKeyAuthMiddleware,
+		middleware.JWTAuthMiddleware,
+		r.LogHandler.HandleGetLogs,
+	)
+
+	// Clients: all operations require both API key (machine-to-machine)
+	// AND a valid JWT (human operator). Double-layered because client
+	// records contain sensitive OAuth credentials.
+	clientsGroup := v1Group.Group(
+		"/clients",
+		middleware.APIKeyAuthMiddleware,
+		middleware.JWTAuthMiddleware,
+	)
 	clientsGroup.GET("", r.ClientHandler.GetAllClients)
 	clientsGroup.GET("/:id", r.ClientHandler.GetClientByID)
 	clientsGroup.POST("", r.ClientHandler.CreateClient)
 	clientsGroup.PUT("/:id", r.ClientHandler.UpdateClient)
 	clientsGroup.DELETE("/:id", r.ClientHandler.DeleteClient)
-
-	v1Group.GET("/users/access", r.UserAccessHandler.GetUserDetailedAccess)
-	v1Group.GET("/userinfo", middleware.JWTAuthMiddleware, r.UserHandler.HandleUserInfo)
-
-	userGroup := v1Group.Group("/user")
-	{
-		userGroup.PATCH("/:id/name", r.UserHandler.PatchUserName)
-		userGroup.PATCH("/password/forgot", r.UserHandler.PatchUserPasswordByEmail)
-		userGroup.PATCH("/password/change", middleware.JWTAuthMiddleware, r.UserHandler.PatchChangePassword)
-	}
-
-	otpGroup := v1Group.Group("/otp")
-	{
-		otpGroup.POST("/send", r.OTP.SendOTP)
-		otpGroup.POST("/verify", r.OTP.VerifyOTP)
-	}
 }

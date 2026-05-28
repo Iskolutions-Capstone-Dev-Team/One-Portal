@@ -57,7 +57,8 @@ func setupTestRouter(
 		RefreshToken: authSvc,
 		User:         userSvc,
 	}
-	handlers := initializers.InitHandlers(services)
+	// Pass nil cache: handlers degrade gracefully to no-cache mode.
+	handlers := initializers.InitHandlers(services, nil)
 	routes := api.NewRoutes(handlers)
 	routes.Register(r)
 
