@@ -41,6 +41,16 @@ export async function saveAuthenticator({ email, secret, code, name }) {
     });
 }
 
+export async function verifyMfaCode({ email, code }) {
+    return apiRequest("/mfa/verify", {
+        method: "POST",
+        data: {
+            email: readTextValue(email),
+            code: readTextValue(code),
+        },
+    });
+}
+
 export async function deleteAuthenticator({ email, id }) {
     return apiRequest("/mfa/authenticators", {
         method: "DELETE",
