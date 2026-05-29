@@ -2031,6 +2031,153 @@ input[type="checkbox"] {
     10px 10px 18px rgba(48, 9, 9, 0.32);
 }
 
+.mfa-panel {
+  margin-top: 1.75rem;
+  padding: clamp(1.3rem, 3vw, 1.7rem);
+  border: 1px solid rgba(255, 255, 255, 0.44);
+  border-radius: 1.8rem;
+  background: linear-gradient(145deg, rgba(237, 242, 247, 0.88), rgba(216, 226, 237, 0.94));
+  box-shadow:
+    14px 14px 24px rgba(158, 170, 186, 0.2),
+    -10px -10px 18px rgba(255, 255, 255, 0.3),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+.mfa-panel__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.mfa-panel__title {
+  color: var(--profile-text);
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+.mfa-panel__description {
+  margin-top: 0.35rem;
+  color: var(--profile-text-muted);
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.mfa-panel__add {
+  flex-shrink: 0;
+}
+
+.mfa-panel__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 1.4rem;
+}
+
+.mfa-panel__message,
+.mfa-panel__empty {
+  margin-top: 1.25rem;
+  color: var(--profile-text-muted);
+  font-weight: 700;
+}
+
+.mfa-panel__message--error {
+  color: #991b1b;
+}
+
+.mfa-panel__empty {
+  grid-column: 1 / -1;
+  padding: 1rem;
+  border: 1px dashed rgba(148, 163, 184, 0.5);
+  border-radius: 1rem;
+  text-align: center;
+}
+
+.mfa-card {
+  position: relative;
+  min-height: 13rem;
+  padding: 1.25rem;
+  border: 1px solid rgba(108, 120, 139, 0.22);
+  border-radius: 1.45rem;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.35), rgba(219, 226, 238, 0.72));
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.mfa-card__delete {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.2rem;
+  display: grid;
+  place-items: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  border: 1px solid rgba(220, 38, 38, 0.34);
+  border-radius: 1rem;
+  color: #dc2626;
+  background: rgba(153, 27, 27, 0.08);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.mfa-card__delete:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: rgba(220, 38, 38, 0.14);
+}
+
+.mfa-card__delete:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.mfa-card__delete svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.mfa-card__icon {
+  display: grid;
+  place-items: center;
+  width: 4.2rem;
+  height: 4.2rem;
+  border: 1px solid rgba(250, 204, 21, 0.38);
+  border-radius: 1.2rem;
+  color: #b08910;
+  background: rgba(120, 92, 22, 0.1);
+}
+
+.mfa-card__icon svg {
+  width: 1.7rem;
+  height: 1.7rem;
+}
+
+.mfa-card__content {
+  margin-top: 1.25rem;
+}
+
+.mfa-card__name {
+  color: var(--profile-text);
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.mfa-card__type,
+.mfa-card__dates {
+  color: var(--profile-text-muted);
+  font-weight: 700;
+}
+
+.mfa-card__type {
+  margin-top: 0.35rem;
+}
+
+.mfa-card__dates {
+  display: grid;
+  gap: 0.35rem;
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(108, 120, 139, 0.16);
+  font-size: 0.9rem;
+}
+
 .profile-logs {
   margin-top: 1.75rem;
   overflow: hidden;
@@ -2291,6 +2438,110 @@ input[type="checkbox"] {
   display: flex;
   flex-wrap: wrap;
   gap: 0.85rem;
+}
+
+.mfa-modal__box {
+  width: min(100%, 45rem);
+  max-width: 45rem;
+}
+
+.mfa-modal__hero {
+  align-items: center;
+  padding: clamp(1.5rem, 4vw, 2rem);
+}
+
+.mfa-modal__hero-title {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  min-width: 0;
+}
+
+.mfa-modal__hero-icon {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  flex-shrink: 0;
+  color: #fde68a;
+}
+
+.mfa-modal__hero-icon svg {
+  width: 2rem;
+  height: 2rem;
+}
+
+.mfa-modal__body {
+  background: rgba(15, 23, 42, 0.04);
+}
+
+.mfa-setup,
+.mfa-verify {
+  display: grid;
+  gap: 1.4rem;
+  width: min(100%, 36rem);
+  margin: 0 auto;
+  padding: clamp(1rem, 3vw, 1.35rem);
+  border: 1px solid rgba(108, 120, 139, 0.18);
+  border-radius: 1.5rem;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.mfa-setup__note {
+  border-color: rgba(37, 99, 235, 0.26);
+  text-align: left;
+}
+
+.mfa-setup__qr-card {
+  display: grid;
+  place-items: center;
+  min-height: 18rem;
+}
+
+.mfa-setup__qr {
+  width: min(100%, 20rem);
+  border-radius: 1.4rem;
+  background: #ffffff;
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.16);
+}
+
+.mfa-setup__loading {
+  display: grid;
+  place-items: center;
+  width: min(100%, 20rem);
+  min-height: 20rem;
+  border-radius: 1.4rem;
+  color: var(--profile-text-muted);
+  background: rgba(255, 255, 255, 0.72);
+  font-weight: 800;
+}
+
+.mfa-modal__main-action {
+  width: 100%;
+  min-height: 3.35rem;
+}
+
+.mfa-verify__title {
+  color: var(--profile-text);
+  font-size: 1.8rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.mfa-verify__inputs {
+  justify-content: flex-start;
+}
+
+.mfa-verify__actions {
+  display: grid;
+  grid-template-columns: 3.75rem minmax(0, 1fr);
+  gap: 0.9rem;
+  align-items: stretch;
+}
+
+.mfa-verify__back {
+  width: 3.75rem;
+  padding: 0;
 }
 
 .profile-form {
@@ -2846,6 +3097,7 @@ input[type="checkbox"] {
 .portal-layout[data-portal-theme="dark"] .profile-detail-card,
 .portal-layout[data-portal-theme="dark"] .profile-audit-card,
 .portal-layout[data-portal-theme="dark"] .profile-status,
+.portal-layout[data-portal-theme="dark"] .mfa-panel,
 .portal-layout[data-portal-theme="dark"] .profile-logs__entry,
 .portal-layout[data-portal-theme="dark"] .profile-modal__box,
 .portal-layout[data-portal-theme="dark"] .profile-success__activity-card {
@@ -3103,6 +3355,8 @@ input[type="checkbox"] {
 .portal-layout[data-portal-theme="dark"] .profile-detail-card,
 .portal-layout[data-portal-theme="dark"] .profile-audit-card,
 .portal-layout[data-portal-theme="dark"] .profile-status,
+.portal-layout[data-portal-theme="dark"] .mfa-panel,
+.portal-layout[data-portal-theme="dark"] .mfa-card,
 .portal-layout[data-portal-theme="dark"] .profile-logs__entry,
 .portal-layout[data-portal-theme="dark"] .profile-success__activity-card {
   background: linear-gradient(145deg, #2c3d52, #202d3d);
@@ -3111,6 +3365,7 @@ input[type="checkbox"] {
 .portal-layout[data-portal-theme="dark"] .profile-detail-card:hover,
 .portal-layout[data-portal-theme="dark"] .profile-audit-card:hover,
 .portal-layout[data-portal-theme="dark"] .profile-status:hover,
+.portal-layout[data-portal-theme="dark"] .mfa-card:hover,
 .portal-layout[data-portal-theme="dark"] .profile-logs__entry:hover {
   box-shadow:
     18px 18px 30px rgba(8, 12, 18, 0.56),
@@ -3128,6 +3383,7 @@ input[type="checkbox"] {
 
 .portal-layout[data-portal-theme="dark"] .profile-details__audit,
 .portal-layout[data-portal-theme="dark"] .profile-actions,
+.portal-layout[data-portal-theme="dark"] .mfa-card__dates,
 .portal-layout[data-portal-theme="dark"] .profile-success__activity,
 .portal-layout[data-portal-theme="dark"] .profile-modal__footer {
   border-top-color: rgba(146, 163, 184, 0.14);
@@ -3228,6 +3484,44 @@ input[type="checkbox"] {
 
 .portal-layout[data-portal-theme="dark"] .profile-modal__footer {
   background: rgba(8, 12, 18, 0.3);
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-panel__title,
+.portal-layout[data-portal-theme="dark"] .mfa-card__name,
+.portal-layout[data-portal-theme="dark"] .mfa-verify__title {
+  color: #eef3fa;
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-panel__description,
+.portal-layout[data-portal-theme="dark"] .mfa-panel__message,
+.portal-layout[data-portal-theme="dark"] .mfa-panel__empty,
+.portal-layout[data-portal-theme="dark"] .mfa-card__type,
+.portal-layout[data-portal-theme="dark"] .mfa-card__dates,
+.portal-layout[data-portal-theme="dark"] .mfa-setup__loading {
+  color: #cbd5e1;
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-panel__message--error {
+  color: #fecaca;
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-card__icon {
+  color: #fde68a;
+  background: rgba(250, 204, 21, 0.1);
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-modal__body {
+  background: rgba(8, 12, 18, 0.18);
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-setup,
+.portal-layout[data-portal-theme="dark"] .mfa-verify {
+  border-color: rgba(146, 163, 184, 0.16);
+  background: rgba(8, 12, 18, 0.18);
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-setup__loading {
+  background: rgba(15, 23, 42, 0.74);
 }
 
 .portal-layout[data-portal-theme="dark"] .profile-form__input,
@@ -3413,6 +3707,7 @@ input[type="checkbox"] {
   }
 
   .profile-status,
+  .mfa-panel__header,
   .profile-modal__footer,
   .profile-success__activity-card {
     flex-direction: column;
@@ -3426,6 +3721,14 @@ input[type="checkbox"] {
   }
 
   .profile-modal__actions {
+    width: 100%;
+  }
+
+  .mfa-panel__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mfa-panel__add {
     width: 100%;
   }
 
@@ -3523,12 +3826,14 @@ input[type="checkbox"] {
 
   .profile-card__identity,
   .profile-status,
+  .mfa-panel__header,
   .profile-modal__footer,
   .profile-success__activity-card {
     align-items: center;
   }
 
   .profile-card__chips,
+  .mfa-panel__header,
   .profile-modal__actions {
     justify-content: center;
   }
@@ -3550,6 +3855,18 @@ input[type="checkbox"] {
   .profile-otp__input {
     width: 2.8rem;
     height: 2.8rem;
+  }
+
+  .mfa-verify__inputs {
+    justify-content: center;
+  }
+
+  .mfa-verify__actions {
+    grid-template-columns: 1fr;
+  }
+
+  .mfa-verify__back {
+    width: 100%;
   }
 
   .profile-toast-shell {
