@@ -82,10 +82,10 @@ export default function PortalNavbar() {
                         <button type="button" className={`portal-header__theme-button ${isDarkMode ? "is-active" : ""}`} aria-label={themeLabel} title={themeLabel} onClick={toggleTheme}>
                             <span className="portal-header__theme-icon-stack" aria-hidden="true">
                                 <span className={`portal-header__theme-icon-slot ${!isDarkMode ? "is-visible" : ""}`}>
-                                    {icons.moon}
+                                    {icons.sun}
                                 </span>
                                 <span className={`portal-header__theme-icon-slot ${isDarkMode ? "is-visible" : ""}`}>
-                                    {icons.sun}
+                                    {icons.moon}
                                 </span>
                             </span>
                             <span className="sr-only">{themeLabel}</span>
