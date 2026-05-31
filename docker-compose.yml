@@ -16,8 +16,9 @@ services:
     volumes:
       - ./frontend:/app
       - ./.env:/app/.env:ro
-      - /app/node_modules
+      - frontend_node_modules:/app/node_modules
     working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
     networks:
       - one_portal_network
 
@@ -101,3 +102,4 @@ networks:
 
 volumes:
   db_data:
+  frontend_node_modules:

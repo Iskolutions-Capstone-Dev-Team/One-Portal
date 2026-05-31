@@ -5,6 +5,29 @@ const apiClient = axios.create({
     withCredentials: true,
 });
 
+function getCookieValue(cookieName) {
+    if (typeof document === "undefined") {
+        return "";
+    }
+
+    const cookie = document.cookie
+        .split(";")
+        .map((cookiePair) => cookiePair.trim())
+        .find((cookiePair) => cookiePair.startsWith(`${cookieName}=`));
+
+    if (!cookie) {
+        return "";
+    }
+
+    const value = cookie.split("=").slice(1).join("=");
+
+    try {
+        return decodeURIComponent(value);
+    } catch {
+        return value;
+    }
+}
+
 function normalizeBaseUrl(baseUrl) {
     if (!baseUrl) {
         return DEV_API_BASE_URL;
@@ -41,6 +64,12 @@ function buildHeaders(headers = {}, body) {
 
     if (body && !(body instanceof FormData) && !hasHeader(requestHeaders, "Content-Type")) {
         requestHeaders["Content-Type"] = "application/json";
+    }
+
+    const accessToken = getCookieValue("access_token");
+
+    if (accessToken && !hasHeader(requestHeaders, "Authorization")) {
+        requestHeaders.Authorization = `Bearer ${accessToken}`;
     }
 
     if (!import.meta.env.DEV && import.meta.env.VITE_BACKEND_API_KEY && !hasHeader(requestHeaders, "X-API-Key")) {

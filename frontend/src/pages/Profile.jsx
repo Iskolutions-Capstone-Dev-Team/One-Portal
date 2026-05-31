@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import OnePortalLayout from "../layouts/OnePortalLayout";
 import ProfileCard from "../components/profile/ProfileCard";
+import AuthenticatorApps from "../components/profile/AuthenticatorApps";
 import { clearSessionState, navigateToLandingPage } from "../services/auth";
 import { createEmptyProfile, getCurrentUserProfile } from "../services/userProfile";
 
@@ -62,6 +63,7 @@ export default function Profile() {
                         onProfileChange={setProfile}
                         allowEmailEdit={false}
                     />
+                    <AuthenticatorApps email={profile.email} />
                 </div>
             </main>
         </OnePortalLayout>
