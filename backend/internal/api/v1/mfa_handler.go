@@ -46,7 +46,7 @@ func (h *MFAHandler) GetTOTPSetup(c *gin.Context) {
 		idpBase = "http://localhost:8080/api/v1/mfa"
 	}
 	idpURL := fmt.Sprintf(
-		"%s/setup?email=%s",
+		"%s/totp/setup?email=%s",
 		idpBase,
 		url.QueryEscape(email),
 	)
@@ -60,6 +60,9 @@ func (h *MFAHandler) GetTOTPSetup(c *gin.Context) {
 		return
 	}
 	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
+	if token := getAccessToken(c); token != "" {
+		proxyReq.Header.Set("Authorization", "Bearer "+token)
+	}
 
 	resp, err := Client.Do(proxyReq)
 	if err != nil {
@@ -120,7 +123,7 @@ func (h *MFAHandler) PostAuthenticator(c *gin.Context) {
 	if idpBase == "" {
 		idpBase = "http://localhost:8080/api/v1/mfa"
 	}
-	idpURL := fmt.Sprintf("%s/authenticators", idpBase)
+	idpURL := fmt.Sprintf("%s/totp/authenticators", idpBase)
 
 	body, _ := json.Marshal(req)
 	proxyReq, err := http.NewRequest(
@@ -137,6 +140,9 @@ func (h *MFAHandler) PostAuthenticator(c *gin.Context) {
 	}
 	proxyReq.Header.Set("Content-Type", "application/json")
 	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
+	if token := getAccessToken(c); token != "" {
+		proxyReq.Header.Set("Authorization", "Bearer "+token)
+	}
 
 	resp, err := Client.Do(proxyReq)
 	if err != nil {
@@ -198,7 +204,7 @@ func (h *MFAHandler) PostVerifyMFA(c *gin.Context) {
 	if idpBase == "" {
 		idpBase = "http://localhost:8080/api/v1/mfa"
 	}
-	idpURL := fmt.Sprintf("%s/verify", idpBase)
+	idpURL := fmt.Sprintf("%s/totp/verify", idpBase)
 
 	body, _ := json.Marshal(req)
 	proxyReq, err := http.NewRequest(
@@ -215,6 +221,9 @@ func (h *MFAHandler) PostVerifyMFA(c *gin.Context) {
 	}
 	proxyReq.Header.Set("Content-Type", "application/json")
 	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
+	if token := getAccessToken(c); token != "" {
+		proxyReq.Header.Set("Authorization", "Bearer "+token)
+	}
 
 	resp, err := Client.Do(proxyReq)
 	if err != nil {
@@ -288,6 +297,9 @@ func (h *MFAHandler) GetAuthenticatorList(c *gin.Context) {
 		return
 	}
 	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
+	if token := getAccessToken(c); token != "" {
+		proxyReq.Header.Set("Authorization", "Bearer "+token)
+	}
 
 	resp, err := Client.Do(proxyReq)
 	if err != nil {
@@ -365,6 +377,9 @@ func (h *MFAHandler) DeleteAuthenticator(c *gin.Context) {
 	}
 	proxyReq.Header.Set("Content-Type", "application/json")
 	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
+	if token := getAccessToken(c); token != "" {
+		proxyReq.Header.Set("Authorization", "Bearer "+token)
+	}
 
 	resp, err := Client.Do(proxyReq)
 	if err != nil {
@@ -398,4 +413,16 @@ func (h *MFAHandler) DeleteAuthenticator(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, delResp)
+}
+
+// getAccessToken extracts JWT access token from cookie or header.
+func getAccessToken(c *gin.Context) string {
+	tStr, err := c.Cookie(dto.AccessCookieName)
+	if err != nil || tStr == "" {
+		authHeader := c.GetHeader("Authorization")
+		if len(authHeader) > 7 && authHeader[:7] == "Bearer " {
+			tStr = authHeader[7:]
+		}
+	}
+	return tStr
 }
