@@ -4255,6 +4255,20 @@ input[type="checkbox"] {
   scrollbar-color: #cccccc #ffffff;
 }
 
+/* Final light-mode secondary button lock */
+.portal-layout[data-portal-theme="light"] :is(.header-action-button--secondary, .profile-action--secondary) {
+  color: #facc15 !important;
+  border-color: #facc15 !important;
+  background: transparent !important;
+  box-shadow: none;
+}
+
+.portal-layout[data-portal-theme="light"] :is(.header-action-button--secondary, .profile-action--secondary) svg {
+  color: #facc15 !important;
+  fill: currentColor;
+  stroke: currentColor;
+}
+
 /* Dashboard navbar and hero polish */
 .portal-layout {
   position: relative;
@@ -4734,7 +4748,7 @@ input[type="checkbox"] {
 .profile-card__avatar {
   width: clamp(6.5rem, 11vw, 9rem);
   height: clamp(6.5rem, 11vw, 9rem);
-  box-shadow: 0 18px 36px rgba(153, 27, 27, 0.16);
+  box-shadow: none;
   font-size: clamp(2rem, 4vw, 3rem);
 }
 
@@ -4751,6 +4765,14 @@ input[type="checkbox"] {
   box-shadow: none;
 }
 
+.profile-card__chip svg {
+  color: #b91c1c;
+}
+
+.portal-layout[data-portal-theme="dark"] .profile-card__chip svg {
+  color: #facc15;
+}
+
 .profile-card__body {
   padding: clamp(1.1rem, 3vw, 1.75rem) 0 0;
 }
@@ -4759,6 +4781,10 @@ input[type="checkbox"] {
   border-color: rgba(33, 45, 61, 0.12);
   border-radius: 0.9rem;
   background: rgba(244, 247, 251, 0.72);
+  box-shadow: none;
+}
+
+.profile-detail-card:hover {
   box-shadow: none;
 }
 
@@ -4870,6 +4896,76 @@ input[type="checkbox"] {
   background: transparent;
 }
 
+.profile-action--secondary,
+.portal-layout[data-portal-theme="dark"] .profile-action--secondary {
+  color: #facc15;
+  border-color: rgba(250, 204, 21, 0.55);
+  background: transparent;
+}
+
+.portal-layout[data-portal-theme="light"] .header-action-button--secondary,
+.portal-layout[data-portal-theme="light"] .profile-action--secondary {
+  color: #facc15;
+  border-color: rgba(250, 204, 21, 0.65);
+  background: transparent;
+}
+
+.portal-layout[data-portal-theme="light"] .header-action-button--secondary svg,
+.portal-layout[data-portal-theme="light"] .profile-action--secondary svg {
+  color: #facc15;
+}
+
+/* Smooth dashboard/profile motion */
+.portal-home,
+.profile-page,
+.header-content__shell,
+.portal-home__shell,
+.profile-page__shell,
+.portal-footer__shell {
+  animation: portalPageFadeIn 0.42s ease both;
+}
+
+.portal-header__profile-button,
+.portal-header__theme-button,
+.header-action-button,
+.system-card__button,
+.portal-pagination__button,
+.portal-footer__social-link,
+.portal-footer__legal-link,
+.profile-action,
+.profile-card__chip,
+.profile-detail-card {
+  transition:
+    transform 0.22s ease,
+    opacity 0.22s ease,
+    color 0.22s ease,
+    background 0.22s ease,
+    border-color 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.portal-header__profile-button:active,
+.portal-header__theme-button:active,
+.header-action-button:active,
+.system-card__button:active,
+.portal-pagination__button:active,
+.portal-footer__social-link:active,
+.profile-action:active {
+  transform: translateY(0) scale(0.98);
+}
+
+@keyframes portalPageFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.35rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .header-action-button--secondary:hover,
 .portal-layout[data-portal-theme="dark"] .header-action-button--secondary:hover {
   color: #991b1b;
@@ -4973,4 +5069,20 @@ input[type="checkbox"] {
 
 .portal-layout[data-portal-theme="dark"] .portal-footer__legal-link:hover {
   color: #facc15;
+}
+
+/* Keep light-mode secondary CTAs in the yellow outline state. */
+.portal-layout[data-portal-theme="light"] .header-action-button--secondary,
+.portal-layout[data-portal-theme="light"] .profile-action--secondary {
+  color: #facc15 !important;
+  border-color: #facc15 !important;
+  background: transparent !important;
+  box-shadow: none;
+}
+
+.portal-layout[data-portal-theme="light"] .header-action-button--secondary svg,
+.portal-layout[data-portal-theme="light"] .profile-action--secondary svg {
+  color: #facc15 !important;
+  fill: currentColor;
+  stroke: currentColor;
 }
