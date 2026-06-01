@@ -5694,3 +5694,59 @@ input[type="checkbox"] {
 .portal-layout[data-portal-theme="light"] .profile-action--secondary:hover:not(:disabled) svg {
   color: #facc15 !important;
 }
+
+/* Full-screen profile modal overlay */
+.profile-modal.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  width: 100vw;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: clamp(1rem, 3vw, 2rem);
+  overflow-y: auto;
+  border: 0;
+  background: rgba(12, 18, 28, 0.72);
+  backdrop-filter: blur(10px);
+}
+
+.profile-modal.modal::backdrop {
+  background: rgba(12, 18, 28, 0.72);
+  backdrop-filter: blur(10px);
+}
+
+.portal-layout[data-portal-theme="light"] .profile-modal.modal {
+  background: rgba(15, 23, 42, 0.48);
+}
+
+.portal-layout[data-portal-theme="light"] .profile-modal.modal::backdrop {
+  background: rgba(15, 23, 42, 0.48);
+}
+
+.portal-layout[data-portal-theme="dark"] .profile-modal.modal {
+  background: rgba(5, 10, 18, 0.76);
+}
+
+.portal-layout[data-portal-theme="dark"] .profile-modal.modal::backdrop {
+  background: rgba(5, 10, 18, 0.76);
+}
+
+.profile-modal.modal .profile-modal__box {
+  width: min(calc(100vw - 2rem), 64rem);
+  margin: auto;
+}
+
+.profile-modal.modal .profile-modal__box--compact {
+  width: min(calc(100vw - 2rem), 35rem);
+}
+
+@media (max-width: 640px) {
+  .profile-modal.modal {
+    align-items: start;
+    padding: 0.75rem;
+  }
+}
