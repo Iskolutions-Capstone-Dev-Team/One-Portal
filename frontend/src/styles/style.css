@@ -5403,3 +5403,294 @@ input[type="checkbox"] {
   fill: currentColor;
   stroke: currentColor;
 }
+
+/* Authenticator apps */
+.mfa-panel {
+  max-width: min(100%, 64rem);
+  margin: 1.4rem auto 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  animation: portalPageFadeIn 0.42s ease both;
+}
+
+.mfa-panel__header {
+  align-items: flex-end;
+  gap: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.mfa-panel__title {
+  color: #172033;
+  font-size: 1.35rem;
+  line-height: 1.15;
+}
+
+.mfa-panel__description {
+  margin-top: 0.45rem;
+  color: #4b5565;
+  font-weight: 500;
+}
+
+.mfa-panel__add {
+  min-width: 12rem;
+  min-height: 3.1rem;
+  border-radius: 0.55rem;
+}
+
+.mfa-panel__grid {
+  gap: 1rem;
+  margin-top: 0;
+}
+
+.mfa-panel__message,
+.mfa-panel__empty {
+  color: #4b5565;
+  font-weight: 600;
+}
+
+.mfa-panel__empty {
+  border-color: rgba(107, 114, 128, 0.3);
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.mfa-card {
+  min-height: 11.5rem;
+  padding: 1.25rem 1.4rem 1.15rem;
+  border: 1px solid rgba(107, 114, 128, 0.22);
+  border-radius: 0.9rem;
+  background: rgba(235, 242, 249, 0.6);
+  box-shadow: none;
+  transition:
+    transform 0.22s ease,
+    opacity 0.22s ease,
+    color 0.22s ease,
+    background 0.22s ease,
+    border-color 0.22s ease;
+  animation: portalPageFadeIn 0.42s ease both;
+}
+
+.mfa-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(185, 28, 28, 0.32);
+  background: rgba(244, 248, 252, 0.78);
+}
+
+.mfa-card__delete {
+  top: 1.25rem;
+  right: 1.25rem;
+  width: 3rem;
+  height: 3rem;
+  border-color: rgba(185, 28, 28, 0.5);
+  border-radius: 0.55rem;
+  color: #b91c1c;
+  background: rgba(185, 28, 28, 0.06);
+  box-shadow: none;
+  transition:
+    transform 0.22s ease,
+    color 0.22s ease,
+    background 0.22s ease,
+    border-color 0.22s ease;
+}
+
+.mfa-card__delete:hover:not(:disabled) {
+  transform: translateY(-2px);
+  color: #ffffff;
+  border-color: rgba(185, 28, 28, 0.75);
+  background: linear-gradient(160deg, #c72626 0%, #991b1b 100%);
+}
+
+.mfa-card__delete svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.mfa-card__icon {
+  width: 3.55rem;
+  height: 3.55rem;
+  border-color: rgba(250, 204, 21, 0.65);
+  border-radius: 0.55rem;
+  color: #facc15;
+  background: rgba(250, 204, 21, 0.08);
+}
+
+.mfa-card__icon svg {
+  width: 1.65rem;
+  height: 1.65rem;
+}
+
+.mfa-card__content {
+  margin-top: 1rem;
+  padding-right: 4rem;
+}
+
+.mfa-card__name {
+  color: #172033;
+  font-size: 1.05rem;
+  line-height: 1.2;
+}
+
+.mfa-card__type {
+  margin-top: 0.4rem;
+  color: #4b5565;
+  font-weight: 500;
+}
+
+.mfa-card__dates {
+  gap: 0.65rem;
+  margin-top: 1.1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(107, 114, 128, 0.2);
+  color: #4b5565;
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+
+.mfa-card__dates p {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.mfa-card__date-icon {
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  color: #b91c1c;
+}
+
+.mfa-card__date-icon svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-panel {
+  background: transparent;
+  box-shadow: none;
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-panel__title,
+.portal-layout[data-portal-theme="dark"] .mfa-card__name {
+  color: #ffffff;
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-panel__description,
+.portal-layout[data-portal-theme="dark"] .mfa-panel__message,
+.portal-layout[data-portal-theme="dark"] .mfa-panel__empty,
+.portal-layout[data-portal-theme="dark"] .mfa-card__type,
+.portal-layout[data-portal-theme="dark"] .mfa-card__dates {
+  color: rgba(226, 232, 240, 0.82);
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-panel__empty {
+  border-color: rgba(148, 163, 184, 0.22);
+  background: rgba(18, 33, 52, 0.34);
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-card {
+  border-color: rgba(148, 163, 184, 0.16);
+  background: rgba(18, 33, 52, 0.56);
+  box-shadow: none;
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-card:hover {
+  border-color: rgba(250, 204, 21, 0.24);
+  background: rgba(18, 33, 52, 0.74);
+  box-shadow: none;
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-card__dates {
+  border-top-color: rgba(148, 163, 184, 0.16);
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-card__date-icon {
+  color: #facc15;
+}
+
+@media (max-width: 768px) {
+  .mfa-panel__header {
+    align-items: stretch;
+  }
+
+  .mfa-panel__add {
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .mfa-panel__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Tighter profile/authenticator layout */
+.profile-details,
+.profile-actions,
+.mfa-panel {
+  max-width: min(100%, 52rem);
+}
+
+.profile-actions {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.mfa-panel {
+  margin-top: 1.6rem;
+  padding-top: 1.6rem;
+  border-top: 1px solid rgba(33, 45, 61, 0.14);
+}
+
+.mfa-card {
+  min-height: 19rem;
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-panel {
+  border-top-color: rgba(148, 163, 184, 0.18);
+}
+
+@media (max-width: 768px) {
+  .profile-details,
+  .profile-actions,
+  .mfa-panel {
+    max-width: 100%;
+  }
+
+  .mfa-card {
+    min-height: auto;
+  }
+}
+
+/* Light mode secondary CTA states */
+.portal-layout[data-portal-theme="light"] .header-action-button--secondary,
+.portal-layout[data-portal-theme="light"] .profile-action--secondary {
+  color: #991b1b !important;
+  border-color: #facc15 !important;
+  background: linear-gradient(160deg, #fde047 0%, #facc15 100%) !important;
+  box-shadow: none;
+}
+
+.portal-layout[data-portal-theme="light"] .header-action-button--secondary svg,
+.portal-layout[data-portal-theme="light"] .profile-action--secondary svg {
+  color: #991b1b !important;
+  fill: currentColor;
+  stroke: currentColor;
+}
+
+.portal-layout[data-portal-theme="light"] .header-action-button--secondary:hover:not(:disabled),
+.portal-layout[data-portal-theme="light"] .profile-action--secondary:hover:not(:disabled) {
+  color: #facc15 !important;
+  border-color: rgba(153, 27, 27, 0.38) !important;
+  background: linear-gradient(160deg, #c72626 0%, #991b1b 100%) !important;
+}
+
+.portal-layout[data-portal-theme="light"] .header-action-button--secondary:hover:not(:disabled) svg,
+.portal-layout[data-portal-theme="light"] .profile-action--secondary:hover:not(:disabled) svg {
+  color: #facc15 !important;
+}
