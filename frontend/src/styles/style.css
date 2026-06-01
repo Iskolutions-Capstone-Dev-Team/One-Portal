@@ -5892,3 +5892,11 @@ input[type="checkbox"] {
 .profile-modal * {
   font-family: "Poppins", sans-serif;
 }
+
+:root[data-portal-theme] .profile-checklist__item.is-valid {
+  color: #16a34a;
+}
+
+:root[data-portal-theme="dark"] .profile-checklist__item.is-valid {
+  color: #4ade80;
+}
