@@ -5900,3 +5900,98 @@ input[type="checkbox"] {
 :root[data-portal-theme="dark"] .profile-checklist__item.is-valid {
   color: #4ade80;
 }
+
+/* Align profile header with the detail card grid. */
+.profile-card__identity {
+  width: min(100%, 52rem);
+  max-width: min(100%, 52rem);
+  margin: 0 auto;
+}
+
+/* Compact authenticator cards for a three-column desktop grid. */
+.mfa-panel {
+  max-width: min(100%, 64rem);
+}
+
+.mfa-panel__grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.mfa-card {
+  min-height: 14.75rem;
+  padding: 1rem;
+}
+
+.mfa-card__delete {
+  top: 1rem;
+  right: 1rem;
+  width: 2.55rem;
+  height: 2.55rem;
+}
+
+.mfa-card__icon {
+  width: 3rem;
+  height: 3rem;
+}
+
+.mfa-card__icon svg {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+
+.mfa-card__content {
+  margin-top: 0.9rem;
+  padding-right: 3.2rem;
+}
+
+.mfa-card__name {
+  font-size: 0.98rem;
+}
+
+.mfa-card__type,
+.mfa-card__dates {
+  font-size: 0.82rem;
+}
+
+.mfa-card__dates {
+  gap: 0.55rem;
+  margin-top: 0.9rem;
+  padding-top: 0.85rem;
+}
+
+@media (max-width: 1024px) {
+  .mfa-panel__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .profile-card__identity {
+    width: 100%;
+  }
+
+  .mfa-panel__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .mfa-card {
+    min-height: auto;
+  }
+}
+
+/* Match the upper profile area width with Authenticator Apps. */
+.profile-card__identity,
+.profile-details,
+.profile-actions {
+  width: min(100%, 64rem);
+  max-width: min(100%, 64rem);
+}
+
+/* Remove dark-mode glow around profile detail cards and icons. */
+.portal-layout[data-portal-theme="dark"] .profile-detail-card,
+.portal-layout[data-portal-theme="dark"] .profile-detail-card:hover,
+.portal-layout[data-portal-theme="dark"] .profile-detail-card__icon,
+.portal-layout[data-portal-theme="dark"] .profile-detail-card:hover .profile-detail-card__icon {
+  box-shadow: none;
+  filter: none;
+}
