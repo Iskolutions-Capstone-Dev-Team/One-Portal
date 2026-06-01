@@ -5750,3 +5750,145 @@ input[type="checkbox"] {
     padding: 0.75rem;
   }
 }
+
+/* Portaled profile modals read theme from the document root. */
+:root[data-portal-theme] .profile-modal.modal {
+  color: #182233;
+}
+
+:root[data-portal-theme] .profile-modal__box {
+  border-radius: 1.5rem;
+  box-shadow: 0 24px 52px rgba(8, 14, 24, 0.34);
+}
+
+:root[data-portal-theme] .profile-modal__hero {
+  background: linear-gradient(160deg, #c72626 0%, #991b1b 100%);
+}
+
+:root[data-portal-theme] .profile-modal__body {
+  background: #d9e2ec;
+}
+
+:root[data-portal-theme] .profile-modal__footer {
+  border-top-color: rgba(33, 45, 61, 0.12);
+  background: #d2dce7;
+}
+
+:root[data-portal-theme] .profile-form__label,
+:root[data-portal-theme] .profile-modal__note {
+  color: #334155;
+}
+
+:root[data-portal-theme] .profile-form__helper,
+:root[data-portal-theme] .profile-checklist__item {
+  color: #64748b;
+}
+
+:root[data-portal-theme] .profile-form__input,
+:root[data-portal-theme] .profile-otp__input {
+  color: #263244;
+  border-color: rgba(255, 255, 255, 0.55);
+  background: rgba(234, 240, 247, 0.76);
+  box-shadow: inset 5px 5px 12px rgba(121, 139, 159, 0.12);
+}
+
+:root[data-portal-theme] .profile-form__input::placeholder,
+:root[data-portal-theme] .profile-otp__input::placeholder {
+  color: #8a97a8;
+}
+
+:root[data-portal-theme] .profile-form__input:focus,
+:root[data-portal-theme] .profile-otp__input:focus {
+  border-color: rgba(250, 204, 21, 0.78);
+  box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.18);
+}
+
+:root[data-portal-theme] .profile-form__toggle {
+  color: #64748b;
+}
+
+:root[data-portal-theme] .profile-form__toggle:hover {
+  color: #b91c1c;
+  background: rgba(185, 28, 28, 0.08);
+}
+
+:root[data-portal-theme] .profile-modal__close {
+  border-radius: 0.55rem;
+  transition:
+    transform 0.22s ease,
+    color 0.22s ease,
+    background 0.22s ease,
+    border-color 0.22s ease;
+}
+
+:root[data-portal-theme] .profile-modal__close:hover {
+  transform: translateY(-2px);
+  color: #991b1b;
+  background: linear-gradient(160deg, #fde047 0%, #facc15 100%);
+}
+
+:root[data-portal-theme="dark"] .profile-modal.modal {
+  color: #eef3fa;
+}
+
+:root[data-portal-theme="dark"] .profile-modal__box {
+  border-color: rgba(148, 163, 184, 0.22);
+  background: #101b28;
+  box-shadow: 0 24px 52px rgba(0, 0, 0, 0.42);
+}
+
+:root[data-portal-theme="dark"] .profile-modal__hero {
+  background: linear-gradient(160deg, #c72626 0%, #7f1d1d 62%, #3b2233 100%);
+}
+
+:root[data-portal-theme="dark"] .profile-modal__body {
+  background: #101b28;
+}
+
+:root[data-portal-theme="dark"] .profile-modal__footer {
+  border-top-color: rgba(148, 163, 184, 0.16);
+  background: #101b28;
+}
+
+:root[data-portal-theme="dark"] .profile-form__label,
+:root[data-portal-theme="dark"] .profile-modal__note {
+  color: #eef3fa;
+}
+
+:root[data-portal-theme="dark"] .profile-form__helper,
+:root[data-portal-theme="dark"] .profile-checklist__item {
+  color: #aeb9c8;
+}
+
+:root[data-portal-theme="dark"] .profile-form__input,
+:root[data-portal-theme="dark"] .profile-otp__input {
+  color: #eef3fa;
+  border-color: rgba(148, 163, 184, 0.18);
+  background: #142235;
+  box-shadow: none;
+}
+
+:root[data-portal-theme="dark"] .profile-form__input::placeholder,
+:root[data-portal-theme="dark"] .profile-otp__input::placeholder {
+  color: #8c98a8;
+}
+
+:root[data-portal-theme="dark"] .profile-form__input:focus,
+:root[data-portal-theme="dark"] .profile-otp__input:focus {
+  border-color: rgba(250, 204, 21, 0.72);
+  box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.12);
+}
+
+:root[data-portal-theme="dark"] .profile-form__toggle {
+  color: #aeb9c8;
+}
+
+:root[data-portal-theme="dark"] .profile-form__toggle:hover {
+  color: #facc15;
+  background: rgba(250, 204, 21, 0.1);
+}
+
+.profile-modal,
+.profile-modal * {
+  font-family: "Poppins", sans-serif;
+}
