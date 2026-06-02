@@ -3547,7 +3547,7 @@ input[type="checkbox"] {
 
 .portal-layout[data-portal-theme="light"] :is(.header-action-button--secondary, .profile-action--secondary) svg {
   color: #facc15 !important;
-  fill: currentColor;
+  fill: none;
   stroke: currentColor;
 }
 
@@ -4396,7 +4396,7 @@ input[type="checkbox"] {
 .portal-layout[data-portal-theme="light"] .header-action-button--secondary svg,
 .portal-layout[data-portal-theme="light"] .profile-action--secondary svg {
   color: #facc15 !important;
-  fill: currentColor;
+  fill: none;
   stroke: currentColor;
 }
 
@@ -4430,8 +4430,18 @@ input[type="checkbox"] {
 .portal-layout[data-portal-theme="light"] .header-action-button--secondary svg,
 .portal-layout[data-portal-theme="light"] .profile-action--secondary svg {
   color: #991b1b !important;
-  fill: currentColor;
+  fill: none;
   stroke: currentColor;
+}
+
+.portal-layout[data-portal-theme="light"] .header-action-button--secondary .header-action-icon,
+.portal-layout[data-portal-theme="light"] .header-action-button--secondary .header-action-icon svg,
+.portal-layout[data-portal-theme="light"] .header-action-button--secondary .header-action-icon path,
+.portal-layout[data-portal-theme="light"] .profile-action--secondary svg,
+.portal-layout[data-portal-theme="light"] .profile-action--secondary path {
+  color: #991b1b !important;
+  fill: none !important;
+  stroke: currentColor !important;
 }
 
 .portal-layout[data-portal-theme="light"] .header-action-button--secondary:hover:not(:disabled),
@@ -4444,6 +4454,16 @@ input[type="checkbox"] {
 .portal-layout[data-portal-theme="light"] .header-action-button--secondary:hover:not(:disabled) svg,
 .portal-layout[data-portal-theme="light"] .profile-action--secondary:hover:not(:disabled) svg {
   color: #facc15 !important;
+}
+
+.portal-layout[data-portal-theme="light"] .header-action-button--secondary:hover:not(:disabled) .header-action-icon,
+.portal-layout[data-portal-theme="light"] .header-action-button--secondary:hover:not(:disabled) .header-action-icon svg,
+.portal-layout[data-portal-theme="light"] .header-action-button--secondary:hover:not(:disabled) .header-action-icon path,
+.portal-layout[data-portal-theme="light"] .profile-action--secondary:hover:not(:disabled) svg,
+.portal-layout[data-portal-theme="light"] .profile-action--secondary:hover:not(:disabled) path {
+  color: #facc15 !important;
+  fill: none !important;
+  stroke: currentColor !important;
 }
 
 /* Full-screen profile modal overlay */
