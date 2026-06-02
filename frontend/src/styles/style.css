@@ -5204,6 +5204,21 @@ input[type="checkbox"] {
   stroke: none;
 }
 
+.profile-otp__icon,
+:root[data-portal-theme] .profile-otp__icon,
+:root[data-portal-theme="dark"] .profile-otp__icon,
+.portal-layout[data-portal-theme="dark"] .profile-otp__icon {
+  color: #b91c1c !important;
+}
+
+.profile-otp__icon svg,
+:root[data-portal-theme] .profile-otp__icon svg,
+:root[data-portal-theme="dark"] .profile-otp__icon svg {
+  color: #b91c1c !important;
+  fill: #b91c1c !important;
+  stroke: none !important;
+}
+
 .profile-success__title {
   color: #172033;
 }
@@ -5349,6 +5364,21 @@ input[type="checkbox"] {
 .portal-layout[data-portal-theme="dark"] .profile-detail-card:hover,
 .portal-layout[data-portal-theme="dark"] .profile-detail-card__icon,
 .portal-layout[data-portal-theme="dark"] .profile-detail-card:hover .profile-detail-card__icon {
+  box-shadow: none;
+  filter: none;
+}
+
+.mfa-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(107, 114, 128, 0.22);
+  background: rgba(235, 242, 249, 0.6);
+  box-shadow: none;
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(148, 163, 184, 0.16);
+  background: rgba(18, 33, 52, 0.72);
   box-shadow: none;
   filter: none;
 }
