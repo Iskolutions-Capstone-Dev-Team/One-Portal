@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import SuccessAlert from "../SuccessAlert";
 import { deleteAuthenticator, getAuthenticators } from "../../services/userMfa";
 import { formatTimestamp } from "../../utils/formatTimestamp";
+import MfaDeleteConfirmModal from "./MfaDeleteConfirmModal";
 import MfaSetupModal from "./MfaSetupModal";
 
 function formatAuthenticatorDate(value) {
@@ -53,6 +54,7 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
     const [isModalOpen, setModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [deletingId, setDeletingId] = useState("");
+    const [pendingDeleteAuthenticator, setPendingDeleteAuthenticator] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
     const [toastMessage, setToastMessage] = useState("");
 
@@ -87,18 +89,32 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
         void loadAuthenticators();
     }, [loadAuthenticators]);
 
-    const handleDelete = async (authenticator) => {
-        if (!window.confirm(`Remove ${authenticator.name || "this authenticator"}?`)) {
+    const handleDeleteClick = (authenticator) => {
+        setPendingDeleteAuthenticator(authenticator);
+        setErrorMessage("");
+    };
+
+    const handleCancelDelete = () => {
+        if (deletingId) {
             return;
         }
 
-        setDeletingId(authenticator.id);
+        setPendingDeleteAuthenticator(null);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!pendingDeleteAuthenticator) {
+            return;
+        }
+
+        setDeletingId(pendingDeleteAuthenticator.id);
         setErrorMessage("");
 
         try {
-            await deleteAuthenticator({ email, id: authenticator.id });
+            await deleteAuthenticator({ email, id: pendingDeleteAuthenticator.id });
             await loadAuthenticators();
             setToastMessage("Authenticator removed successfully!");
+            setPendingDeleteAuthenticator(null);
         } catch (error) {
             setErrorMessage(error.message || "Failed to remove authenticator.");
         } finally {
@@ -139,7 +155,7 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
                     <div className="mfa-panel__grid">
                         {authenticators.map((authenticator) => (
                             <article key={authenticator.id} className="mfa-card">
-                                <button type="button" className="mfa-card__delete" onClick={() => handleDelete(authenticator)} disabled={deletingId === authenticator.id} aria-label={`Delete ${authenticator.name || "authenticator"}`}>
+                                <button type="button" className="mfa-card__delete" onClick={() => handleDeleteClick(authenticator)} disabled={deletingId === authenticator.id} aria-label={`Delete ${authenticator.name || "authenticator"}`}>
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.9 12.1A2 2 0 0116.1 21H7.9a2 2 0 01-2-1.9L5 7m5 4v6m4-6v6M9 7V4h6v3m-8 0h10" />
                                     </svg>
@@ -186,6 +202,13 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
                 email={email}
                 onClose={() => setModalOpen(false)}
                 onSaved={handleSaved}
+            />
+
+            <MfaDeleteConfirmModal
+                authenticator={pendingDeleteAuthenticator}
+                isDeleting={Boolean(deletingId)}
+                onCancel={handleCancelDelete}
+                onConfirm={handleConfirmDelete}
             />
 
             <SuccessAlert
