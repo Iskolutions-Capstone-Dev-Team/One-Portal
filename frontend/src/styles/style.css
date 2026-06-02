@@ -4499,6 +4499,12 @@ input[type="checkbox"] {
   animation: portalPageFadeIn 0.42s ease both;
 }
 
+.portal-home.is-leaving,
+.profile-page.is-leaving {
+  pointer-events: none;
+  animation: portalPageFadeOut 0.24s ease both;
+}
+
 .portal-header__profile-button,
 .portal-header__theme-button,
 .header-action-button,
@@ -4537,6 +4543,18 @@ input[type="checkbox"] {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes portalPageFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(0.35rem);
   }
 }
 

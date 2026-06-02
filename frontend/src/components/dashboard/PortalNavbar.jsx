@@ -2,19 +2,33 @@ import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { usePortalTheme } from "../../context/PortalThemeContext";
 
+const PAGE_TRANSITION_MS = 240;
+
 export default function PortalNavbar() {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const location = useLocation();
     const navigate = useNavigate();
     const dropdownRef = useRef(null);
+    const navigationTimeoutRef = useRef(0);
     const { isDarkMode, toggleTheme } = usePortalTheme();
     const isProfilePage = location.pathname === "/profile";
     const firstOption = isProfilePage ? "Dashboard" : "Profile";
     const themeLabel = isDarkMode ? "Switch to light mode" : "Switch to dark mode";
 
+    const navigateWithPageFade = (path) => {
+        if (location.pathname === path) {
+            return;
+        }
+
+        const currentPage = document.querySelector(".portal-home, .profile-page");
+        currentPage?.classList.add("is-leaving");
+        window.clearTimeout(navigationTimeoutRef.current);
+        navigationTimeoutRef.current = window.setTimeout(() => navigate(path), PAGE_TRANSITION_MS);
+    };
+
     const handleFirstOption = () => {
-        navigate(isProfilePage ? "/portal" : "/profile");
         setDropdownOpen(false);
+        navigateWithPageFade(isProfilePage ? "/portal" : "/profile");
     };
 
     const handleLogout = () => {
@@ -31,6 +45,10 @@ export default function PortalNavbar() {
 
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
+    useEffect(() => {
+        return () => window.clearTimeout(navigationTimeoutRef.current);
     }, []);
 
     const icons = {
