@@ -319,6 +319,46 @@
   padding: 0;
 }
 
+.mfa-backup-codes {
+  gap: 1.15rem;
+}
+
+.mfa-backup-codes__header {
+  display: grid;
+  gap: 0.55rem;
+  text-align: center;
+}
+
+.mfa-backup-codes__text {
+  margin: 0;
+  color: var(--profile-text-muted);
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.55;
+}
+
+.mfa-backup-codes__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.mfa-backup-codes__code {
+  min-width: 0;
+  padding: 0.8rem 0.75rem;
+  overflow: hidden;
+  border: 1px solid rgba(108, 120, 139, 0.2);
+  border-radius: 0.65rem;
+  color: var(--profile-text);
+  background: rgba(255, 255, 255, 0.2);
+  font-family: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 0.88rem;
+  font-weight: 800;
+  line-height: 1.1;
+  text-align: center;
+  text-overflow: ellipsis;
+}
+
 .portal-layout[data-portal-theme="dark"] .mfa-panel,
 :root[data-portal-theme="dark"] .mfa-panel {
   border-top-color: rgba(148, 163, 184, 0.18);
@@ -340,12 +380,14 @@
 .portal-layout[data-portal-theme="dark"] .mfa-panel__empty,
 .portal-layout[data-portal-theme="dark"] .mfa-card__type,
 .portal-layout[data-portal-theme="dark"] .mfa-card__dates,
+.portal-layout[data-portal-theme="dark"] .mfa-backup-codes__text,
 .portal-layout[data-portal-theme="dark"] .mfa-setup__loading,
 :root[data-portal-theme="dark"] .mfa-panel__description,
 :root[data-portal-theme="dark"] .mfa-panel__message,
 :root[data-portal-theme="dark"] .mfa-panel__empty,
 :root[data-portal-theme="dark"] .mfa-card__type,
 :root[data-portal-theme="dark"] .mfa-card__dates,
+:root[data-portal-theme="dark"] .mfa-backup-codes__text,
 :root[data-portal-theme="dark"] .mfa-setup__loading {
   color: rgba(226, 232, 240, 0.82);
 }
@@ -405,6 +447,13 @@
 :root[data-portal-theme="dark"] .mfa-verify {
   border-color: rgba(146, 163, 184, 0.16);
   background: rgba(8, 12, 18, 0.18);
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-backup-codes__code,
+:root[data-portal-theme="dark"] .mfa-backup-codes__code {
+  border-color: rgba(146, 163, 184, 0.16);
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(15, 23, 42, 0.52);
 }
 
 .portal-layout[data-portal-theme="dark"] .mfa-setup__loading,
@@ -484,5 +533,9 @@
 
   .mfa-verify__back {
     width: 100%;
+  }
+
+  .mfa-backup-codes__grid {
+    grid-template-columns: 1fr;
   }
 }

@@ -13,6 +13,7 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
     const [qrCodeUrl, setQrCodeUrl] = useState("");
     const [authenticatorName, setAuthenticatorName] = useState("");
     const [code, setCode] = useState(EMPTY_CODE);
+    const [backupCodes, setBackupCodes] = useState([]);
     const [errorMessage, setErrorMessage] = useState("");
     const [isLoadingSetup, setIsLoadingSetup] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
@@ -24,6 +25,7 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
             setQrCodeUrl("");
             setAuthenticatorName("");
             setCode(EMPTY_CODE);
+            setBackupCodes([]);
             setErrorMessage("");
             setIsLoadingSetup(false);
             setIsSaving(false);
@@ -107,20 +109,38 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
         setIsSaving(true);
 
         try {
-            await saveAuthenticator({
+            const result = await saveAuthenticator({
                 email,
                 secret: setup.secret,
                 code: submittedCode,
                 name,
             });
 
-            await onSaved?.();
-            onClose();
+            setBackupCodes(result.backupCodes);
+            setStep("backupCodes");
+
+            if (!result.backupCodes.length) {
+                await onSaved?.();
+                onClose();
+            }
         } catch (error) {
             setErrorMessage(error.message || "Failed to save authenticator.");
         } finally {
             setIsSaving(false);
         }
+    };
+
+    const handleFinish = async () => {
+        await onSaved?.();
+        onClose();
+    };
+
+    const handleClose = async () => {
+        if (step === "backupCodes") {
+            await onSaved?.();
+        }
+
+        onClose();
     };
 
     if (!isOpen) {
@@ -141,7 +161,7 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
                             <p className="profile-modal__subtitle">Connect an authenticator app to your account</p>
                         </div>
 
-                        <button type="button" className="profile-modal__close" onClick={onClose} aria-label="Close authenticator modal">
+                        <button type="button" className="profile-modal__close" onClick={handleClose} aria-label="Close authenticator modal">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                             </svg>
@@ -225,12 +245,33 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
                                 </div>
                             </div>
                         )}
+
+                        {step === "backupCodes" && (
+                            <div className="mfa-verify mfa-backup-codes">
+                                <div className="mfa-backup-codes__header">
+                                    <h4 className="mfa-verify__title">Save backup codes</h4>
+                                    <p className="mfa-backup-codes__text">Use these codes if you lose access to your authenticator app. Each code works once.</p>
+                                </div>
+
+                                <div className="mfa-backup-codes__grid" aria-label="Backup codes">
+                                    {backupCodes.map((backupCode) => (
+                                        <code key={backupCode} className="mfa-backup-codes__code">
+                                            {backupCode}
+                                        </code>
+                                    ))}
+                                </div>
+
+                                <button type="button" className="profile-action profile-action--primary mfa-modal__main-action" onClick={handleFinish}>
+                                    Done
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </section>
             </div>
 
             <form method="dialog" className="modal-backdrop">
-                <button onClick={onClose}>close</button>
+                <button onClick={handleClose}>close</button>
             </form>
         </dialog>,
         document.body
