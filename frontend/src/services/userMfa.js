@@ -125,7 +125,12 @@ export async function saveAuthenticator({ email, secret, code, name }) {
 
     clearAuthenticatorListCache(email);
 
-    return response;
+    return {
+        otpauthUri: readTextValue(response?.otpauth_uri ?? response?.otpauthUri),
+        backupCodes: Array.isArray(response?.backup_codes)
+            ? response.backup_codes
+            : [],
+    };
 }
 
 export async function verifyMfaCode({ email, code }) {
