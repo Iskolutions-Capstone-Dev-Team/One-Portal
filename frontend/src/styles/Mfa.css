@@ -320,43 +320,217 @@
 }
 
 .mfa-backup-codes {
-  gap: 1.15rem;
+  gap: 1.25rem;
+  width: min(100%, 39rem);
 }
 
 .mfa-backup-codes__header {
   display: grid;
-  gap: 0.55rem;
   text-align: center;
 }
 
-.mfa-backup-codes__text {
+.mfa-backup-codes__note {
+  border-color: rgba(37, 99, 235, 0.28);
+  text-align: left;
+}
+
+.mfa-backup-codes__panel {
+  display: grid;
+  gap: 1rem;
+  padding: clamp(1rem, 3vw, 1.25rem);
+  border: 1px solid rgba(108, 120, 139, 0.22);
+  border-radius: 1rem;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.mfa-backup-codes__panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.mfa-backup-codes__subtitle {
   margin: 0;
+  color: var(--profile-text);
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.mfa-backup-codes__copy {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  flex: 0 0 auto;
+  border: 1px solid rgba(108, 120, 139, 0.28);
+  border-radius: 0.75rem;
   color: var(--profile-text-muted);
-  font-size: 0.95rem;
-  font-weight: 600;
-  line-height: 1.55;
+  background: rgba(255, 255, 255, 0.16);
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.mfa-backup-codes__copy:hover {
+  transform: translateY(-1px);
+  color: var(--profile-text);
+  border-color: rgba(250, 204, 21, 0.52);
+  background: rgba(250, 204, 21, 0.1);
+}
+
+.mfa-backup-codes__copy.is-copied {
+  color: #facc15;
+  border-color: rgba(250, 204, 21, 0.62);
+}
+
+.mfa-backup-codes__copy svg {
+  width: 1.4rem;
+  height: 1.4rem;
 }
 
 .mfa-backup-codes__grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.75rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
 }
 
 .mfa-backup-codes__code {
   min-width: 0;
-  padding: 0.8rem 0.75rem;
+  padding: 0.7rem 0.65rem;
   overflow: hidden;
-  border: 1px solid rgba(108, 120, 139, 0.2);
-  border-radius: 0.65rem;
+  border: 1px solid rgba(108, 120, 139, 0.24);
+  border-radius: 0.55rem;
   color: var(--profile-text);
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.18);
   font-family: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   font-weight: 800;
   line-height: 1.1;
   text-align: center;
   text-overflow: ellipsis;
+}
+
+.mfa-backup-codes .mfa-modal__main-action:disabled {
+  cursor: not-allowed;
+  color: rgba(255, 255, 255, 0.56) !important;
+  border-color: rgba(108, 120, 139, 0.2) !important;
+  background: rgba(108, 120, 139, 0.28) !important;
+  box-shadow: none !important;
+  opacity: 1;
+}
+
+.mfa-delete-modal.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: grid;
+  place-items: center;
+  width: 100vw;
+  max-width: none;
+  height: 100dvh;
+  max-height: none;
+  margin: 0;
+  padding: clamp(1rem, 4vw, 2rem);
+  overflow-y: auto;
+  background: rgba(8, 13, 24, 0.68);
+}
+
+.mfa-delete-modal .modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: transparent;
+}
+
+.mfa-delete-modal__box {
+  position: relative;
+  width: min(calc(100vw - 2rem), 29rem);
+  max-width: 29rem;
+  margin: auto;
+  padding: clamp(1.5rem, 4vw, 2rem);
+  overflow: hidden;
+  border: 1px solid rgba(108, 120, 139, 0.18);
+  border-radius: 1.1rem;
+  color: var(--profile-text);
+  background: #ffffff;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.24);
+  font-family: "Poppins", sans-serif;
+  text-align: center;
+}
+
+.mfa-delete-modal__icon {
+  display: grid;
+  place-items: center;
+  width: 4.75rem;
+  height: 4.75rem;
+  margin: 0 auto 1.15rem;
+  border: 1px solid rgba(185, 28, 28, 0.22);
+  border-radius: 0.9rem;
+  color: #991b1b;
+  background: rgba(185, 28, 28, 0.08);
+  box-shadow: none;
+}
+
+.mfa-delete-modal__icon svg {
+  width: 2rem;
+  height: 2rem;
+}
+
+.mfa-delete-modal__title {
+  margin: 0;
+  color: var(--profile-text);
+  font-family: "Poppins", sans-serif;
+  font-size: clamp(1.35rem, 4vw, 1.65rem);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.mfa-delete-modal__message {
+  margin: 0.65rem 0 0;
+  color: var(--profile-text-muted);
+  font-family: "Poppins", sans-serif;
+  font-size: 0.98rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.mfa-delete-modal__actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.85rem;
+  margin-top: 1.45rem;
+}
+
+.mfa-delete-modal__button {
+  min-width: 7.5rem;
+  min-height: 3rem;
+  border-radius: 0.55rem;
+  font-family: "Poppins", sans-serif;
+}
+
+.mfa-delete-modal__button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.portal-layout[data-portal-theme="light"] .mfa-delete-modal__button.profile-action--secondary,
+:root[data-portal-theme="light"] .mfa-delete-modal__button.profile-action--secondary {
+  color: #991b1b !important;
+  border-color: rgba(250, 204, 21, 0.8) !important;
+  background: linear-gradient(160deg, #fde047 0%, #facc15 100%) !important;
+  box-shadow: none;
+}
+
+.portal-layout[data-portal-theme="light"] .mfa-delete-modal__button.profile-action--secondary:hover:not(:disabled),
+:root[data-portal-theme="light"] .mfa-delete-modal__button.profile-action--secondary:hover:not(:disabled) {
+  color: #facc15 !important;
+  border-color: rgba(153, 27, 27, 0.38) !important;
+  background: linear-gradient(160deg, #c72626 0%, #991b1b 100%) !important;
+  box-shadow: 0 10px 18px rgba(153, 27, 27, 0.18);
 }
 
 .portal-layout[data-portal-theme="dark"] .mfa-panel,
@@ -380,14 +554,12 @@
 .portal-layout[data-portal-theme="dark"] .mfa-panel__empty,
 .portal-layout[data-portal-theme="dark"] .mfa-card__type,
 .portal-layout[data-portal-theme="dark"] .mfa-card__dates,
-.portal-layout[data-portal-theme="dark"] .mfa-backup-codes__text,
 .portal-layout[data-portal-theme="dark"] .mfa-setup__loading,
 :root[data-portal-theme="dark"] .mfa-panel__description,
 :root[data-portal-theme="dark"] .mfa-panel__message,
 :root[data-portal-theme="dark"] .mfa-panel__empty,
 :root[data-portal-theme="dark"] .mfa-card__type,
 :root[data-portal-theme="dark"] .mfa-card__dates,
-:root[data-portal-theme="dark"] .mfa-backup-codes__text,
 :root[data-portal-theme="dark"] .mfa-setup__loading {
   color: rgba(226, 232, 240, 0.82);
 }
@@ -454,6 +626,67 @@
   border-color: rgba(146, 163, 184, 0.16);
   color: rgba(255, 255, 255, 0.9);
   background: rgba(15, 23, 42, 0.52);
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-backup-codes__subtitle,
+:root[data-portal-theme="dark"] .mfa-backup-codes__subtitle {
+  color: #ffffff;
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-backup-codes__panel,
+:root[data-portal-theme="dark"] .mfa-backup-codes__panel {
+  border-color: rgba(146, 163, 184, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-backup-codes__copy,
+:root[data-portal-theme="dark"] .mfa-backup-codes__copy {
+  border-color: rgba(146, 163, 184, 0.2);
+  color: rgba(226, 232, 240, 0.78);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-backup-codes__copy:hover,
+:root[data-portal-theme="dark"] .mfa-backup-codes__copy:hover {
+  color: #ffffff;
+  border-color: rgba(250, 204, 21, 0.52);
+  background: rgba(250, 204, 21, 0.1);
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-backup-codes__copy.is-copied,
+:root[data-portal-theme="dark"] .mfa-backup-codes__copy.is-copied {
+  color: #facc15;
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-delete-modal.modal,
+:root[data-portal-theme="dark"] .mfa-delete-modal.modal {
+  background: rgba(2, 6, 23, 0.72);
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-delete-modal__box,
+:root[data-portal-theme="dark"] .mfa-delete-modal__box {
+  border-color: rgba(148, 163, 184, 0.18);
+  color: #ffffff;
+  background: #111827;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.42);
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-delete-modal__icon,
+:root[data-portal-theme="dark"] .mfa-delete-modal__icon {
+  border-color: rgba(185, 28, 28, 0.34);
+  color: #fecaca;
+  background: rgba(185, 28, 28, 0.14);
+  box-shadow: none;
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-delete-modal__title,
+:root[data-portal-theme="dark"] .mfa-delete-modal__title {
+  color: #ffffff;
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-delete-modal__message,
+:root[data-portal-theme="dark"] .mfa-delete-modal__message {
+  color: rgba(226, 232, 240, 0.82);
 }
 
 .portal-layout[data-portal-theme="dark"] .mfa-setup__loading,
@@ -537,5 +770,13 @@
 
   .mfa-backup-codes__grid {
     grid-template-columns: 1fr;
+  }
+
+  .mfa-delete-modal__actions {
+    flex-direction: column;
+  }
+
+  .mfa-delete-modal__button {
+    width: 100%;
   }
 }
