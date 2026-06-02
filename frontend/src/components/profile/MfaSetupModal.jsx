@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import QRCode from "qrcode";
 import ErrorAlert from "../ErrorAlert";
 import { getMfaSetup, saveAuthenticator } from "../../services/userMfa";
@@ -126,19 +127,18 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
         return null;
     }
 
-    return (
+    if (typeof document === "undefined") {
+        return null;
+    }
+
+    return createPortal(
         <dialog className="modal modal-open profile-modal mfa-modal">
             <div className="modal-box profile-modal__box mfa-modal__box custom-scrollbar">
                 <section className="profile-modal__surface">
                     <div className="profile-modal__hero mfa-modal__hero">
-                        <div className="mfa-modal__hero-title">
-                            <span className="mfa-modal__hero-icon" aria-hidden="true">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3l7 3v5c0 4.3-2.7 8.1-7 9.8C7.7 19.1 5 15.3 5 11V6l7-3z" />
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.5 12l1.7 1.7 3.4-4.1" />
-                                </svg>
-                            </span>
+                        <div>
                             <h3 className="profile-modal__title">New Authenticator</h3>
+                            <p className="profile-modal__subtitle">Connect an authenticator app to your account</p>
                         </div>
 
                         <button type="button" className="profile-modal__close" onClick={onClose} aria-label="Close authenticator modal">
@@ -232,6 +232,7 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
             <form method="dialog" className="modal-backdrop">
                 <button onClick={onClose}>close</button>
             </form>
-        </dialog>
+        </dialog>,
+        document.body
     );
 }

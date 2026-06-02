@@ -1,6 +1,11 @@
 import { apiRequest } from "./api";
 
 const ANNOUNCEMENT_LIST_KEYS = ["announcements", "data", "items", "results", "list"];
+const ANNOUNCEMENT_CACHE_MS = 5000;
+
+let announcementList = null;
+let announcementListRequest = null;
+let announcementListFetchedAt = 0;
 
 function readTextValue(value) {
     return typeof value === "string" ? value.trim() : "";
@@ -124,10 +129,31 @@ function normalizeAnnouncement(item, index) {
 }
 
 export async function getAnnouncements() {
-    const response = await apiRequest("/announcement");
-    const announcements = extractAnnouncementList(response);
+    const hasRecentAnnouncements = announcementList
+        && Date.now() - announcementListFetchedAt < ANNOUNCEMENT_CACHE_MS;
 
-    return announcements
-        .map(normalizeAnnouncement)
-        .filter(Boolean);
+    if (announcementListRequest) {
+        return announcementListRequest;
+    }
+
+    if (hasRecentAnnouncements) {
+        return announcementList;
+    }
+
+    announcementListRequest = apiRequest("/announcement")
+        .then((response) => {
+            const announcements = extractAnnouncementList(response);
+
+            announcementList = announcements
+                .map(normalizeAnnouncement)
+                .filter(Boolean);
+            announcementListFetchedAt = Date.now();
+
+            return announcementList;
+        })
+        .finally(() => {
+            announcementListRequest = null;
+        });
+
+    return announcementListRequest;
 }

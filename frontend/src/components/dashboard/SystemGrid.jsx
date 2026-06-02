@@ -11,7 +11,7 @@ export default function SystemGrid({ systems, currentPage = 1, cardsPerPage = 6,
     const paginatedSystems = systems.slice(startIndex, endIndex);
 
     return (
-        <section className="portal-systems" aria-label="Available systems">
+        <section id="portal-systems" className="portal-systems" aria-label="Available systems">
             <div className="portal-systems__grid">
                 {paginatedSystems.map((system) => (
                     <MotionWrapper key={system.id}>
