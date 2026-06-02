@@ -36,6 +36,15 @@ export default function PortalNavbar() {
         navigate("/logout");
     };
 
+    const handleThemeToggle = () => {
+        if (document.startViewTransition) {
+            document.startViewTransition(toggleTheme);
+            return;
+        }
+
+        toggleTheme();
+    };
+
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -97,7 +106,7 @@ export default function PortalNavbar() {
                     </div>
 
                     <div className="portal-header__actions" ref={dropdownRef}>
-                        <button type="button" className={`portal-header__theme-button ${isDarkMode ? "is-active" : ""}`} aria-label={themeLabel} title={themeLabel} onClick={toggleTheme}>
+                        <button type="button" className={`portal-header__theme-button ${isDarkMode ? "is-active" : ""}`} aria-label={themeLabel} title={themeLabel} onClick={handleThemeToggle}>
                             <span className="portal-header__theme-icon-stack" aria-hidden="true">
                                 <span className={`portal-header__theme-icon-slot ${!isDarkMode ? "is-visible" : ""}`}>
                                     {icons.sun}

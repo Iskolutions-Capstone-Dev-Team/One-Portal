@@ -4558,6 +4558,19 @@ input[type="checkbox"] {
   }
 }
 
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.36s;
+  animation-timing-function: ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
+
 .header-action-button--secondary:hover,
 .portal-layout[data-portal-theme="dark"] .header-action-button--secondary:hover {
   color: #991b1b;
