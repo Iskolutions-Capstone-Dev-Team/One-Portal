@@ -1,5 +1,10 @@
 import { apiRequest } from "./api";
 
+const AUTHENTICATOR_LIST_CACHE_MS = 5000;
+
+const authenticatorListCache = new Map();
+const authenticatorListRequests = new Map();
+
 function getCookieValue(cookieName) {
     if (typeof document === "undefined") {
         return "";
@@ -53,6 +58,19 @@ function normalizeAuthenticator(authenticator = {}) {
     };
 }
 
+function getAuthenticatorListCacheKey(email) {
+    return readTextValue(email).toLowerCase();
+}
+
+function clearAuthenticatorListCache(email) {
+    const cacheKey = getAuthenticatorListCacheKey(email);
+
+    if (cacheKey) {
+        authenticatorListCache.delete(cacheKey);
+        authenticatorListRequests.delete(cacheKey);
+    }
+}
+
 export async function getMfaSetup(email) {
     const data = await userMfaRequest(`/mfa/setup?email=${encodeURIComponent(email)}`);
 
@@ -63,13 +81,39 @@ export async function getMfaSetup(email) {
 }
 
 export async function getAuthenticators(email) {
-    const data = await userMfaRequest(`/mfa/authenticators/list?email=${encodeURIComponent(email)}`);
+    const cacheKey = getAuthenticatorListCacheKey(email);
+    const cachedEntry = authenticatorListCache.get(cacheKey);
 
-    return Array.isArray(data) ? data.map(normalizeAuthenticator) : [];
+    if (authenticatorListRequests.has(cacheKey)) {
+        return authenticatorListRequests.get(cacheKey);
+    }
+
+    if (cachedEntry && Date.now() - cachedEntry.fetchedAt < AUTHENTICATOR_LIST_CACHE_MS) {
+        return cachedEntry.authenticators;
+    }
+
+    const request = userMfaRequest(`/mfa/authenticators/list?email=${encodeURIComponent(email)}`)
+        .then((data) => {
+            const authenticators = Array.isArray(data) ? data.map(normalizeAuthenticator) : [];
+
+            authenticatorListCache.set(cacheKey, {
+                authenticators,
+                fetchedAt: Date.now(),
+            });
+
+            return authenticators;
+        })
+        .finally(() => {
+            authenticatorListRequests.delete(cacheKey);
+        });
+
+    authenticatorListRequests.set(cacheKey, request);
+
+    return request;
 }
 
 export async function saveAuthenticator({ email, secret, code, name }) {
-    return userMfaRequest("/mfa/authenticators", {
+    const response = await userMfaRequest("/mfa/authenticators", {
         method: "POST",
         data: {
             email: readTextValue(email),
@@ -78,6 +122,10 @@ export async function saveAuthenticator({ email, secret, code, name }) {
             name: readTextValue(name),
         },
     });
+
+    clearAuthenticatorListCache(email);
+
+    return response;
 }
 
 export async function verifyMfaCode({ email, code }) {
@@ -91,11 +139,15 @@ export async function verifyMfaCode({ email, code }) {
 }
 
 export async function deleteAuthenticator({ email, id }) {
-    return userMfaRequest("/mfa/authenticators", {
+    const response = await userMfaRequest("/mfa/authenticators", {
         method: "DELETE",
         data: {
             email: readTextValue(email),
             id: readTextValue(id),
         },
     });
+
+    clearAuthenticatorListCache(email);
+
+    return response;
 }

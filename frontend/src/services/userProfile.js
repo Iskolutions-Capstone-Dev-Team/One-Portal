@@ -2,6 +2,9 @@ import { apiRequest } from "./api";
 
 let currentUserProfile = null;
 let currentUserProfileRequest = null;
+let currentUserProfileFetchedAt = 0;
+
+const RECENT_PROFILE_CACHE_MS = 5000;
 
 function readTextValue(value) {
     return typeof value === "string" ? value.trim() : "";
@@ -41,29 +44,36 @@ export function mapUserInfoToProfile(userInfo = {}) {
 export function clearCurrentUserProfileCache() {
     currentUserProfile = null;
     currentUserProfileRequest = null;
+    currentUserProfileFetchedAt = 0;
 }
 
 export async function getCurrentUserProfile({ forceRefresh = false } = {}) {
-    if (currentUserProfile && !forceRefresh) {
+    const hasRecentProfile = currentUserProfile
+        && Date.now() - currentUserProfileFetchedAt < RECENT_PROFILE_CACHE_MS;
+
+    if (currentUserProfileRequest) {
+        return currentUserProfileRequest;
+    }
+
+    if (currentUserProfile && (!forceRefresh || hasRecentProfile)) {
         return currentUserProfile;
     }
 
-    if (!currentUserProfileRequest) {
-        currentUserProfileRequest = apiRequest("/userinfo")
-            .then((response) => {
-                currentUserProfile = mapUserInfoToProfile(response);
+    currentUserProfileRequest = apiRequest("/userinfo")
+        .then((response) => {
+            currentUserProfile = mapUserInfoToProfile(response);
+            currentUserProfileFetchedAt = Date.now();
 
-                return currentUserProfile;
-            })
-            .catch((error) => {
-                clearCurrentUserProfileCache();
+            return currentUserProfile;
+        })
+        .catch((error) => {
+            clearCurrentUserProfileCache();
 
-                throw error;
-            })
-            .finally(() => {
-                currentUserProfileRequest = null;
-            });
-    }
+            throw error;
+        })
+        .finally(() => {
+            currentUserProfileRequest = null;
+        });
 
     return currentUserProfileRequest;
 }
@@ -91,6 +101,7 @@ export async function updateCurrentUserProfile(profile) {
     };
 
     currentUserProfile = updatedProfile;
+    currentUserProfileFetchedAt = Date.now();
 
     return updatedProfile;
 }
