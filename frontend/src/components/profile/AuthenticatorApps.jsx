@@ -48,7 +48,7 @@ function ClockIcon() {
     );
 }
 
-export default function AuthenticatorApps({ email }) {
+export default function AuthenticatorApps({ email, isProfileLoading = false }) {
     const [authenticators, setAuthenticators] = useState([]);
     const [isModalOpen, setModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -57,8 +57,16 @@ export default function AuthenticatorApps({ email }) {
     const [toastMessage, setToastMessage] = useState("");
 
     const loadAuthenticators = useCallback(async () => {
+        if (isProfileLoading) {
+            setAuthenticators([]);
+            setIsLoading(true);
+            setErrorMessage("");
+            return;
+        }
+
         if (!email) {
             setAuthenticators([]);
+            setIsLoading(false);
             return;
         }
 
@@ -73,7 +81,7 @@ export default function AuthenticatorApps({ email }) {
         } finally {
             setIsLoading(false);
         }
-    }, [email]);
+    }, [email, isProfileLoading]);
 
     useEffect(() => {
         void loadAuthenticators();
@@ -122,7 +130,11 @@ export default function AuthenticatorApps({ email }) {
                 )}
 
                 {isLoading ? (
-                    <p className="mfa-panel__message">Loading authenticators...</p>
+                    <p className="mfa-panel__message">
+                        {isProfileLoading ? "Loading profile..." : "Loading authenticators..."}
+                    </p>
+                ) : !email ? (
+                    <p className="mfa-panel__empty">Reload the page or sign in again.</p>
                 ) : (
                     <div className="mfa-panel__grid">
                         {authenticators.map((authenticator) => (
