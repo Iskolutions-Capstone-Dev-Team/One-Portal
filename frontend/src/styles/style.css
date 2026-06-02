@@ -5189,6 +5189,75 @@ input[type="checkbox"] {
   color: #4ade80;
 }
 
+/* Password verification/success modal cleanup */
+.profile-otp__icon,
+.profile-success__icon,
+.portal-layout[data-portal-theme="dark"] .profile-otp__icon,
+.portal-layout[data-portal-theme="dark"] .profile-success__icon,
+:root[data-portal-theme="dark"] .profile-success__icon {
+  box-shadow: none;
+}
+
+.profile-otp__icon svg,
+.profile-success__icon svg {
+  fill: currentColor;
+  stroke: none;
+}
+
+.profile-success__title {
+  color: #172033;
+}
+
+.profile-success__text {
+  color: #4b5565;
+}
+
+.profile-success .profile-alert--info {
+  color: #1e3a8a;
+  border-color: rgba(37, 99, 235, 0.18);
+  background: #dbeafe;
+  box-shadow: none;
+}
+
+.profile-success .profile-alert__title {
+  margin: 0 0 0.15rem;
+  color: #1d4ed8;
+  font-weight: 700;
+}
+
+.profile-success .profile-alert p {
+  margin: 0;
+  color: #2563eb;
+}
+
+.portal-layout[data-portal-theme="dark"] .profile-success__title,
+:root[data-portal-theme="dark"] .profile-success__title {
+  color: #f8fafc;
+}
+
+.portal-layout[data-portal-theme="dark"] .profile-success__text,
+:root[data-portal-theme="dark"] .profile-success__text {
+  color: #cbd5e1;
+}
+
+.portal-layout[data-portal-theme="dark"] .profile-success .profile-alert--info,
+:root[data-portal-theme="dark"] .profile-success .profile-alert--info {
+  color: #bfdbfe;
+  border-color: rgba(96, 165, 250, 0.2);
+  background: rgba(30, 58, 138, 0.28);
+  box-shadow: none;
+}
+
+.portal-layout[data-portal-theme="dark"] .profile-success .profile-alert__title,
+:root[data-portal-theme="dark"] .profile-success .profile-alert__title {
+  color: #dbeafe;
+}
+
+.portal-layout[data-portal-theme="dark"] .profile-success .profile-alert p,
+:root[data-portal-theme="dark"] .profile-success .profile-alert p {
+  color: #bfdbfe;
+}
+
 /* Align profile header with the detail card grid. */
 .profile-card__identity {
   width: min(100%, 52rem);
