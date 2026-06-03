@@ -1,15 +1,3 @@
-function getSystemCode(system) {
-    if (system.code || system.shortName) {
-        return system.code || system.shortName;
-    }
-
-    return system.title
-        ?.split(" ")
-        .map((word) => word[0])
-        .join("")
-        .slice(0, 3);
-}
-
 function ArrowIcon() {
     return (
         <svg className="system-card__button-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -25,10 +13,14 @@ export default function SystemCard({ system }) {
     const cardLogo = system.logo?.trim() || fallbackLogoImage;
     const accessLink = system.link?.trim() || "";
     const isAccessDisabled = !accessLink;
-    const systemCode = getSystemCode(system);
+    const systemName = system.title?.trim() || "Untitled system";
+    const description = typeof system.description === "string"
+        ? system.description.trim()
+        : "";
+    const hasDescription = Boolean(description);
 
     return (
-        <article className="system-card">
+        <article className={`system-card ${hasDescription ? "has-description" : ""}`}>
             <img src={cardImage} alt="" className="system-card-image"
                 onError={(event) => {
                     event.currentTarget.onerror = null;
@@ -46,12 +38,12 @@ export default function SystemCard({ system }) {
                     }}
                 />
 
-                <span className="system-card__code">{systemCode}</span>
+                <span className="system-card__code">{systemName}</span>
 
                 <div className="system-card__copy">
                     <h2 className="system-card__title">{system.title}</h2>
-                    {system.description ? (
-                        <p className="system-card__description">{system.description}</p>
+                    {hasDescription ? (
+                        <p className="system-card__description">{description}</p>
                     ) : null}
                 </div>
 
@@ -63,7 +55,7 @@ export default function SystemCard({ system }) {
                             }
                         }}
                     >
-                        <span className="sr-only">{isAccessDisabled ? "Unavailable" : "Access"}</span>
+                        <span>{isAccessDisabled ? "Unavailable" : "Access"}</span>
                         <ArrowIcon />
                     </a>
                 </div>
