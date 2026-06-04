@@ -17,6 +17,7 @@ type Routes struct {
 	UserAccessHandler *v1.UserAccessHandler
 	UserHandler       *v1.UserHandler
 	OTP               *v1.OTPHandler
+	MFA               *v1.MFAHandler
 	Announcement      *v1.AnnouncementHandler
 }
 
@@ -29,6 +30,7 @@ func NewRoutes(handlers *initializers.Handlers) *Routes {
 		UserAccessHandler: handlers.UserAccess,
 		UserHandler:       handlers.User,
 		OTP:               handlers.OTP,
+		MFA:               handlers.MFA,
 		Announcement:      handlers.Announcement,
 	}
 }
@@ -62,6 +64,21 @@ func (r *Routes) Register(router *gin.Engine) {
 	otpRL := middleware.RateLimitMiddleware(middleware.OTPRateLimiter)
 	otpGroup.POST("/send", otpRL, r.OTP.SendOTP)
 	otpGroup.POST("/verify", otpRL, r.OTP.VerifyOTP)
+
+	// MFA: called pre/post login during multi-factor auth setup/verification.
+	mfaGroup := v1Group.Group("/mfa")
+	mfaRL := middleware.RateLimitMiddleware(middleware.OTPRateLimiter)
+	{
+		mfaGroup.GET("/setup", mfaRL, r.MFA.GetTOTPSetup)
+		mfaGroup.POST("/authenticators", mfaRL, r.MFA.PostAuthenticator)
+		mfaGroup.POST("/verify", mfaRL, r.MFA.PostVerifyMFA)
+		mfaGroup.GET(
+			"/authenticators/list",
+			mfaRL,
+			r.MFA.GetAuthenticatorList,
+		)
+		mfaGroup.DELETE("/authenticators", mfaRL, r.MFA.DeleteAuthenticator)
+	}
 
 	// --- JWT-protected endpoints (user session required) ---
 

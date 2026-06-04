@@ -1,7 +1,7 @@
 export default function ProfileDetails({ profile }) {
     const detailFields = [
-        { id: "firstName", label: "First Name", value: profile.firstName },
-        { id: "lastName", label: "Last Name", value: profile.lastName },
+        { id: "firstName", label: "First Name", value: profile.firstName ?? "", keepBlank: true },
+        { id: "lastName", label: "Last Name", value: profile.lastName ?? "", keepBlank: true },
         { id: "middleName", label: "Middle Name", value: profile.middleName ?? "", keepBlank: true },
         { id: "nameSuffix", label: "Suffix", value: profile.nameSuffix ?? "", keepBlank: true },
     ];

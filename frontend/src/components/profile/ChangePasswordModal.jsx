@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import ChangePasswordStep from "./ChangePasswordStep";
 import OtpVerificationStep from "./OtpVerificationStep";
 import SuccessStep from "./SuccessStep";
@@ -175,50 +176,54 @@ export default function ChangePasswordModal({
     };
 
     if (!isOpen) return null;
+    if (typeof document === "undefined") return null;
 
     return (
         <>
-            <dialog className="modal modal-open profile-modal">
-                <div className="modal-box profile-modal__box profile-modal__box--compact custom-scrollbar">
-                    {step === 1 && (
-                        <ChangePasswordStep
-                            form={form}
-                            setForm={setForm}
-                            onClose={onClose}
-                            onNext={handleRequestOtp}
-                            showCurrentPassword={showCurrentPassword}
-                            errorMessage={passwordError}
-                            isSubmitting={isSendingOtp}
-                            onClearError={() => setPasswordError("")}
-                        />
-                    )}
+            {createPortal(
+                <dialog className="modal modal-open profile-modal">
+                    <div className="modal-box profile-modal__box profile-modal__box--compact custom-scrollbar">
+                        {step === 1 && (
+                            <ChangePasswordStep
+                                form={form}
+                                setForm={setForm}
+                                onClose={onClose}
+                                onNext={handleRequestOtp}
+                                showCurrentPassword={showCurrentPassword}
+                                errorMessage={passwordError}
+                                isSubmitting={isSendingOtp}
+                                onClearError={() => setPasswordError("")}
+                            />
+                        )}
 
-                    {step === 2 && (
-                        <OtpVerificationStep
-                            otp={otp}
-                            setOtp={setOtp}
-                            timer={timer}
-                            canResend={canResend}
-                            onResend={handleResendOtp}
-                            onVerify={verifyOTP}
-                            onClose={onClose}
-                            errorMessage={otpError}
-                            onClearError={() => setOtpError("")}
-                            email={email}
-                            isResending={isResendingOtp}
-                            isVerifying={isVerifyingOtp}
-                        />
-                    )}
+                        {step === 2 && (
+                            <OtpVerificationStep
+                                otp={otp}
+                                setOtp={setOtp}
+                                timer={timer}
+                                canResend={canResend}
+                                onResend={handleResendOtp}
+                                onVerify={verifyOTP}
+                                onClose={onClose}
+                                errorMessage={otpError}
+                                onClearError={() => setOtpError("")}
+                                email={email}
+                                isResending={isResendingOtp}
+                                isVerifying={isVerifyingOtp}
+                            />
+                        )}
 
-                    {step === 3 && (
-                        <SuccessStep onClose={onClose} />
-                    )}
-                </div>
+                        {step === 3 && (
+                            <SuccessStep onClose={onClose} />
+                        )}
+                    </div>
 
-                <form method="dialog" className="modal-backdrop">
-                    <button onClick={onClose}>close</button>
-                </form>
-            </dialog>
+                    <form method="dialog" className="modal-backdrop">
+                        <button onClick={onClose}>close</button>
+                    </form>
+                </dialog>,
+                document.body
+            )}
             <SuccessAlert
                 message={successMessage}
                 onClose={() => setSuccessMessage("")}

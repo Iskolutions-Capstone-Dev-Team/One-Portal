@@ -12,6 +12,7 @@ type Handlers struct {
 	User         *v1.UserHandler
 	UserAccess   *v1.UserAccessHandler
 	OTP          *v1.OTPHandler
+	MFA          *v1.MFAHandler
 	Announcement *v1.AnnouncementHandler
 }
 
@@ -29,6 +30,7 @@ func InitHandlers(services *Services, c cache.Cache) *Handlers {
 		Client:       v1.NewClientHandler(services.Client),
 		UserAccess:   v1.NewUserAccessHandler(c),
 		OTP:          v1.NewOTPHandler(),
+		MFA:          v1.NewMFAHandler(),
 		Announcement: v1.NewAnnouncementHandler(c),
 	}
 }
