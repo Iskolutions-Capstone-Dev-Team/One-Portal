@@ -7,8 +7,7 @@ export default function PortalToolbar({ searchQuery, setSearchQuery, isSearchDis
                     <span className="portal-toolbar__title-accent"> PUPTian!</span>
                 </h1>
                 <p className="portal-toolbar__subtitle">
-                    Manage your connected systems, track updates, and stay in sync with
-                    PUP Taguig's digital ecosystem.
+                    Access and manage PUP Taguig's connected digital systems.
                 </p>
             </div>
 

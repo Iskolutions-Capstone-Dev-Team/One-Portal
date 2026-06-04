@@ -1,17 +1,23 @@
 import { useEffect, useState } from "react";
 import OnePortalLayout from "../layouts/OnePortalLayout";
 import ProfileCard from "../components/profile/ProfileCard";
+import AuthenticatorApps from "../components/profile/AuthenticatorApps";
 import { clearSessionState, navigateToLandingPage } from "../services/auth";
 import { createEmptyProfile, getCurrentUserProfile } from "../services/userProfile";
 
 export default function Profile() {
     const [profile, setProfile] = useState(createEmptyProfile());
     const [profileErrorStatus, setProfileErrorStatus] = useState(null);
+    const [isProfileLoading, setIsProfileLoading] = useState(true);
 
     useEffect(() => {
         let isMounted = true;
 
+        window.scrollTo({ top: 0, left: 0 });
+
         const loadProfile = async () => {
+            setIsProfileLoading(true);
+
             try {
                 const userProfile = await getCurrentUserProfile();
 
@@ -28,6 +34,10 @@ export default function Profile() {
 
                 setProfile(createEmptyProfile());
                 setProfileErrorStatus(error.status ?? null);
+            } finally {
+                if (isMounted) {
+                    setIsProfileLoading(false);
+                }
             }
         };
 
@@ -61,6 +71,11 @@ export default function Profile() {
                         profile={profile}
                         onProfileChange={setProfile}
                         allowEmailEdit={false}
+                    />
+                    <AuthenticatorApps
+                        key={profile.email || "profile-loading"}
+                        email={profile.email}
+                        isProfileLoading={isProfileLoading}
                     />
                 </div>
             </main>

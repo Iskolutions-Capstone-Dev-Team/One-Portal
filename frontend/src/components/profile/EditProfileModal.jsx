@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import ErrorAlert from "../ErrorAlert";
 import { formatTimestamp } from "../../utils/formatTimestamp";
 import { updateCurrentUserProfile } from "../../services/userProfile";
@@ -137,8 +138,9 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
     };
 
     if (!open) return null;
+    if (typeof document === "undefined") return null;
 
-    return (
+    return createPortal(
         <dialog className="modal modal-open profile-modal">
             <div className="modal-box profile-modal__box profile-modal__box--wide">
                 <div className="profile-modal__hero">
@@ -216,6 +218,7 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
             <form method="dialog" className="modal-backdrop">
                 <button onClick={close}>close</button>
             </form>
-        </dialog>
+        </dialog>,
+        document.body
     );
 }

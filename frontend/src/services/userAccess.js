@@ -2,6 +2,11 @@ import { apiRequest } from "./api";
 
 const DEFAULT_SYSTEM_IMAGE = "/assets/images/system_card_clear.png";
 const DEFAULT_SYSTEM_TITLE = "Untitled system";
+const USER_ACCESS_CACHE_MS = 5000;
+
+let userAccessSystems = null;
+let userAccessSystemsRequest = null;
+let userAccessSystemsFetchedAt = 0;
 
 function readTextValue(value) {
     return typeof value === "string" ? value.trim() : "";
@@ -39,8 +44,29 @@ function mapClientToSystem(client, index) {
 }
 
 export async function getUserAccessSystems() {
-    const response = await apiRequest("/users/access");
-    const clients = Array.isArray(response) ? response : [];
+    const hasRecentSystems = userAccessSystems
+        && Date.now() - userAccessSystemsFetchedAt < USER_ACCESS_CACHE_MS;
 
-    return clients.map(mapClientToSystem);
+    if (userAccessSystemsRequest) {
+        return userAccessSystemsRequest;
+    }
+
+    if (hasRecentSystems) {
+        return userAccessSystems;
+    }
+
+    userAccessSystemsRequest = apiRequest("/users/access")
+        .then((response) => {
+            const clients = Array.isArray(response) ? response : [];
+
+            userAccessSystems = clients.map(mapClientToSystem);
+            userAccessSystemsFetchedAt = Date.now();
+
+            return userAccessSystems;
+        })
+        .finally(() => {
+            userAccessSystemsRequest = null;
+        });
+
+    return userAccessSystemsRequest;
 }
