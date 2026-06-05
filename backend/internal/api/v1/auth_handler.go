@@ -302,14 +302,6 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 
 	// Notify the Identity Provider about the logout
 	url := h.notifyIDPLogout(c)
-	if url != "" {
-		resp, err := Client.Get(url)
-		if err != nil {
-			log.Printf("[Logout] IDP Notification: %v", err)
-		} else {
-			resp.Body.Close()
-		}
-	}
 
 	c.JSON(http.StatusOK, gin.H{"url": url})
 }
@@ -493,20 +485,29 @@ func (h *AuthHandler) notifyIDPLogout(c *gin.Context) string {
 		return logoutURL
 	}
 
-	claims, err := middleware.ValidateAccessToken(accessToken)
-	if err != nil {
-		return logoutURL
-	}
-
-	userID, ok := claims["userId"].(string)
-	if !ok {
-		return logoutURL
-	}
-
-	return fmt.Sprintf(
-		"%s?client_id=%s&user_id=%s",
+	// Create and send a POST request to IDP logout
+	reqBody, _ := json.Marshal(map[string]string{
+		"client_id": clientID,
+	})
+	req, err := http.NewRequest(
+		"POST",
 		logoutURL,
-		clientID,
-		userID,
+		bytes.NewBuffer(reqBody),
 	)
+	if err != nil {
+		log.Printf("[notifyIDPLogout] Create Request: %v", err)
+		return logoutURL
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+accessToken)
+
+	resp, err := Client.Do(req)
+	if err != nil {
+		log.Printf("[notifyIDPLogout] Send POST: %v", err)
+	} else {
+		resp.Body.Close()
+	}
+
+	return logoutURL
 }
