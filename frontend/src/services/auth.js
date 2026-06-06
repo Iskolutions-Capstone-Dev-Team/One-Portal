@@ -3,6 +3,7 @@ import { clearCurrentUserProfileCache } from "./userProfile";
 
 const SESSION_REFRESH_TIMESTAMP_KEY = "one-portal:last-session-refresh-at";
 const AUTHORIZATION_PATH = "/auth/authorize";
+const LOGOUT_API_PATH = "/api/v1/auth/logout";
 const LANDING_ROUTE_PATH = "/landing";
 const SESSION_COOKIE_NAMES = ["access_token", "session_cookie"];
 let authorizationRequestPromise = null;
@@ -200,6 +201,16 @@ function getLogoutResponseUrl(data) {
     return typeof data.url === "string" ? data.url.trim() : "";
 }
 
+function isLogoutApiUrl(logoutUrl) {
+    try {
+        const url = new URL(logoutUrl, window.location.origin);
+        return url.pathname.endsWith(LOGOUT_API_PATH);
+    } catch (error) {
+        console.error("Invalid logout URL.", error);
+        return false;
+    }
+}
+
 function getAuthorizationLocationUrl(response) {
     const location = response.headers.get("location");
 
@@ -314,6 +325,10 @@ export function clearSessionCookies() {
 
 async function notifyBrowserLogout(logoutUrl) {
     if (!logoutUrl || !hasDocument() || !document.body) {
+        return;
+    }
+
+    if (isLogoutApiUrl(logoutUrl)) {
         return;
     }
 
