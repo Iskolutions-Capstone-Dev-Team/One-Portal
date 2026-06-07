@@ -22,9 +22,45 @@ function CopiedCodesIcon() {
     );
 }
 
+function ConnectionIcon() {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+        </svg>
+    );
+}
+
+function AuthenticatorAppIcon() {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+        </svg>
+    );
+}
+
+function PasskeyIcon() {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
+        </svg>
+    );
+}
+
+function ConnectionOptionButton({ title, description, icon, onClick }) {
+    return (
+        <button type="button" className="mfa-connection-option" onClick={onClick}>
+            <span className="mfa-connection-option__icon">{icon}</span>
+            <span className="mfa-connection-option__content">
+                <span className="mfa-connection-option__title">{title}</span>
+                <span className="mfa-connection-option__description">{description}</span>
+            </span>
+        </button>
+    );
+}
+
 export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
     const codeInputsRef = useRef([]);
-    const [step, setStep] = useState("scan");
+    const [step, setStep] = useState("choice");
     const [setup, setSetup] = useState({ secret: "", otpauthUri: "" });
     const [qrCodeUrl, setQrCodeUrl] = useState("");
     const [authenticatorName, setAuthenticatorName] = useState("");
@@ -37,7 +73,7 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
 
     useEffect(() => {
         if (!isOpen) {
-            setStep("scan");
+            setStep("choice");
             setSetup({ secret: "", otpauthUri: "" });
             setQrCodeUrl("");
             setAuthenticatorName("");
@@ -47,6 +83,10 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
             setErrorMessage("");
             setIsLoadingSetup(false);
             setIsSaving(false);
+            return;
+        }
+
+        if (step !== "scan") {
             return;
         }
 
@@ -80,7 +120,7 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
         };
 
         void loadSetup();
-    }, [email, isOpen]);
+    }, [email, isOpen, step]);
 
     useEffect(() => {
         if (step === "verify") {
@@ -191,6 +231,15 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
         onClose();
     };
 
+    const handleSelectAuthenticatorApp = () => {
+        setErrorMessage("");
+        setStep("scan");
+    };
+
+    const handleSelectPasskey = () => {
+        setErrorMessage("Passkey setup is not available in One Portal yet.");
+    };
+
     if (!isOpen) {
         return null;
     }
@@ -204,9 +253,20 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
             <div className="modal-box profile-modal__box mfa-modal__box custom-scrollbar">
                 <section className="profile-modal__surface">
                     <div className="profile-modal__hero mfa-modal__hero">
-                        <div>
-                            <h3 className="profile-modal__title">New Authenticator</h3>
-                            <p className="profile-modal__subtitle">Connect an authenticator app to your account</p>
+                        <div className="mfa-modal__hero-title">
+                            <span className="mfa-modal__hero-icon">
+                                {step === "choice" ? <ConnectionIcon /> : <AuthenticatorAppIcon />}
+                            </span>
+                            <div>
+                                <h3 className="profile-modal__title">
+                                    {step === "choice" ? "New Connection" : "New Authenticator"}
+                                </h3>
+                                <p className="profile-modal__subtitle">
+                                    {step === "choice"
+                                        ? "Choose how you want to secure this account"
+                                        : "Connect an authenticator app to your account"}
+                                </p>
+                            </div>
                         </div>
 
                         <button type="button" className="profile-modal__close" onClick={handleClose} aria-label="Close authenticator modal">
@@ -225,6 +285,23 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
                             />
                         )}
 
+                        {step === "choice" && (
+                            <div className="mfa-connection-options">
+                                <ConnectionOptionButton
+                                    title="Authenticator App"
+                                    description="Scan a QR code and verify a 6-digit code."
+                                    icon={<AuthenticatorAppIcon />}
+                                    onClick={handleSelectAuthenticatorApp}
+                                />
+                                <ConnectionOptionButton
+                                    title="Passkey"
+                                    description="Use your device, browser, or security key."
+                                    icon={<PasskeyIcon />}
+                                    onClick={handleSelectPasskey}
+                                />
+                            </div>
+                        )}
+
                         {step === "scan" && (
                             <div className="mfa-setup">
                                 <div className="profile-alert profile-alert--info mfa-setup__note">
@@ -233,7 +310,7 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M12 3a9 9 0 100 18 9 9 0 000-18z" />
                                         </svg>
                                     </span>
-                                    <p className="profile-alert__message">Note: Make sure to scan this using any authenticator app before clicking "Next".</p>
+                                    <p className="profile-alert__message">Note: Scan this QR code using any authenticator app before clicking Next.</p>
                                 </div>
 
                                 <div className="mfa-setup__qr-card">
@@ -255,12 +332,12 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
                                 <h4 className="mfa-verify__title">Enter the code</h4>
 
                                 <label className="profile-form__field">
-                                    <span className="profile-form__label">Authenticator Name</span>
+                                    <span className="profile-form__label">App Name</span>
                                     <input type="text" className="profile-form__input" value={authenticatorName} onChange={(event) => setAuthenticatorName(event.target.value)} placeholder="Enter the App Name (e.g. Google Auth)"/>
                                 </label>
 
                                 <div className="profile-form__field">
-                                    <span className="profile-form__label">Authenticator code</span>
+                                    <span className="profile-form__label">Verification Code</span>
                                     <div className="profile-otp__inputs mfa-verify__inputs">
                                         {code.map((digit, index) => (
                                             <input key={index}
@@ -281,14 +358,15 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
                                 </div>
 
                                 <div className="mfa-verify__actions">
-                                    <button type="button" className="profile-action profile-action--secondary mfa-verify__back" onClick={() => setStep("scan")}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-                                        </svg>
-                                    </button>
-
                                     <button type="button" className="profile-action profile-action--primary mfa-modal__main-action" onClick={handleSave} disabled={isSaving}>
                                         {isSaving ? "Saving..." : "Save Authenticator"}
+                                    </button>
+
+                                    <button type="button" className="mfa-verify__back" onClick={() => setStep("scan")}>
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 12H5m0 0 7 7M5 12l7-7" />
+                                        </svg>
+                                        <span>Back</span>
                                     </button>
                                 </div>
                             </div>
