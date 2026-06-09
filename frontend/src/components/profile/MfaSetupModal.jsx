@@ -46,12 +46,15 @@ function PasskeyIcon() {
     );
 }
 
-function ConnectionOptionButton({ title, description, icon, onClick }) {
+function ConnectionOptionButton({ title, description, icon, onClick, disabled = false, badge = "" }) {
     return (
-        <button type="button" className="mfa-connection-option" onClick={onClick}>
+        <button type="button" className="mfa-connection-option" onClick={onClick} disabled={disabled}>
             <span className="mfa-connection-option__icon">{icon}</span>
             <span className="mfa-connection-option__content">
-                <span className="mfa-connection-option__title">{title}</span>
+                <span className="mfa-connection-option__title-row">
+                    <span className="mfa-connection-option__title">{title}</span>
+                    {badge && <span className="mfa-connection-option__badge">{badge}</span>}
+                </span>
                 <span className="mfa-connection-option__description">{description}</span>
             </span>
         </button>
@@ -298,6 +301,8 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
                                     description="Use your device, browser, or security key."
                                     icon={<PasskeyIcon />}
                                     onClick={handleSelectPasskey}
+                                    disabled
+                                    badge="Not Available"
                                 />
                             </div>
                         )}
