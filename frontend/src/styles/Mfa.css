@@ -434,35 +434,11 @@
   gap: 0.35rem;
 }
 
-.mfa-connection-option__title-row {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  min-width: 0;
-}
-
 .mfa-connection-option__title {
   color: var(--profile-text);
   font-size: 1rem;
   font-weight: 800;
   line-height: 1.2;
-}
-
-.mfa-connection-option__badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 1.45rem;
-  padding: 0.2rem 0.55rem;
-  border: 1px solid rgba(250, 204, 21, 0.58);
-  border-radius: 999px;
-  color: #facc15;
-  background: rgba(23, 32, 51, 0.24);
-  font-size: 0.68rem;
-  font-weight: 800;
-  line-height: 1;
-  text-transform: uppercase;
-  white-space: nowrap;
 }
 
 .mfa-connection-option__description {
