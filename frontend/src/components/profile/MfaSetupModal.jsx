@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import QRCode from "qrcode";
 import ErrorAlert from "../ErrorAlert";
-import { getMfaSetup, saveAuthenticator } from "../../services/userMfa";
+import { beginPasskeyRegistration, finishPasskeyRegistration, getMfaSetup, saveAuthenticator } from "../../services/userMfa";
+import { createPasskeyCredential } from "../../utils/webAuthn";
 
 const EMPTY_CODE = ["", "", "", "", "", ""];
 
@@ -46,15 +47,12 @@ function PasskeyIcon() {
     );
 }
 
-function ConnectionOptionButton({ title, description, icon, onClick, disabled = false, badge = "" }) {
+function ConnectionOptionButton({ title, description, icon, onClick, disabled = false }) {
     return (
         <button type="button" className="mfa-connection-option" onClick={onClick} disabled={disabled}>
             <span className="mfa-connection-option__icon">{icon}</span>
             <span className="mfa-connection-option__content">
-                <span className="mfa-connection-option__title-row">
-                    <span className="mfa-connection-option__title">{title}</span>
-                    {badge && <span className="mfa-connection-option__badge">{badge}</span>}
-                </span>
+                <span className="mfa-connection-option__title">{title}</span>
                 <span className="mfa-connection-option__description">{description}</span>
             </span>
         </button>
@@ -73,6 +71,7 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
     const [errorMessage, setErrorMessage] = useState("");
     const [isLoadingSetup, setIsLoadingSetup] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [isRegisteringPasskey, setIsRegisteringPasskey] = useState(false);
 
     useEffect(() => {
         if (!isOpen) {
@@ -86,6 +85,7 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
             setErrorMessage("");
             setIsLoadingSetup(false);
             setIsSaving(false);
+            setIsRegisteringPasskey(false);
             return;
         }
 
@@ -239,8 +239,22 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
         setStep("scan");
     };
 
-    const handleSelectPasskey = () => {
-        setErrorMessage("Passkey setup is not available in One Portal yet.");
+    const handleSelectPasskey = async () => {
+        setErrorMessage("");
+        setIsRegisteringPasskey(true);
+
+        try {
+            const options = await beginPasskeyRegistration(email);
+            const credential = await createPasskeyCredential(options);
+
+            await finishPasskeyRegistration(email, credential);
+            await onSaved?.();
+            onClose();
+        } catch (error) {
+            setErrorMessage(error.message || "Failed to register passkey.");
+        } finally {
+            setIsRegisteringPasskey(false);
+        }
     };
 
     if (!isOpen) {
@@ -295,14 +309,14 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
                                     description="Scan a QR code and verify a 6-digit code."
                                     icon={<AuthenticatorAppIcon />}
                                     onClick={handleSelectAuthenticatorApp}
+                                    disabled={isRegisteringPasskey}
                                 />
                                 <ConnectionOptionButton
                                     title="Passkey"
-                                    description="Use your device, browser, or security key."
+                                    description={isRegisteringPasskey ? "Creating passkey..." : "Use your device, browser, or security key."}
                                     icon={<PasskeyIcon />}
                                     onClick={handleSelectPasskey}
-                                    disabled
-                                    badge="Not Available"
+                                    disabled={isRegisteringPasskey}
                                 />
                             </div>
                         )}
