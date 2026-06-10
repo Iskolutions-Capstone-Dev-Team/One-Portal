@@ -415,6 +415,353 @@ func (h *MFAHandler) DeleteAuthenticator(c *gin.Context) {
 	c.JSON(http.StatusOK, delResp)
 }
 
+// BeginPasskeyVerification starts passkey verification ceremony.
+func (h *MFAHandler) BeginPasskeyVerification(c *gin.Context) {
+	var req dto.PasskeyBeginRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Printf("[BeginPasskeyVerification] {Bind JSON}: %v", err)
+		c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: err.Error(),
+		})
+		return
+	}
+
+	idpBase := os.Getenv("IDP_MFA_URL")
+	if idpBase == "" {
+		idpBase = "http://localhost:8080/api/v1/mfa"
+	}
+	idpURL := fmt.Sprintf("%s/passkey/verify/begin", idpBase)
+
+	body, _ := json.Marshal(req)
+	proxyReq, err := http.NewRequest(
+		http.MethodPost,
+		idpURL,
+		bytes.NewBuffer(body),
+	)
+	if err != nil {
+		log.Printf("[BeginPasskeyVerification] {Build Request}: %v", err)
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to build request",
+		})
+		return
+	}
+	proxyReq.Header.Set("Content-Type", "application/json")
+	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
+	if token := getAccessToken(c); token != "" {
+		proxyReq.Header.Set("Authorization", "Bearer "+token)
+	}
+
+	resp, err := Client.Do(proxyReq)
+	if err != nil {
+		log.Printf("[BeginPasskeyVerification] {IDP Request}: %v", err)
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to begin passkey verification",
+		})
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		var errResp dto.ErrorResponse
+		if err := json.NewDecoder(resp.Body).Decode(&errResp); err == nil {
+			c.JSON(resp.StatusCode, errResp)
+		} else {
+			c.JSON(resp.StatusCode, dto.ErrorResponse{
+				Error: "Passkey verification begin failed in IDP",
+			})
+		}
+		return
+	}
+
+	// Forward the raw challenge bytes directly to browser
+	c.DataFromReader(
+		resp.StatusCode,
+		resp.ContentLength,
+		resp.Header.Get("Content-Type"),
+		resp.Body,
+		nil,
+	)
+}
+
+// FinishPasskeyVerification completes passkey verification ceremony.
+func (h *MFAHandler) FinishPasskeyVerification(c *gin.Context) {
+	email := c.Query("email")
+	if email == "" {
+		c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Email parameter is required",
+		})
+		return
+	}
+
+	idpBase := os.Getenv("IDP_MFA_URL")
+	if idpBase == "" {
+		idpBase = "http://localhost:8080/api/v1/mfa"
+	}
+	idpURL := fmt.Sprintf(
+		"%s/passkey/verify/finish?email=%s",
+		idpBase,
+		url.QueryEscape(email),
+	)
+
+	proxyReq, err := http.NewRequest(
+		http.MethodPost,
+		idpURL,
+		c.Request.Body,
+	)
+	if err != nil {
+		log.Printf("[FinishPasskeyVerification] {Build Request}: %v", err)
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to build request",
+		})
+		return
+	}
+	proxyReq.Header.Set("Content-Type", "application/json")
+	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
+	if token := getAccessToken(c); token != "" {
+		proxyReq.Header.Set("Authorization", "Bearer "+token)
+	}
+
+	resp, err := Client.Do(proxyReq)
+	if err != nil {
+		log.Printf("[FinishPasskeyVerification] {IDP Request}: %v", err)
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to finish passkey verification",
+		})
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		var errResp dto.ErrorResponse
+		if err := json.NewDecoder(resp.Body).Decode(&errResp); err == nil {
+			c.JSON(resp.StatusCode, errResp)
+		} else {
+			c.JSON(resp.StatusCode, dto.ErrorResponse{
+				Error: "Passkey verification finish failed in IDP",
+			})
+		}
+		return
+	}
+
+	var finishResp dto.SuccessResponse
+	if err := json.NewDecoder(resp.Body).Decode(&finishResp); err != nil {
+		log.Printf("[FinishPasskeyVerification] {Decode Resp}: %v", err)
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to decode response",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, finishResp)
+}
+
+// GetHasPasskey checks if the user has a registered passkey.
+func (h *MFAHandler) GetHasPasskey(c *gin.Context) {
+	email := c.Query("email")
+	if email == "" {
+		c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Email parameter is required",
+		})
+		return
+	}
+
+	idpBase := os.Getenv("IDP_MFA_URL")
+	if idpBase == "" {
+		idpBase = "http://localhost:8080/api/v1/mfa"
+	}
+	idpURL := fmt.Sprintf(
+		"%s/passkey/exists?email=%s",
+		idpBase,
+		url.QueryEscape(email),
+	)
+
+	proxyReq, err := http.NewRequest(http.MethodGet, idpURL, nil)
+	if err != nil {
+		log.Printf("[GetHasPasskey] {Build Request}: %v", err)
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to build request",
+		})
+		return
+	}
+	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
+	if token := getAccessToken(c); token != "" {
+		proxyReq.Header.Set("Authorization", "Bearer "+token)
+	}
+
+	resp, err := Client.Do(proxyReq)
+	if err != nil {
+		log.Printf("[GetHasPasskey] {IDP Request}: %v", err)
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to check passkey existence",
+		})
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		var errResp dto.ErrorResponse
+		if err := json.NewDecoder(resp.Body).Decode(&errResp); err == nil {
+			c.JSON(resp.StatusCode, errResp)
+		} else {
+			c.JSON(resp.StatusCode, dto.ErrorResponse{
+				Error: "Passkey existence check failed in IDP",
+			})
+		}
+		return
+	}
+
+	var existsResp map[string]any
+	if err := json.NewDecoder(resp.Body).Decode(&existsResp); err != nil {
+		log.Printf("[GetHasPasskey] {Decode Resp}: %v", err)
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to decode response",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, existsResp)
+}
+
+// BeginPasskeyRegistration starts passkey registration ceremony.
+func (h *MFAHandler) BeginPasskeyRegistration(c *gin.Context) {
+	var req dto.PasskeyBeginRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		log.Printf("[BeginPasskeyRegistration] {Bind JSON}: %v", err)
+		c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: err.Error(),
+		})
+		return
+	}
+
+	idpBase := os.Getenv("IDP_MFA_URL")
+	if idpBase == "" {
+		idpBase = "http://localhost:8080/api/v1/mfa"
+	}
+	idpURL := fmt.Sprintf("%s/passkey/register/begin", idpBase)
+
+	body, _ := json.Marshal(req)
+	proxyReq, err := http.NewRequest(
+		http.MethodPost,
+		idpURL,
+		bytes.NewBuffer(body),
+	)
+	if err != nil {
+		log.Printf("[BeginPasskeyRegistration] {Build Request}: %v", err)
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to build request",
+		})
+		return
+	}
+	proxyReq.Header.Set("Content-Type", "application/json")
+	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
+	if token := getAccessToken(c); token != "" {
+		proxyReq.Header.Set("Authorization", "Bearer "+token)
+	}
+
+	resp, err := Client.Do(proxyReq)
+	if err != nil {
+		log.Printf("[BeginPasskeyRegistration] {IDP Request}: %v", err)
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to begin passkey registration",
+		})
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		var errResp dto.ErrorResponse
+		if err := json.NewDecoder(resp.Body).Decode(&errResp); err == nil {
+			c.JSON(resp.StatusCode, errResp)
+		} else {
+			c.JSON(resp.StatusCode, dto.ErrorResponse{
+				Error: "Passkey registration begin failed in IDP",
+			})
+		}
+		return
+	}
+
+	// Forward the raw challenge bytes directly to browser
+	c.DataFromReader(
+		resp.StatusCode,
+		resp.ContentLength,
+		resp.Header.Get("Content-Type"),
+		resp.Body,
+		nil,
+	)
+}
+
+// FinishPasskeyRegistration completes passkey registration ceremony.
+func (h *MFAHandler) FinishPasskeyRegistration(c *gin.Context) {
+	email := c.Query("email")
+	if email == "" {
+		c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Email parameter is required",
+		})
+		return
+	}
+
+	idpBase := os.Getenv("IDP_MFA_URL")
+	if idpBase == "" {
+		idpBase = "http://localhost:8080/api/v1/mfa"
+	}
+	idpURL := fmt.Sprintf(
+		"%s/passkey/register/finish?email=%s",
+		idpBase,
+		url.QueryEscape(email),
+	)
+
+	proxyReq, err := http.NewRequest(
+		http.MethodPost,
+		idpURL,
+		c.Request.Body,
+	)
+	if err != nil {
+		log.Printf("[FinishPasskeyRegistration] {Build Request}: %v", err)
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to build request",
+		})
+		return
+	}
+	proxyReq.Header.Set("Content-Type", "application/json")
+	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
+	if token := getAccessToken(c); token != "" {
+		proxyReq.Header.Set("Authorization", "Bearer "+token)
+	}
+
+	resp, err := Client.Do(proxyReq)
+	if err != nil {
+		log.Printf("[FinishPasskeyRegistration] {IDP Request}: %v", err)
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to finish passkey registration",
+		})
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		var errResp dto.ErrorResponse
+		if err := json.NewDecoder(resp.Body).Decode(&errResp); err == nil {
+			c.JSON(resp.StatusCode, errResp)
+		} else {
+			c.JSON(resp.StatusCode, dto.ErrorResponse{
+				Error: "Passkey registration finish failed in IDP",
+			})
+		}
+		return
+	}
+
+	var finishResp dto.SuccessResponse
+	if err := json.NewDecoder(resp.Body).Decode(&finishResp); err != nil {
+		log.Printf("[FinishPasskeyRegistration] {Decode Resp}: %v", err)
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to decode response",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, finishResp)
+}
+
 // getAccessToken extracts JWT access token from cookie or header.
 func getAccessToken(c *gin.Context) string {
 	tStr, err := c.Cookie(dto.AccessCookieName)
