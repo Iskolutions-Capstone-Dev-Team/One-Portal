@@ -38,3 +38,8 @@ type MFAAuthenticatorResponse struct {
 	CreatedAt  time.Time  `json:"created_at"`
 	LastUsedAt *time.Time `json:"last_used_at"`
 }
+
+// PasskeyBeginRequest is used to start a passkey registration/verification.
+type PasskeyBeginRequest struct {
+	Email string `json:"email" binding:"required"`
+}
