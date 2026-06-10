@@ -41,5 +41,6 @@ type MFAAuthenticatorResponse struct {
 
 // PasskeyBeginRequest is used to start a passkey registration/verification.
 type PasskeyBeginRequest struct {
-	Email string `json:"email" binding:"required"`
+	Email             string `json:"email" binding:"required"`
+	PlatformAvailable *bool  `json:"platform_available"`
 }
