@@ -17,10 +17,13 @@ type Services struct {
 // Add new services here and expose them through Services.
 func InitServices(repos *Repositories, c cache.Cache) *Services {
 	return &Services{
-		Log:          service.NewLogService(repos.Log),
-		RefreshToken: service.NewAuthService(repos.RefreshToken),
-		User:         service.NewUserService(repos.User),
-		Client:       service.NewClientService(repos.Client, Storage, c),
-		UserAccess:   service.NewUserAccessService(repos.UserAccess),
+		Log: service.NewLogService(repos.Log),
+		RefreshToken: service.NewAuthService(
+			repos.RefreshToken,
+			repos.Session,
+		),
+		User:       service.NewUserService(repos.User),
+		Client:     service.NewClientService(repos.Client, Storage, c),
+		UserAccess: service.NewUserAccessService(repos.UserAccess),
 	}
 }
