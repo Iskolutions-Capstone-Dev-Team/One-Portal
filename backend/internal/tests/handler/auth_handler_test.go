@@ -11,11 +11,13 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/api"
 	v1 "github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/api/v1"
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/initializers"
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/middleware"
+	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/models"
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/tests/mocks"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -170,5 +172,103 @@ func TestAuthHandlerHandleAuthorization(t *testing.T) {
 	expectedPrefix := "http://idp/auth?client_id=test-client"
 	if !bytes.HasPrefix([]byte(resp["url"]), []byte(expectedPrefix)) {
 		t.Errorf("expected prefix %s, got %s", expectedPrefix, resp["url"])
+	}
+}
+
+func TestAuthHandlerCheckSession_Success(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	router, key, authSvc, _, _ := setupTestRouter(ctrl)
+
+	req := httptest.NewRequest(
+		http.MethodGet,
+		"/api/v1/auth/session",
+		nil,
+	)
+	req.Header.Set(middleware.APIHeaderKey, key)
+	req.AddCookie(&http.Cookie{
+		Name:  "session_cookie",
+		Value: "test-session-id",
+	})
+
+	userID := uuid.New()
+	session := models.Session{
+		SessionID: "test-session-id",
+		UserID:    userID[:],
+		ExpiresAt: time.Now().Add(1 * time.Hour),
+	}
+
+	authSvc.EXPECT().
+		GetSession(gomock.Any(), "test-session-id").
+		Return(session, nil).
+		Times(1)
+
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d", w.Code)
+	}
+
+	var resp map[string]any
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatalf("failed to decode: %v", err)
+	}
+
+	if resp["authenticated"] != true {
+		t.Errorf(
+			"expected authenticated=true, got %v",
+			resp["authenticated"],
+		)
+	}
+	if resp["user_id"] != userID.String() {
+		t.Errorf(
+			"expected user_id %s, got %v",
+			userID.String(),
+			resp["user_id"],
+		)
+	}
+}
+
+func TestAuthHandlerCheckSession_Expired(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	router, key, authSvc, _, _ := setupTestRouter(ctrl)
+
+	req := httptest.NewRequest(
+		http.MethodGet,
+		"/api/v1/auth/session",
+		nil,
+	)
+	req.Header.Set(middleware.APIHeaderKey, key)
+	req.AddCookie(&http.Cookie{
+		Name:  "session_cookie",
+		Value: "test-session-id",
+	})
+
+	userID := uuid.New()
+	session := models.Session{
+		SessionID: "test-session-id",
+		UserID:    userID[:],
+		ExpiresAt: time.Now().Add(-1 * time.Hour),
+	}
+
+	authSvc.EXPECT().
+		GetSession(gomock.Any(), "test-session-id").
+		Return(session, nil).
+		Times(1)
+
+	authSvc.EXPECT().
+		DeleteSession(gomock.Any(), "test-session-id").
+		Return(nil).
+		Times(1)
+
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusUnauthorized {
+		t.Errorf("expected 401, got %d", w.Code)
 	}
 }
