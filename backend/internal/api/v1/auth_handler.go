@@ -253,7 +253,25 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 			"[HandleCallback] Failed to save refresh token: %v",
 			err,
 		)
-		// Don't fail the whole login if RT fails? Usually we should.
+		c.JSON(
+			http.StatusInternalServerError,
+			dto.ErrorResponse{Error: "Auth error"},
+		)
+		return
+	}
+
+	// Generate and save session in database
+	sessionID := uuid.New().String()
+	session := models.Session{
+		SessionID: sessionID,
+		UserID:    userID[:],
+		ExpiresAt: time.Now().Add(30 * 24 * time.Hour),
+	}
+	if err := h.authService.CreateSession(ctx, session); err != nil {
+		log.Printf(
+			"[HandleCallback] Failed to save session: %v",
+			err,
+		)
 		c.JSON(
 			http.StatusInternalServerError,
 			dto.ErrorResponse{Error: "Auth error"},
@@ -266,6 +284,15 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 		dto.AccessCookieName,
 		tokenResp.AccessToken,
 		tokenResp.ExpiresIn,
+		"/",
+		"",
+		isSecureCookie(),
+		true,
+	)
+	c.SetCookie(
+		dto.SessionCookieName,
+		sessionID,
+		int((30 * 24 * time.Hour).Seconds()),
 		"/",
 		"",
 		isSecureCookie(),
@@ -288,6 +315,12 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 	tokenStr, _ := c.Cookie(dto.AccessCookieName)
 	if tokenStr != "" {
 		h.processTokenDeletion(c, tokenStr)
+	}
+
+	// Delete database session if session cookie exists
+	sessionID, _ := c.Cookie(dto.SessionCookieName)
+	if sessionID != "" {
+		_ = h.authService.DeleteSession(c.Request.Context(), sessionID)
 	}
 
 	// Always clear the access token cookie
@@ -326,6 +359,38 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 // @Failure      500 {object} dto.ErrorResponse "Internal error"
 // @Router       /auth/refresh [post]
 func (h *AuthHandler) HandleRefresh(c *gin.Context) {
+	// Verify session cookie is present and valid in database
+	sessionID, err := c.Cookie(dto.SessionCookieName)
+	if err != nil || sessionID == "" {
+		log.Printf("[HandleRefresh] Auth: missing session cookie")
+		c.JSON(
+			http.StatusUnauthorized,
+			dto.ErrorResponse{Error: "No session"},
+		)
+		return
+	}
+
+	ctx := c.Request.Context()
+	session, err := h.authService.GetSession(ctx, sessionID)
+	if err != nil {
+		log.Printf("[HandleRefresh] Auth: session not found: %v", err)
+		c.JSON(
+			http.StatusUnauthorized,
+			dto.ErrorResponse{Error: "invalid session"},
+		)
+		return
+	}
+
+	if session.ExpiresAt.Before(time.Now()) {
+		log.Printf("[HandleRefresh] Auth: session expired")
+		_ = h.authService.DeleteSession(ctx, sessionID)
+		c.JSON(
+			http.StatusUnauthorized,
+			dto.ErrorResponse{Error: "session expired"},
+		)
+		return
+	}
+
 	// 1. Get user identity from access token cookie
 	tokenStr, _ := c.Cookie(dto.AccessCookieName)
 	if tokenStr == "" {
@@ -374,7 +439,6 @@ func (h *AuthHandler) HandleRefresh(c *gin.Context) {
 	}
 
 	// 2. Fetch existing refresh token from database
-	ctx := c.Request.Context()
 	oldRT, err := h.authService.GetTokenByUserID(ctx, id[:])
 	if err != nil {
 		log.Printf("[HandleRefresh] Token Fetch: %v", err)
@@ -449,6 +513,21 @@ func (h *AuthHandler) HandleRefresh(c *gin.Context) {
 	}
 	_ = h.authService.CreateToken(ctx, newRT)
 
+	// Update session expiration in database
+	newExp := time.Now().Add(30 * 24 * time.Hour)
+	_ = h.authService.UpdateSession(ctx, sessionID, newExp)
+
+	// Update session cookie on browser
+	c.SetCookie(
+		dto.SessionCookieName,
+		sessionID,
+		int((30 * 24 * time.Hour).Seconds()),
+		"/",
+		"",
+		isSecureCookie(),
+		true,
+	)
+
 	c.JSON(http.StatusOK, gin.H{"status": "refreshed"})
 }
 
@@ -509,4 +588,48 @@ func (h *AuthHandler) notifyIDPLogout(c *gin.Context) string {
 		clientID,
 		userID,
 	)
+}
+
+// HandleCheckSession checks if the session cookie is valid.
+// @Summary      Check Session
+// @Description  Validates the session cookie against the database.
+// @Tags         Auth
+// @Produce      json
+// @Success      200 {object} map[string]interface{} "Authenticated"
+// @Failure      401 {object} dto.ErrorResponse "Unauthorized"
+// @Router       /auth/session [get]
+func (h *AuthHandler) HandleCheckSession(c *gin.Context) {
+	sessionID, err := c.Cookie(dto.SessionCookieName)
+	if err != nil || sessionID == "" {
+		c.JSON(
+			http.StatusUnauthorized,
+			dto.ErrorResponse{Error: "no session cookie found"},
+		)
+		return
+	}
+
+	ctx := c.Request.Context()
+	session, err := h.authService.GetSession(ctx, sessionID)
+	if err != nil {
+		c.JSON(
+			http.StatusUnauthorized,
+			dto.ErrorResponse{Error: "session not found"},
+		)
+		return
+	}
+
+	if session.ExpiresAt.Before(time.Now()) {
+		_ = h.authService.DeleteSession(ctx, sessionID)
+		c.JSON(
+			http.StatusUnauthorized,
+			dto.ErrorResponse{Error: "session expired"},
+		)
+		return
+	}
+
+	userID, _ := uuid.FromBytes(session.UserID)
+	c.JSON(http.StatusOK, gin.H{
+		"authenticated": true,
+		"user_id":       userID.String(),
+	})
 }
