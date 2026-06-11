@@ -207,7 +207,18 @@ func (h *AuthHandler) HandleCallback(c *gin.Context) {
 	_, err = h.userService.GetUserByID(ctx, userID)
 	if err != nil {
 		userinfoURL := os.Getenv("IDP_USERINFO_URL")
-		req, _ := http.NewRequest("GET", userinfoURL, nil)
+		req, err := http.NewRequest("GET", userinfoURL, nil)
+		if err != nil {
+			log.Printf(
+				"[HandleCallback] Userinfo Request Build: %v",
+				err,
+			)
+			c.JSON(
+				http.StatusInternalServerError,
+				dto.ErrorResponse{Error: "Auth error"},
+			)
+			return
+		}
 		bearer := "Bearer " + tokenResp.AccessToken
 		req.Header.Set("Authorization", bearer)
 
@@ -497,13 +508,25 @@ func (h *AuthHandler) HandleRefresh(c *gin.Context) {
 	)
 
 	// 5. Update database (Replace old RT with new RT)
-	_ = h.authService.DeleteTokensByUserID(ctx, id[:])
+	if err := h.authService.DeleteTokensByUserID(
+		ctx, id[:],
+	); err != nil {
+		log.Printf(
+			"[HandleRefresh] Delete Old Token: %v",
+			err,
+		)
+	}
 	newRT := models.RefreshToken{
 		Token:     tokenResp.RefreshToken,
 		UserID:    id[:],
-		ExpiresAt: time.Now().Add(30 * 24 * time.Hour), // 30 days
+		ExpiresAt: time.Now().Add(30 * 24 * time.Hour),
 	}
-	_ = h.authService.CreateToken(ctx, newRT)
+	if err := h.authService.CreateToken(ctx, newRT); err != nil {
+		log.Printf(
+			"[HandleRefresh] Save New Token: %v",
+			err,
+		)
+	}
 
 	// Update session expiration in database
 	newExp := time.Now().Add(30 * 24 * time.Hour)
@@ -530,17 +553,23 @@ func (h *AuthHandler) processTokenDeletion(c *gin.Context, tokenStr string) {
 		jwt.MapClaims{},
 	)
 	if err != nil {
+		log.Printf(
+			"[Logout] Token Parsing: %v",
+			err,
+		)
 		return
 	}
 
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
+		log.Printf("[Logout] Claims Parsing: invalid map format")
 		return
 	}
 
 	sub, _ := claims["sub"].(string)
 	id, err := uuid.Parse(sub)
 	if err != nil {
+		log.Printf("[Logout] Identity Extraction: %v", err)
 		return
 	}
 
