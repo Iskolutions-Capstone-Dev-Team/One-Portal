@@ -8,6 +8,7 @@ import (
 type Repositories struct {
 	Log          repository.LogRepository
 	RefreshToken repository.AuthRepository
+	Session      repository.SessionRepository
 	User         repository.UserRepository
 	Client       repository.ClientRepository
 	UserAccess   repository.UserAccessRepository
@@ -19,6 +20,7 @@ func InitRepositories(db *sqlx.DB) *Repositories {
 	return &Repositories{
 		Log:          repository.NewLogRepository(db, 100),
 		RefreshToken: repository.NewAuthRepository(db),
+		Session:      repository.NewSessionRepository(db),
 		User:         repository.NewUserRepository(db),
 		Client:       repository.NewClientRepository(db),
 		UserAccess:   repository.NewUserAccessRepository(db),
