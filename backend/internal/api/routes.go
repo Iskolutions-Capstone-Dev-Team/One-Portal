@@ -58,6 +58,7 @@ func (r *Routes) Register(router *gin.Engine) {
 	authGroup.GET("/authorize", r.AuthHandler.HandleAuthorization)
 	authGroup.POST("/logout", r.AuthHandler.Logout)
 	authGroup.POST("/refresh", r.AuthHandler.HandleRefresh)
+	authGroup.GET("/session", r.AuthHandler.HandleCheckSession)
 
 	// OTP: called pre-login during account recovery — rate-limited only.
 	otpGroup := v1Group.Group("/otp")
