@@ -129,6 +129,12 @@ func (h *UserAccessHandler) GetUserDetailedAccess(c *gin.Context) {
 		return
 	}
 
+	for i := range accessInfo {
+		if accessInfo[i].OnePortalLink != "" {
+			accessInfo[i].BaseURL = accessInfo[i].OnePortalLink
+		}
+	}
+
 	// 9. Filter out One-Portal's own client from the list
 	selfClientID := os.Getenv("CLIENT_ID")
 	if selfClientID == "" {

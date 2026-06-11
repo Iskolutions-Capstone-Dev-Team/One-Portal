@@ -79,6 +79,35 @@ func (r *Routes) Register(router *gin.Engine) {
 			r.MFA.GetAuthenticatorList,
 		)
 		mfaGroup.DELETE("/authenticators", mfaRL, r.MFA.DeleteAuthenticator)
+
+		// Passkey verification
+		mfaGroup.POST(
+			"/passkey/verify/begin",
+			mfaRL,
+			r.MFA.BeginPasskeyVerification,
+		)
+		mfaGroup.POST(
+			"/passkey/verify/finish",
+			mfaRL,
+			r.MFA.FinishPasskeyVerification,
+		)
+		mfaGroup.GET(
+			"/passkey/exists",
+			mfaRL,
+			r.MFA.GetHasPasskey,
+		)
+
+		// Passkey registration
+		mfaGroup.POST(
+			"/passkey/register/begin",
+			mfaRL,
+			r.MFA.BeginPasskeyRegistration,
+		)
+		mfaGroup.POST(
+			"/passkey/register/finish",
+			mfaRL,
+			r.MFA.FinishPasskeyRegistration,
+		)
 	}
 
 	// --- JWT-protected endpoints (user session required) ---

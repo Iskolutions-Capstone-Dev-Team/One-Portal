@@ -45,6 +45,79 @@
   margin-top: 0;
 }
 
+.mfa-panel__cards {
+  position: relative;
+  margin-top: 0;
+}
+
+.mfa-panel__carousel {
+  display: none;
+  width: 100%;
+  overflow: hidden;
+}
+
+.mfa-panel__carousel-track {
+  display: flex;
+  width: 100%;
+  transition: transform 0.5s ease;
+}
+
+.mfa-panel__carousel-slide {
+  width: 100%;
+  flex: 0 0 100%;
+}
+
+.mfa-panel__carousel-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 18rem));
+  justify-content: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.mfa-panel__carousel-controls,
+.mfa-panel__carousel-pages {
+  display: none;
+}
+
+.mfa-panel__carousel-button {
+  width: 2.75rem;
+  min-height: 2.75rem;
+  height: 2.75rem;
+  border: 1px solid rgba(250, 204, 21, 0.45);
+  color: #991b1b;
+  background: rgba(250, 204, 21, 0.12);
+  box-shadow: none;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.mfa-panel__carousel-button:hover {
+  transform: translateY(-1px);
+  color: #ffffff;
+  border-color: rgba(153, 27, 27, 0.45);
+  background: #991b1b;
+}
+
+.mfa-panel__carousel-page {
+  width: 0.5rem;
+  height: 0.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(107, 114, 128, 0.28);
+  transition:
+    width 0.25s ease,
+    background 0.25s ease;
+}
+
+.mfa-panel__carousel-page.is-active {
+  width: 1.5rem;
+  background: #991b1b;
+}
+
 .mfa-panel__message,
 .mfa-panel__empty {
   margin-top: 1.25rem;
@@ -296,6 +369,85 @@
   min-height: 3.35rem;
 }
 
+.mfa-connection-options {
+  display: grid;
+  gap: 1rem;
+  width: min(100%, 39rem);
+  margin: 0 auto;
+}
+
+.mfa-connection-option {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 5.5rem;
+  width: 100%;
+  padding: 1rem 1.25rem;
+  border: 1px solid rgba(108, 120, 139, 0.22);
+  border-radius: 1rem;
+  color: var(--profile-text);
+  background: rgba(255, 255, 255, 0.18);
+  text-align: left;
+  transition:
+    transform 0.22s ease,
+    background 0.22s ease,
+    border-color 0.22s ease;
+}
+
+.mfa-connection-option:hover {
+  transform: translateY(-2px);
+  border-color: rgba(250, 204, 21, 0.62);
+  background: rgba(250, 204, 21, 0.08);
+}
+
+.mfa-connection-option:disabled {
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.mfa-connection-option:disabled:hover {
+  transform: none;
+  border-color: rgba(108, 120, 139, 0.18);
+  background: transparent;
+}
+
+.mfa-connection-option__icon {
+  display: grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  flex: 0 0 auto;
+  border: 1px solid rgba(250, 204, 21, 0.65);
+  border-radius: 0.8rem;
+  color: #991b1b;
+  background: rgba(250, 204, 21, 0.1);
+}
+
+.mfa-connection-option__icon svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.mfa-connection-option__content {
+  display: grid;
+  min-width: 0;
+  gap: 0.35rem;
+}
+
+.mfa-connection-option__title {
+  color: var(--profile-text);
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.mfa-connection-option__description {
+  color: var(--profile-text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
 .mfa-verify__title {
   color: var(--profile-text);
   font-size: 1.8rem;
@@ -304,19 +456,49 @@
 }
 
 .mfa-verify__inputs {
-  justify-content: flex-start;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.9rem;
+  width: 100%;
+  justify-content: stretch;
+}
+
+.mfa-verify__inputs .profile-otp__input {
+  width: 100%;
+  min-width: 0;
 }
 
 .mfa-verify__actions {
   display: grid;
-  grid-template-columns: 3.75rem minmax(0, 1fr);
-  gap: 0.9rem;
-  align-items: stretch;
+  grid-template-columns: 1fr;
+  gap: 1rem;
 }
 
 .mfa-verify__back {
-  width: 3.75rem;
-  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: max-content;
+  margin: 0 auto;
+  padding: 0.35rem 0.75rem;
+  border: 0;
+  color: var(--profile-text-muted);
+  background: transparent;
+  font-weight: 800;
+  transition:
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.mfa-verify__back:hover {
+  transform: translateX(-2px);
+  color: var(--profile-text);
+}
+
+.mfa-verify__back svg {
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 .mfa-backup-codes {
@@ -608,6 +790,29 @@
   background: rgba(250, 204, 21, 0.1);
 }
 
+.portal-layout[data-portal-theme="dark"] .mfa-panel__carousel-button,
+:root[data-portal-theme="dark"] .mfa-panel__carousel-button {
+  color: #fde68a;
+  border-color: rgba(250, 204, 21, 0.42);
+  background: rgba(250, 204, 21, 0.12);
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-panel__carousel-button:hover,
+:root[data-portal-theme="dark"] .mfa-panel__carousel-button:hover {
+  color: #ffffff;
+  background: rgba(153, 27, 27, 0.75);
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-panel__carousel-page,
+:root[data-portal-theme="dark"] .mfa-panel__carousel-page {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-panel__carousel-page.is-active,
+:root[data-portal-theme="dark"] .mfa-panel__carousel-page.is-active {
+  background: #991b1b;
+}
+
 .portal-layout[data-portal-theme="dark"] .mfa-modal__body,
 :root[data-portal-theme="dark"] .mfa-modal__body {
   background: transparent;
@@ -615,10 +820,34 @@
 
 .portal-layout[data-portal-theme="dark"] .mfa-setup,
 .portal-layout[data-portal-theme="dark"] .mfa-verify,
+.portal-layout[data-portal-theme="dark"] .mfa-connection-option,
 :root[data-portal-theme="dark"] .mfa-setup,
-:root[data-portal-theme="dark"] .mfa-verify {
+:root[data-portal-theme="dark"] .mfa-verify,
+:root[data-portal-theme="dark"] .mfa-connection-option {
   border-color: rgba(146, 163, 184, 0.16);
   background: rgba(8, 12, 18, 0.18);
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-connection-option:hover,
+:root[data-portal-theme="dark"] .mfa-connection-option:hover {
+  border-color: rgba(250, 204, 21, 0.5);
+  background: rgba(250, 204, 21, 0.08);
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-connection-option__icon,
+:root[data-portal-theme="dark"] .mfa-connection-option__icon {
+  color: #fde68a;
+  background: rgba(250, 204, 21, 0.1);
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-connection-option__title,
+:root[data-portal-theme="dark"] .mfa-connection-option__title {
+  color: #ffffff;
+}
+
+.portal-layout[data-portal-theme="dark"] .mfa-connection-option__description,
+:root[data-portal-theme="dark"] .mfa-connection-option__description {
+  color: rgba(226, 232, 240, 0.82);
 }
 
 .portal-layout[data-portal-theme="dark"] .mfa-backup-codes__code,
@@ -697,17 +926,17 @@
 .portal-layout[data-portal-theme="light"] .mfa-verify__back,
 :root[data-portal-theme="light"] .mfa-verify__back {
   color: #991b1b !important;
-  border-color: #facc15 !important;
-  background: linear-gradient(160deg, #fde047 0%, #facc15 100%) !important;
+  border-color: transparent !important;
+  background: transparent !important;
   box-shadow: none;
 }
 
 .portal-layout[data-portal-theme="light"] .mfa-verify__back:hover:not(:disabled),
 :root[data-portal-theme="light"] .mfa-verify__back:hover:not(:disabled) {
-  color: #facc15 !important;
-  border-color: rgba(153, 27, 27, 0.38) !important;
-  background: linear-gradient(160deg, #c72626 0%, #991b1b 100%) !important;
-  box-shadow: 0 10px 18px rgba(153, 27, 27, 0.18);
+  color: #7b0d15 !important;
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none;
 }
 
 .portal-layout[data-portal-theme="light"] .mfa-verify__back svg,
@@ -719,6 +948,40 @@
 @media (max-width: 1024px) {
   .mfa-panel__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1025px) {
+  .mfa-panel__grid {
+    display: none;
+  }
+
+  .mfa-panel__carousel {
+    display: block;
+  }
+
+  .mfa-panel__carousel-controls {
+    position: absolute;
+    top: 50%;
+    left: -1rem;
+    right: -1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  .mfa-panel__carousel-button {
+    pointer-events: auto;
+  }
+
+  .mfa-panel__carousel-pages {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    margin-top: 1rem;
   }
 }
 
@@ -757,7 +1020,7 @@
   }
 
   .mfa-verify__inputs {
-    justify-content: center;
+    gap: 0.55rem;
   }
 
   .mfa-verify__actions {
@@ -765,7 +1028,7 @@
   }
 
   .mfa-verify__back {
-    width: 100%;
+    width: max-content;
   }
 
   .mfa-backup-codes__grid {

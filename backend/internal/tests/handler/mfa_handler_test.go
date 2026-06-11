@@ -244,3 +244,208 @@ func TestMFAHandler_DeleteAuthenticator(t *testing.T) {
 		t.Errorf("expected 200, got %d", w.Code)
 	}
 }
+
+func TestMFAHandler_BeginPasskeyVerification(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	idpServer := httptest.NewServer(http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			if r.Method != http.MethodPost {
+				t.Errorf("expected POST, got %s", r.Method)
+			}
+			var payload dto.PasskeyBeginRequest
+			if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+				t.Fatal(err)
+			}
+			if payload.Email != "test@example.com" {
+				t.Errorf("expected test@example.com, got %s", payload.Email)
+			}
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`{"challenge":"mock challenge"}`))
+		},
+	))
+	defer idpServer.Close()
+
+	os.Setenv("IDP_MFA_URL", idpServer.URL)
+	defer os.Unsetenv("IDP_MFA_URL")
+
+	h := v1.NewMFAHandler()
+	r := gin.New()
+	r.POST("/api/v1/mfa/passkey/verify/begin", h.BeginPasskeyVerification)
+
+	reqBody := dto.PasskeyBeginRequest{
+		Email: "test@example.com",
+	}
+	body, _ := json.Marshal(reqBody)
+	req := httptest.NewRequest(
+		http.MethodPost,
+		"/api/v1/mfa/passkey/verify/begin",
+		bytes.NewBuffer(body),
+	)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d", w.Code)
+	}
+}
+
+func TestMFAHandler_FinishPasskeyVerification(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	idpServer := httptest.NewServer(http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			if r.Method != http.MethodPost {
+				t.Errorf("expected POST, got %s", r.Method)
+			}
+			email := r.URL.Query().Get("email")
+			if email != "test@example.com" {
+				t.Errorf("expected test@example.com, got %s", email)
+			}
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode(dto.SuccessResponse{
+				Message: "verified",
+			})
+		},
+	))
+	defer idpServer.Close()
+
+	os.Setenv("IDP_MFA_URL", idpServer.URL)
+	defer os.Unsetenv("IDP_MFA_URL")
+
+	h := v1.NewMFAHandler()
+	r := gin.New()
+	r.POST("/api/v1/mfa/passkey/verify/finish", h.FinishPasskeyVerification)
+
+	req := httptest.NewRequest(
+		http.MethodPost,
+		"/api/v1/mfa/passkey/verify/finish?email=test@example.com",
+		bytes.NewBuffer([]byte(`{"id":"cred-1"}`)),
+	)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d", w.Code)
+	}
+}
+
+func TestMFAHandler_GetHasPasskey(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	idpServer := httptest.NewServer(http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			if r.Method != http.MethodGet {
+				t.Errorf("expected GET, got %s", r.Method)
+			}
+			email := r.URL.Query().Get("email")
+			if email != "test@example.com" {
+				t.Errorf("expected test@example.com, got %s", email)
+			}
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`{"has_passkey":true}`))
+		},
+	))
+	defer idpServer.Close()
+
+	os.Setenv("IDP_MFA_URL", idpServer.URL)
+	defer os.Unsetenv("IDP_MFA_URL")
+
+	h := v1.NewMFAHandler()
+	r := gin.New()
+	r.GET("/api/v1/mfa/passkey/exists", h.GetHasPasskey)
+
+	req := httptest.NewRequest(
+		http.MethodGet,
+		"/api/v1/mfa/passkey/exists?email=test@example.com",
+		nil,
+	)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d", w.Code)
+	}
+}
+
+func TestMFAHandler_BeginPasskeyRegistration(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	idpServer := httptest.NewServer(http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			if r.Method != http.MethodPost {
+				t.Errorf("expected POST, got %s", r.Method)
+			}
+			var payload dto.PasskeyBeginRequest
+			if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+				t.Fatal(err)
+			}
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`{"challenge":"mock challenge"}`))
+		},
+	))
+	defer idpServer.Close()
+
+	os.Setenv("IDP_MFA_URL", idpServer.URL)
+	defer os.Unsetenv("IDP_MFA_URL")
+
+	h := v1.NewMFAHandler()
+	r := gin.New()
+	r.POST("/api/v1/mfa/passkey/register/begin", h.BeginPasskeyRegistration)
+
+	reqBody := dto.PasskeyBeginRequest{
+		Email: "test@example.com",
+	}
+	body, _ := json.Marshal(reqBody)
+	req := httptest.NewRequest(
+		http.MethodPost,
+		"/api/v1/mfa/passkey/register/begin",
+		bytes.NewBuffer(body),
+	)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d", w.Code)
+	}
+}
+
+func TestMFAHandler_FinishPasskeyRegistration(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	idpServer := httptest.NewServer(http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			if r.Method != http.MethodPost {
+				t.Errorf("expected POST, got %s", r.Method)
+			}
+			email := r.URL.Query().Get("email")
+			if email != "test@example.com" {
+				t.Errorf("expected test@example.com, got %s", email)
+			}
+			w.WriteHeader(http.StatusOK)
+			json.NewEncoder(w).Encode(dto.SuccessResponse{
+				Message: "registered",
+			})
+		},
+	))
+	defer idpServer.Close()
+
+	os.Setenv("IDP_MFA_URL", idpServer.URL)
+	defer os.Unsetenv("IDP_MFA_URL")
+
+	h := v1.NewMFAHandler()
+	r := gin.New()
+	r.POST("/api/v1/mfa/passkey/register/finish", h.FinishPasskeyRegistration)
+
+	req := httptest.NewRequest(
+		http.MethodPost,
+		"/api/v1/mfa/passkey/register/finish?email=test@example.com",
+		bytes.NewBuffer([]byte(`{"id":"cred-1"}`)),
+	)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d", w.Code)
+	}
+}

@@ -19,4 +19,5 @@ type ClientDetailedAccessResponse struct {
 	Description   string `json:"description"`
 	ImageLocation string `json:"image_location"`
 	BaseURL       string `json:"base_url"`
+	OnePortalLink string `json:"one_portal_link"`
 }

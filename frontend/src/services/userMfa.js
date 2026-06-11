@@ -133,6 +133,26 @@ export async function saveAuthenticator({ email, secret, code, name }) {
     };
 }
 
+export function beginPasskeyRegistration(email) {
+    return userMfaRequest("/mfa/passkey/register/begin", {
+        method: "POST",
+        data: {
+            email: readTextValue(email),
+        },
+    });
+}
+
+export async function finishPasskeyRegistration(email, credential) {
+    const response = await userMfaRequest(`/mfa/passkey/register/finish?email=${encodeURIComponent(email)}`, {
+        method: "POST",
+        data: credential,
+    });
+
+    clearAuthenticatorListCache(email);
+
+    return response;
+}
+
 export async function verifyMfaCode({ email, code }) {
     return userMfaRequest("/mfa/verify", {
         method: "POST",
