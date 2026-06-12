@@ -58,6 +58,7 @@ func (r *Routes) Register(router *gin.Engine) {
 	authGroup.GET("/authorize", r.AuthHandler.HandleAuthorization)
 	authGroup.POST("/logout", r.AuthHandler.Logout)
 	authGroup.POST("/refresh", r.AuthHandler.HandleRefresh)
+	authGroup.GET("/session", r.AuthHandler.HandleCheckSession)
 
 	// OTP: called pre-login during account recovery — rate-limited only.
 	otpGroup := v1Group.Group("/otp")
@@ -78,6 +79,35 @@ func (r *Routes) Register(router *gin.Engine) {
 			r.MFA.GetAuthenticatorList,
 		)
 		mfaGroup.DELETE("/authenticators", mfaRL, r.MFA.DeleteAuthenticator)
+
+		// Passkey verification
+		mfaGroup.POST(
+			"/passkey/verify/begin",
+			mfaRL,
+			r.MFA.BeginPasskeyVerification,
+		)
+		mfaGroup.POST(
+			"/passkey/verify/finish",
+			mfaRL,
+			r.MFA.FinishPasskeyVerification,
+		)
+		mfaGroup.GET(
+			"/passkey/exists",
+			mfaRL,
+			r.MFA.GetHasPasskey,
+		)
+
+		// Passkey registration
+		mfaGroup.POST(
+			"/passkey/register/begin",
+			mfaRL,
+			r.MFA.BeginPasskeyRegistration,
+		)
+		mfaGroup.POST(
+			"/passkey/register/finish",
+			mfaRL,
+			r.MFA.FinishPasskeyRegistration,
+		)
 	}
 
 	// --- JWT-protected endpoints (user session required) ---

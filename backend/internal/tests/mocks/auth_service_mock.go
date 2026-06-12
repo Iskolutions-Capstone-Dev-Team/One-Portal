@@ -42,6 +42,20 @@ func (m *MockAuthService) EXPECT() *MockAuthServiceMockRecorder {
 	return m.recorder
 }
 
+// CreateSession mocks base method.
+func (m *MockAuthService) CreateSession(ctx context.Context, s models.Session) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateSession", ctx, s)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateSession indicates an expected call of CreateSession.
+func (mr *MockAuthServiceMockRecorder) CreateSession(ctx, s any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateSession", reflect.TypeOf((*MockAuthService)(nil).CreateSession), ctx, s)
+}
+
 // CreateToken mocks base method.
 func (m *MockAuthService) CreateToken(ctx context.Context, token models.RefreshToken) error {
 	m.ctrl.T.Helper()
@@ -54,6 +68,21 @@ func (m *MockAuthService) CreateToken(ctx context.Context, token models.RefreshT
 func (mr *MockAuthServiceMockRecorder) CreateToken(ctx, token any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateToken", reflect.TypeOf((*MockAuthService)(nil).CreateToken), ctx, token)
+}
+
+// DeleteExpiredSessions mocks base method.
+func (m *MockAuthService) DeleteExpiredSessions(ctx context.Context, now time.Time) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteExpiredSessions", ctx, now)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteExpiredSessions indicates an expected call of DeleteExpiredSessions.
+func (mr *MockAuthServiceMockRecorder) DeleteExpiredSessions(ctx, now any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteExpiredSessions", reflect.TypeOf((*MockAuthService)(nil).DeleteExpiredSessions), ctx, now)
 }
 
 // DeleteExpiredTokens mocks base method.
@@ -69,6 +98,20 @@ func (m *MockAuthService) DeleteExpiredTokens(ctx context.Context, at time.Time)
 func (mr *MockAuthServiceMockRecorder) DeleteExpiredTokens(ctx, at any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteExpiredTokens", reflect.TypeOf((*MockAuthService)(nil).DeleteExpiredTokens), ctx, at)
+}
+
+// DeleteSession mocks base method.
+func (m *MockAuthService) DeleteSession(ctx context.Context, id string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteSession", ctx, id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteSession indicates an expected call of DeleteSession.
+func (mr *MockAuthServiceMockRecorder) DeleteSession(ctx, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSession", reflect.TypeOf((*MockAuthService)(nil).DeleteSession), ctx, id)
 }
 
 // DeleteToken mocks base method.
@@ -99,6 +142,21 @@ func (mr *MockAuthServiceMockRecorder) DeleteTokensByUserID(ctx, userID any) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteTokensByUserID", reflect.TypeOf((*MockAuthService)(nil).DeleteTokensByUserID), ctx, userID)
 }
 
+// GetSession mocks base method.
+func (m *MockAuthService) GetSession(ctx context.Context, id string) (models.Session, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetSession", ctx, id)
+	ret0, _ := ret[0].(models.Session)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetSession indicates an expected call of GetSession.
+func (mr *MockAuthServiceMockRecorder) GetSession(ctx, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetSession", reflect.TypeOf((*MockAuthService)(nil).GetSession), ctx, id)
+}
+
 // GetToken mocks base method.
 func (m *MockAuthService) GetToken(ctx context.Context, token string) (models.RefreshToken, error) {
 	m.ctrl.T.Helper()
@@ -127,6 +185,20 @@ func (m *MockAuthService) GetTokenByUserID(ctx context.Context, userID []byte) (
 func (mr *MockAuthServiceMockRecorder) GetTokenByUserID(ctx, userID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetTokenByUserID", reflect.TypeOf((*MockAuthService)(nil).GetTokenByUserID), ctx, userID)
+}
+
+// UpdateSession mocks base method.
+func (m *MockAuthService) UpdateSession(ctx context.Context, id string, exp time.Time) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateSession", ctx, id, exp)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateSession indicates an expected call of UpdateSession.
+func (mr *MockAuthServiceMockRecorder) UpdateSession(ctx, id, exp any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateSession", reflect.TypeOf((*MockAuthService)(nil).UpdateSession), ctx, id, exp)
 }
 
 // UpdateToken mocks base method.

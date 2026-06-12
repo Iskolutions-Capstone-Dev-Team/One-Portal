@@ -19,14 +19,33 @@ type AuthService interface {
 		error,
 	)
 	DeleteExpiredTokens(ctx context.Context, at time.Time) (int64, error)
+
+	// CreateSession stores a new user session in the database.
+	CreateSession(ctx context.Context, s models.Session) error
+	// GetSession retrieves an active user session by session ID.
+	GetSession(ctx context.Context, id string) (models.Session, error)
+	// DeleteSession deletes a user session from the database.
+	DeleteSession(ctx context.Context, id string) error
+	// DeleteExpiredSessions purges expired user sessions.
+	DeleteExpiredSessions(ctx context.Context, now time.Time) (int64, error)
+	// UpdateSession updates the expiration time of an existing session.
+	UpdateSession(ctx context.Context, id string, exp time.Time) error
 }
 
 type authService struct {
-	repo repository.AuthRepository
+	repo        repository.AuthRepository
+	sessionRepo repository.SessionRepository
 }
 
-func NewAuthService(repo repository.AuthRepository) AuthService {
-	return &authService{repo: repo}
+// NewAuthService creates a new AuthService instance.
+func NewAuthService(
+	repo repository.AuthRepository,
+	sessionRepo repository.SessionRepository,
+) AuthService {
+	return &authService{
+		repo:        repo,
+		sessionRepo: sessionRepo,
+	}
 }
 
 func (s *authService) CreateToken(
@@ -77,4 +96,40 @@ func (s *authService) DeleteExpiredTokens(
 	at time.Time,
 ) (int64, error) {
 	return s.repo.DeleteExpiredTokens(ctx, at)
+}
+
+func (s *authService) CreateSession(
+	ctx context.Context,
+	session models.Session,
+) error {
+	return s.sessionRepo.CreateSession(ctx, session)
+}
+
+func (s *authService) GetSession(
+	ctx context.Context,
+	id string,
+) (models.Session, error) {
+	return s.sessionRepo.GetSession(ctx, id)
+}
+
+func (s *authService) DeleteSession(
+	ctx context.Context,
+	id string,
+) error {
+	return s.sessionRepo.DeleteSession(ctx, id)
+}
+
+func (s *authService) DeleteExpiredSessions(
+	ctx context.Context,
+	now time.Time,
+) (int64, error) {
+	return s.sessionRepo.DeleteExpiredSessions(ctx, now)
+}
+
+func (s *authService) UpdateSession(
+	ctx context.Context,
+	id string,
+	exp time.Time,
+) error {
+	return s.sessionRepo.UpdateSession(ctx, id, exp)
 }

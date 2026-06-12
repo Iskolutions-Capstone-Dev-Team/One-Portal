@@ -49,6 +49,10 @@ func (h *UserAccessHandler) GetUserDetailedAccess(c *gin.Context) {
 	// 1. Get access_token from cookie
 	accessToken, err := c.Cookie("access_token")
 	if err != nil {
+		log.Printf(
+			"[GetUserDetailedAccess] Cookie Read: %v",
+			err,
+		)
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"error": "Access token not found in cookies",
 		})
@@ -76,6 +80,10 @@ func (h *UserAccessHandler) GetUserDetailedAccess(c *gin.Context) {
 	apiKey := os.Getenv("VITE_BACKEND_API_KEY")
 
 	if idpURL == "" || apiKey == "" {
+		log.Printf(
+			"[GetUserDetailedAccess] Config Read: " +
+				"IDP_ACCESS_URL or VITE_BACKEND_API_KEY not set",
+		)
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Identity Provider configuration missing",
 		})
@@ -85,7 +93,10 @@ func (h *UserAccessHandler) GetUserDetailedAccess(c *gin.Context) {
 	// 5. Prepare the proxy request to Identity-Provider
 	req, err := http.NewRequest("GET", idpURL, nil)
 	if err != nil {
-		log.Printf("[GetUserDetailedAccess] Build Request: %v", err)
+		log.Printf(
+			"[GetUserDetailedAccess] Request Build: %v",
+			err,
+		)
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to create proxy request",
 		})
@@ -99,6 +110,10 @@ func (h *UserAccessHandler) GetUserDetailedAccess(c *gin.Context) {
 	// 7. Execute proxy call — use shared Client for connection pooling
 	resp, err := Client.Do(req)
 	if err != nil {
+		log.Printf(
+			"[GetUserDetailedAccess] IDP Request: %v",
+			err,
+		)
 		c.JSON(http.StatusBadGateway, gin.H{
 			"error": "Failed to reach Identity Provider",
 		})
@@ -109,6 +124,10 @@ func (h *UserAccessHandler) GetUserDetailedAccess(c *gin.Context) {
 	// 8. Decode and proxy the response back to the client
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
+		log.Printf(
+			"[GetUserDetailedAccess] IDP Response Read: %v",
+			err,
+		)
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to read Identity Provider response",
 		})
@@ -123,10 +142,20 @@ func (h *UserAccessHandler) GetUserDetailedAccess(c *gin.Context) {
 
 	var accessInfo []dto.ClientDetailedAccessResponse
 	if err := json.Unmarshal(body, &accessInfo); err != nil {
+		log.Printf(
+			"[GetUserDetailedAccess] IDP Response Decode: %v",
+			err,
+		)
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Failed to parse Identity Provider response",
 		})
 		return
+	}
+
+	for i := range accessInfo {
+		if accessInfo[i].OnePortalLink != "" {
+			accessInfo[i].BaseURL = accessInfo[i].OnePortalLink
+		}
 	}
 
 	// 9. Filter out One-Portal's own client from the list

@@ -5,6 +5,8 @@ import { formatTimestamp } from "../../utils/formatTimestamp";
 import MfaDeleteConfirmModal from "./MfaDeleteConfirmModal";
 import MfaSetupModal from "./MfaSetupModal";
 
+const AUTHENTICATORS_PER_SLIDE = 3;
+
 function formatAuthenticatorDate(value) {
     if (!value) {
         return "Never";
@@ -21,16 +23,20 @@ function formatAuthenticatorDate(value) {
 
 function formatAuthenticatorType(value) {
     if (!value) {
-        return "TOTP";
+        return "authenticator app";
     }
 
-    const type = String(value);
+    const type = String(value).toLowerCase();
 
-    if (type.toLowerCase() === "passkey") {
-        return "Passkey";
+    if (type === "passkey") {
+        return "passkey";
     }
 
-    return type.toUpperCase();
+    if (type === "totp") {
+        return "authenticator app";
+    }
+
+    return type;
 }
 
 function CalendarIcon() {
@@ -49,9 +55,32 @@ function ClockIcon() {
     );
 }
 
+function AuthenticatorAppIcon() {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+        </svg>
+    );
+}
+
+function PasskeyIcon() {
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
+        </svg>
+    );
+}
+
+function AuthenticatorTypeIcon({ type }) {
+    return String(type || "").toLowerCase() === "passkey"
+        ? <PasskeyIcon />
+        : <AuthenticatorAppIcon />;
+}
+
 export default function AuthenticatorApps({ email, isProfileLoading = false }) {
     const [authenticators, setAuthenticators] = useState([]);
     const [isModalOpen, setModalOpen] = useState(false);
+    const [currentSlide, setCurrentSlide] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [deletingId, setDeletingId] = useState("");
     const [pendingDeleteAuthenticator, setPendingDeleteAuthenticator] = useState(null);
@@ -88,6 +117,10 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
     useEffect(() => {
         void loadAuthenticators();
     }, [loadAuthenticators]);
+
+    useEffect(() => {
+        setCurrentSlide(0);
+    }, [authenticators.length]);
 
     const handleDeleteClick = (authenticator) => {
         setPendingDeleteAuthenticator(authenticator);
@@ -127,6 +160,57 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
         setToastMessage("Authenticator added successfully!");
     };
 
+    const slideCount = Math.ceil(authenticators.length / AUTHENTICATORS_PER_SLIDE);
+    const hasCarouselControls = slideCount > 1;
+    const authenticatorSlides = Array.from({ length: slideCount }, (_, slideIndex) =>
+        authenticators.slice(
+            slideIndex * AUTHENTICATORS_PER_SLIDE,
+            slideIndex * AUTHENTICATORS_PER_SLIDE + AUTHENTICATORS_PER_SLIDE,
+        ),
+    );
+
+    const goToPreviousSlide = () => {
+        setCurrentSlide((slide) => (slide === 0 ? slideCount - 1 : slide - 1));
+    };
+
+    const goToNextSlide = () => {
+        setCurrentSlide((slide) => (slide + 1) % slideCount);
+    };
+
+    const renderAuthenticatorCard = (authenticator) => (
+        <article key={authenticator.id} className="mfa-card">
+            <button type="button" className="mfa-card__delete" onClick={() => handleDeleteClick(authenticator)} disabled={deletingId === authenticator.id} aria-label={`Delete ${authenticator.name || "authenticator"}`}>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.9 12.1A2 2 0 0116.1 21H7.9a2 2 0 01-2-1.9L5 7m5 4v6m4-6v6M9 7V4h6v3m-8 0h10" />
+                </svg>
+            </button>
+
+            <div className="mfa-card__icon" aria-hidden="true">
+                <AuthenticatorTypeIcon type={authenticator.type} />
+            </div>
+
+            <div className="mfa-card__content">
+                <h4 className="mfa-card__name">{authenticator.name || "Authenticator"}</h4>
+                <p className="mfa-card__type">Type: {formatAuthenticatorType(authenticator.type)}</p>
+            </div>
+
+            <div className="mfa-card__dates">
+                <p>
+                    <span className="mfa-card__date-icon">
+                        <CalendarIcon />
+                    </span>
+                    <span>Added: {formatAuthenticatorDate(authenticator.createdAt)}</span>
+                </p>
+                <p>
+                    <span className="mfa-card__date-icon">
+                        <ClockIcon />
+                    </span>
+                    <span>Last used: {formatAuthenticatorDate(authenticator.lastUsedAt)}</span>
+                </p>
+            </div>
+        </article>
+    );
+
     return (
         <>
             <section className="mfa-panel">
@@ -152,43 +236,41 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
                 ) : !email ? (
                     <p className="mfa-panel__empty">Reload the page or sign in again.</p>
                 ) : (
-                    <div className="mfa-panel__grid">
-                        {authenticators.map((authenticator) => (
-                            <article key={authenticator.id} className="mfa-card">
-                                <button type="button" className="mfa-card__delete" onClick={() => handleDeleteClick(authenticator)} disabled={deletingId === authenticator.id} aria-label={`Delete ${authenticator.name || "authenticator"}`}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.9 12.1A2 2 0 0116.1 21H7.9a2 2 0 01-2-1.9L5 7m5 4v6m4-6v6M9 7V4h6v3m-8 0h10" />
-                                    </svg>
-                                </button>
+                    <div className="mfa-panel__cards">
+                        <div className="mfa-panel__grid">
+                            {authenticators.map(renderAuthenticatorCard)}
+                        </div>
 
-                                <div className="mfa-card__icon" aria-hidden="true">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3l7 3v5c0 4.3-2.7 8.1-7 9.8C7.7 19.1 5 15.3 5 11V6l7-3z" />
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.5 12l1.7 1.7 3.4-4.1" />
-                                    </svg>
+                        <div className="carousel mfa-panel__carousel">
+                            <div className="mfa-panel__carousel-track" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
+                                {authenticatorSlides.map((slideAuthenticators, slideIndex) => (
+                                    <div key={slideIndex} className="carousel-item mfa-panel__carousel-slide">
+                                        <div className="mfa-panel__carousel-grid">
+                                            {slideAuthenticators.map(renderAuthenticatorCard)}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {hasCarouselControls && (
+                            <>
+                                <div className="mfa-panel__carousel-controls">
+                                    <button type="button" className="btn btn-circle mfa-panel__carousel-button" onClick={goToPreviousSlide} aria-label="Show previous authenticators">
+                                        &#10094;
+                                    </button>
+                                    <button type="button" className="btn btn-circle mfa-panel__carousel-button" onClick={goToNextSlide} aria-label="Show next authenticators">
+                                        &#10095;
+                                    </button>
                                 </div>
 
-                                <div className="mfa-card__content">
-                                    <h4 className="mfa-card__name">{authenticator.name || "Authenticator"}</h4>
-                                    <p className="mfa-card__type">Type: {formatAuthenticatorType(authenticator.type)}</p>
+                                <div className="mfa-panel__carousel-pages" aria-label="Authenticator carousel pages">
+                                    {authenticatorSlides.map((_, slideIndex) => (
+                                        <button key={slideIndex} type="button" className={`mfa-panel__carousel-page ${slideIndex === currentSlide ? "is-active" : ""}`} onClick={() => setCurrentSlide(slideIndex)} aria-label={`Show authenticator page ${slideIndex + 1}`} aria-current={slideIndex === currentSlide ? "page" : undefined}/>
+                                    ))}
                                 </div>
-
-                                <div className="mfa-card__dates">
-                                    <p>
-                                        <span className="mfa-card__date-icon">
-                                            <CalendarIcon />
-                                        </span>
-                                        <span>Added: {formatAuthenticatorDate(authenticator.createdAt)}</span>
-                                    </p>
-                                    <p>
-                                        <span className="mfa-card__date-icon">
-                                            <ClockIcon />
-                                        </span>
-                                        <span>Last used: {formatAuthenticatorDate(authenticator.lastUsedAt)}</span>
-                                    </p>
-                                </div>
-                            </article>
-                        ))}
+                            </>
+                        )}
 
                         {!authenticators.length && (
                             <p className="mfa-panel__empty">No authenticator apps connected yet.</p>
