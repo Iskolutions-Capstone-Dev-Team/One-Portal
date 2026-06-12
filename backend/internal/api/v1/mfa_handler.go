@@ -449,6 +449,9 @@ func (h *MFAHandler) BeginPasskeyVerification(c *gin.Context) {
 	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
 	if origin := c.GetHeader("Origin"); origin != "" {
 		proxyReq.Header.Set("Origin", origin)
+		proxyReq.Header.Set("X-Original-Client-Origin", origin)
+	} else {
+		proxyReq.Header.Set("X-Original-Client-Origin", c.Request.Host)
 	}
 	if referer := c.GetHeader("Referer"); referer != "" {
 		proxyReq.Header.Set("Referer", referer)
@@ -526,6 +529,9 @@ func (h *MFAHandler) FinishPasskeyVerification(c *gin.Context) {
 	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
 	if origin := c.GetHeader("Origin"); origin != "" {
 		proxyReq.Header.Set("Origin", origin)
+		proxyReq.Header.Set("X-Original-Client-Origin", origin)
+	} else {
+		proxyReq.Header.Set("X-Original-Client-Origin", c.Request.Host)
 	}
 	if referer := c.GetHeader("Referer"); referer != "" {
 		proxyReq.Header.Set("Referer", referer)
@@ -670,6 +676,9 @@ func (h *MFAHandler) BeginPasskeyRegistration(c *gin.Context) {
 	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
 	if origin := c.GetHeader("Origin"); origin != "" {
 		proxyReq.Header.Set("Origin", origin)
+		proxyReq.Header.Set("X-Original-Client-Origin", origin)
+	} else {
+		proxyReq.Header.Set("X-Original-Client-Origin", c.Request.Host)
 	}
 	if referer := c.GetHeader("Referer"); referer != "" {
 		proxyReq.Header.Set("Referer", referer)
@@ -747,6 +756,9 @@ func (h *MFAHandler) FinishPasskeyRegistration(c *gin.Context) {
 	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
 	if origin := c.GetHeader("Origin"); origin != "" {
 		proxyReq.Header.Set("Origin", origin)
+		proxyReq.Header.Set("X-Original-Client-Origin", origin)
+	} else {
+		proxyReq.Header.Set("X-Original-Client-Origin", c.Request.Host)
 	}
 	if referer := c.GetHeader("Referer"); referer != "" {
 		proxyReq.Header.Set("Referer", referer)
