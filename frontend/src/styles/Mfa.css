@@ -715,6 +715,11 @@
   box-shadow: 0 10px 18px rgba(153, 27, 27, 0.18);
 }
 
+.portal-layout[data-portal-theme="light"] .mfa-card__icon,
+:root[data-portal-theme="light"] .mfa-card__icon {
+  color: #b91c1c;
+}
+
 .portal-layout[data-portal-theme="dark"] .mfa-panel,
 :root[data-portal-theme="dark"] .mfa-panel {
   border-top-color: rgba(148, 163, 184, 0.18);
