@@ -1,0 +1,27 @@
+/* scrollbar.css */
+.custom-scrollbar {
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #ffffff; /* white track */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #cccccc; /* light gray thumb */
+  border-radius: 9999px;
+  border: 2px solid #ffffff; /* space around thumb */
+}
+
+/* Firefox */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #cccccc #ffffff;
+}
+
