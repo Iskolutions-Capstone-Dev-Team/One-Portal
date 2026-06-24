@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import "../styles/NotificationCenter.css";
+import "../../../styles/NotificationCenter.css";
 
 const PANEL_TRANSITION_DURATION_MS = 220;
 

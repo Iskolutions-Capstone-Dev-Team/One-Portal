@@ -1,4 +1,4 @@
-import "../styles/ContactUs.css";
+import "../../styles/ContactUs.css";
 
 const CONTACT_EMAIL_LINK = "mailto:iskolutions.team@gmail.com";
 

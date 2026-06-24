@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import Callback from "../pages/Callback";
-import Landing from "../pages/Landing";
-import { clearSessionState, startAuthorization } from "../services/auth";
-import { getCurrentUserProfile } from "../services/userProfile";
+import Callback from "../../pages/Callback";
+import Landing from "../../features/landing/pages/Landing";
+import { clearSessionState, startAuthorization } from "../../services/auth";
+import { getCurrentUserProfile } from "../../services/userProfile";
 
 export function LandingRoute() {
   const [searchParams] = useSearchParams();

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { getAnnouncements } from "../services/announcements";
+import { getAnnouncements } from "../../services/announcements";
 import ContactUs from "./ContactUs";
-import NotificationCenter from "./NotificationCenter";
-import WebAccessibility from "./WebAccessibility";
-import "../styles/FloatingActionMenu.css";
+import NotificationCenter from "../../features/notifications/components/NotificationCenter";
+import WebAccessibility from "../../features/accessibility/components/WebAccessibility";
+import "../../styles/FloatingActionMenu.css";
 
 const MENU_TRANSITION_DURATION_MS = 220;
 const VISITED_ANNOUNCEMENTS_STORAGE_KEY = "portal-visited-announcements";

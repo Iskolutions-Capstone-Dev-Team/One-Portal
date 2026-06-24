@@ -3,9 +3,9 @@ import { createPortal } from "react-dom";
 import ChangePasswordStep from "./ChangePasswordStep";
 import OtpVerificationStep from "./OtpVerificationStep";
 import SuccessStep from "./SuccessStep";
-import SuccessAlert from "../feedback/SuccessAlert";
-import { changeCurrentUserPassword, sendProfileOtp, verifyProfileOtp } from "../../services/userSecurity";
-import { formatTimestamp } from "../../utils/formatTimestamp";
+import SuccessAlert from "../../../components/feedback/SuccessAlert";
+import { changeCurrentUserPassword, sendProfileOtp, verifyProfileOtp } from "../../../services/userSecurity";
+import { formatTimestamp } from "../../../utils/formatTimestamp";
 
 const OTP_TIMER_SECONDS = 3 * 60;
 
