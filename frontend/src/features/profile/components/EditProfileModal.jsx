@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import ErrorAlert from "../feedback/ErrorAlert";
-import { formatTimestamp } from "../../utils/formatTimestamp";
-import { updateCurrentUserProfile } from "../../services/userProfile";
+import ErrorAlert from "../../../components/feedback/ErrorAlert";
+import { formatTimestamp } from "../../../utils/formatTimestamp";
+import { updateCurrentUserProfile } from "../../../services/userProfile";
 
 export default function EditProfileModal({ open, close, profileData, updateProfile, addAuditLog, allowEmailEdit = false }) {
     const [profile, setProfile] = useState({

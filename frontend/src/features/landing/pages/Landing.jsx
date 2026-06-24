@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import FaqSection from "../features/landing/components/FaqSection";
-import FeaturesSection from "../features/landing/components/FeaturesSection";
-import HeroSection from "../features/landing/components/HeroSection";
-import LandingNavbar from "../features/landing/components/LandingNavbar";
-import { navigateToRegisterPage, startAuthorization } from "../services/auth";
-import "../styles/AuthEntry.css";
+import FaqSection from "../components/FaqSection";
+import FeaturesSection from "../components/FeaturesSection";
+import HeroSection from "../components/HeroSection";
+import LandingNavbar from "../components/LandingNavbar";
+import { navigateToRegisterPage, startAuthorization } from "../../../services/auth";
+import "../../../styles/AuthEntry.css";
 
 function useLandingReveal() {
     useEffect(() => {

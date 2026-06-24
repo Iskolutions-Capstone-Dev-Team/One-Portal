@@ -1,5 +1,5 @@
 import { useState } from "react";
-import ErrorAlert from "../feedback/ErrorAlert";
+import ErrorAlert from "../../../components/feedback/ErrorAlert";
 
 export default function ChangePasswordStep({
     form,

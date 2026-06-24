@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { usePortalTheme } from "../context/PortalThemeContext";
-import "../styles/WebAccessibility.css";
+import { usePortalTheme } from "../../../providers/PortalThemeProvider";
+import "../../../styles/WebAccessibility.css";
 
 const SIENNA_SCRIPT_ID = "portal-accessibility-script";
 const SIENNA_SCRIPT_SRC = "https://cdn.jsdelivr.net/npm/sienna-accessibility@latest/dist/sienna-accessibility.umd.js";

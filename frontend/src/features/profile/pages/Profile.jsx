@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import OnePortalLayout from "../layouts/OnePortalLayout";
-import ProfileCard from "../components/profile/ProfileCard";
-import AuthenticatorApps from "../components/profile/AuthenticatorApps";
-import { clearSessionState, navigateToLandingPage } from "../services/auth";
-import { createEmptyProfile, getCurrentUserProfile } from "../services/userProfile";
+import OnePortalLayout from "../../../layouts/OnePortalLayout";
+import ProfileCard from "../components/ProfileCard";
+import AuthenticatorApps from "../components/AuthenticatorApps";
+import { clearSessionState, navigateToLandingPage } from "../../../services/auth";
+import { createEmptyProfile, getCurrentUserProfile } from "../../../services/userProfile";
 
 export default function Profile() {
     const [profile, setProfile] = useState(createEmptyProfile());

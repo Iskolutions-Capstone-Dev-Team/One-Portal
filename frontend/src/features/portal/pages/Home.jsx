@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import OnePortalLayout from "../layouts/OnePortalLayout";
-import PortalHero from "../features/portal/components/PortalHero";
-import PortalToolbar from "../features/portal/components/PortalToolbar";
-import SystemGrid from "../features/portal/components/SystemGrid";
-import Pagination from "../components/ui/Pagination";
-import { clearSessionState, navigateToLandingPage } from "../services/auth";
-import { getUserAccessSystems } from "../services/userAccess";
+import OnePortalLayout from "../../../layouts/OnePortalLayout";
+import PortalHero from "../components/PortalHero";
+import PortalToolbar from "../components/PortalToolbar";
+import SystemGrid from "../components/SystemGrid";
+import Pagination from "../../../components/ui/Pagination";
+import { clearSessionState, navigateToLandingPage } from "../../../services/auth";
+import { getUserAccessSystems } from "../../../services/userAccess";
 
 const CARDS_PER_PAGE = 6;
 

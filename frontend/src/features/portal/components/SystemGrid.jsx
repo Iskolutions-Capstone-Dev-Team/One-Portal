@@ -1,5 +1,5 @@
 import SystemCard from "./SystemCard";
-import MotionWrapper from "../../../components/MotionWrapper";
+import MotionWrapper from "../../../components/ui/MotionWrapper";
 
 export default function SystemGrid({ systems, currentPage = 1, cardsPerPage = 6, emptyMessage = "No systems found" }) {
     if (!systems.length) {

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { usePortalTheme } from "../../context/PortalThemeContext";
+import { usePortalTheme } from "../../providers/PortalThemeProvider";
 
 const PAGE_TRANSITION_MS = 240;
 
