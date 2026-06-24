@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import ChangePasswordStep from "./ChangePasswordStep";
 import OtpVerificationStep from "./OtpVerificationStep";
 import SuccessStep from "./SuccessStep";
-import SuccessAlert from "../SuccessAlert";
+import SuccessAlert from "../feedback/SuccessAlert";
 import { changeCurrentUserPassword, sendProfileOtp, verifyProfileOtp } from "../../services/userSecurity";
 import { formatTimestamp } from "../../utils/formatTimestamp";
 

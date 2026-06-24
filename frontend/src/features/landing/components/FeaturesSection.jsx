@@ -1,5 +1,5 @@
 import { StarBadgeIcon } from "./LandingIcons";
-import { featureItems } from "./landingContent";
+import { featureItems } from "../constants/landingContent";
 
 function FeatureCard({ item }) {
     const Icon = item.icon;

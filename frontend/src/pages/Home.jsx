@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import OnePortalLayout from "../layouts/OnePortalLayout";
-import PortalHero from "../components/dashboard/PortalHero";
-import PortalToolbar from "../components/dashboard/PortalToolbar";
-import SystemGrid from "../components/dashboard/SystemGrid";
-import Pagination from "../components/Pagination";
+import PortalHero from "../features/portal/components/PortalHero";
+import PortalToolbar from "../features/portal/components/PortalToolbar";
+import SystemGrid from "../features/portal/components/SystemGrid";
+import Pagination from "../components/ui/Pagination";
 import { clearSessionState, navigateToLandingPage } from "../services/auth";
 import { getUserAccessSystems } from "../services/userAccess";
 

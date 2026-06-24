@@ -1,5 +1,5 @@
 import { FaqBadgeIcon } from "./LandingIcons";
-import { faqItems } from "./landingContent";
+import { faqItems } from "../constants/landingContent";
 
 export default function FaqSection({ openFaqIndex, onToggleFaq }) {
     return (

@@ -1,5 +1,5 @@
 import { LoginIcon, MenuIcon } from "./LandingIcons";
-import { navItems } from "./landingContent";
+import { navItems } from "../constants/landingContent";
 
 export default function LandingNavbar({ pendingAction, onLoginClick }) {
     return (

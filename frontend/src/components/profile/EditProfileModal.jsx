@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import ErrorAlert from "../ErrorAlert";
+import ErrorAlert from "../feedback/ErrorAlert";
 import { formatTimestamp } from "../../utils/formatTimestamp";
 import { updateCurrentUserProfile } from "../../services/userProfile";
 

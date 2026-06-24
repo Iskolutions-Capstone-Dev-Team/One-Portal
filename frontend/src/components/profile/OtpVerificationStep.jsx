@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import ErrorAlert from "../ErrorAlert";
+import ErrorAlert from "../feedback/ErrorAlert";
 
 function formatTimer(secondsRemaining) {
     const minutes = Math.floor(secondsRemaining / 60);
