@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import PortalNavbar from "../components/dashboard/PortalNavbar";
-import PortalFooter from "../components/dashboard/PortalFooter";
+import PortalFooter from "../features/portal/components/PortalFooter";
 import FloatingActionMenu from "../components/FloatingActionMenu";
 import { usePortalTheme } from "../context/PortalThemeContext";
 import { clearSessionRefreshTimestamp, getSessionRefreshDelay, refreshSession } from "../services/auth";

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import QRCode from "qrcode";
-import ErrorAlert from "../ErrorAlert";
+import ErrorAlert from "../feedback/ErrorAlert";
 import { beginPasskeyRegistration, finishPasskeyRegistration, getMfaSetup, saveAuthenticator } from "../../services/userMfa";
 import { createPasskeyCredential } from "../../utils/webAuthn";
 

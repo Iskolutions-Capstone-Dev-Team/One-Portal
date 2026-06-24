@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import SuccessAlert from "../SuccessAlert";
+import SuccessAlert from "../feedback/SuccessAlert";
 import { deleteAuthenticator, getAuthenticators } from "../../services/userMfa";
 import { formatTimestamp } from "../../utils/formatTimestamp";
 import MfaDeleteConfirmModal from "./MfaDeleteConfirmModal";

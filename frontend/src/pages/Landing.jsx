@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import FaqSection from "../components/landing/FaqSection";
-import FeaturesSection from "../components/landing/FeaturesSection";
-import HeroSection from "../components/landing/HeroSection";
-import LandingNavbar from "../components/landing/LandingNavbar";
+import FaqSection from "../features/landing/components/FaqSection";
+import FeaturesSection from "../features/landing/components/FeaturesSection";
+import HeroSection from "../features/landing/components/HeroSection";
+import LandingNavbar from "../features/landing/components/LandingNavbar";
 import { navigateToRegisterPage, startAuthorization } from "../services/auth";
 import "../styles/AuthEntry.css";
 

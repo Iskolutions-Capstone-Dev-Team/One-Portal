@@ -3,7 +3,7 @@ import EditProfileModal from "./EditProfileModal";
 import ChangePasswordModal from "./ChangePasswordModal";
 import ProfileDetails from "./ProfileDetails";
 import ActionButtons from "./ActionButtons";
-import SuccessAlert from "../SuccessAlert";
+import SuccessAlert from "../feedback/SuccessAlert";
 
 export default function ProfileCard({ profile, onProfileChange, addAuditLog, allowEmailEdit = false }) {
     const [isEditOpen, setEditOpen] = useState(false);
