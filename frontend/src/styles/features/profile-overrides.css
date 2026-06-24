@@ -486,6 +486,22 @@
   stroke: currentColor !important;
 }
 
+.portal-layout[data-portal-theme="light"] .profile-modal .profile-action--secondary,
+:root[data-portal-theme="light"] .profile-modal .profile-action--secondary {
+  color: #991b1b !important;
+  border-color: #facc15 !important;
+  background: linear-gradient(160deg, #fde047 0%, #facc15 100%) !important;
+  box-shadow: none;
+}
+
+.portal-layout[data-portal-theme="light"] .profile-modal .profile-action--secondary:hover:not(:disabled),
+:root[data-portal-theme="light"] .profile-modal .profile-action--secondary:hover:not(:disabled) {
+  color: #facc15 !important;
+  border-color: rgba(153, 27, 27, 0.38) !important;
+  background: linear-gradient(160deg, #c72626 0%, #991b1b 100%) !important;
+  box-shadow: 0 10px 18px rgba(153, 27, 27, 0.18);
+}
+
 /* Full-screen profile modal overlay */
 .profile-modal.modal {
   position: fixed;
