@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import ErrorAlert from "../../../components/feedback/ErrorAlert";
 import { formatTimestamp } from "../../../utils/formatTimestamp";
 import { updateCurrentUserProfile } from "../../../services/userProfile";
+import { CloseIcon } from "./profileIcons";
 
 export default function EditProfileModal({ open, close, profileData, updateProfile, addAuditLog, allowEmailEdit = false }) {
     const [profile, setProfile] = useState({
@@ -150,9 +151,7 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
                     </div>
 
                     <button type="button" className="profile-modal__close" onClick={close} aria-label="Close edit profile modal">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
+                        <CloseIcon />
                     </button>
                 </div>
 

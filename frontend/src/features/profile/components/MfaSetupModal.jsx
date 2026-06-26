@@ -4,40 +4,9 @@ import QRCode from "qrcode";
 import ErrorAlert from "../../../components/feedback/ErrorAlert";
 import { beginPasskeyRegistration, finishPasskeyRegistration, getMfaSetup, saveAuthenticator } from "../../../services/userMfa";
 import { createPasskeyCredential } from "../../../utils/webAuthn";
+import { AuthenticatorAppIcon, CopiedCodesIcon, CopyCodesIcon, PasskeyIcon, CloseIcon, InfoCircleIcon, ArrowLeftIcon } from "./profileIcons";
 
 const EMPTY_CODE = ["", "", "", "", "", ""];
-
-function CopyCodesIcon() {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z" />
-        </svg>
-    );
-}
-
-function CopiedCodesIcon() {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.094 1.976 1.057 1.976 2.192V16.5A2.25 2.25 0 0 1 18 18.75h-2.25m-7.5-10.5H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V18.75m-7.5-10.5h6.375c.621 0 1.125.504 1.125 1.125v9.375m-8.25-3 1.5 1.5 3-3.75" />
-        </svg>
-    );
-}
-
-function AuthenticatorAppIcon() {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
-        </svg>
-    );
-}
-
-function PasskeyIcon() {
-    return (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25a3 3 0 0 1 3 3m3 0a6 6 0 0 1-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1 1 21.75 8.25Z" />
-        </svg>
-    );
-}
 
 function ConnectionOptionButton({ title, description, icon, onClick, disabled = false }) {
     return (
@@ -276,9 +245,7 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
                         </div>
 
                         <button type="button" className="profile-modal__close" onClick={handleClose} aria-label="Close authenticator modal">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
+                            <CloseIcon />
                         </button>
                     </div>
 
@@ -314,9 +281,7 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
                             <div className="mfa-setup">
                                 <div className="profile-alert profile-alert--info mfa-setup__note">
                                     <span className="profile-alert__icon" aria-hidden="true">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M12 3a9 9 0 100 18 9 9 0 000-18z" />
-                                        </svg>
+                                        <InfoCircleIcon />
                                     </span>
                                     <p className="profile-alert__message">Note: Scan this QR code using any authenticator app before clicking Next.</p>
                                 </div>
@@ -371,9 +336,7 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
                                     </button>
 
                                     <button type="button" className="mfa-verify__back" onClick={() => setStep("scan")}>
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 12H5m0 0 7 7M5 12l7-7" />
-                                        </svg>
+                                        <ArrowLeftIcon />
                                         <span>Back</span>
                                     </button>
                                 </div>
@@ -388,9 +351,7 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
 
                                 <div className="profile-alert profile-alert--info mfa-backup-codes__note">
                                     <span className="profile-alert__icon" aria-hidden="true">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M12 3a9 9 0 100 18 9 9 0 000-18z" />
-                                        </svg>
+                                        <InfoCircleIcon />
                                     </span>
                                     <p className="profile-alert__message">Save these backup codes. Use them if you lose access to your authenticator app. Each code works once.</p>
                                 </div>
