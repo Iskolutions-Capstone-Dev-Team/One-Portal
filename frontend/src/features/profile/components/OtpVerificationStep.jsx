@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import ErrorAlert from "../../../components/feedback/ErrorAlert";
+import { CloseIcon, EmailEnvelopeIcon } from "./profileIcons";
 
 function formatTimer(secondsRemaining) {
     const minutes = Math.floor(secondsRemaining / 60);
@@ -58,9 +59,7 @@ export default function OtpVerificationStep({
                 </div>
 
                 <button type="button" className="profile-modal__close" onClick={onClose} aria-label="Close OTP verification modal">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    <CloseIcon />
                 </button>
             </div>
 
@@ -75,10 +74,7 @@ export default function OtpVerificationStep({
 
                     <div className="profile-otp__intro">
                         <div className="profile-otp__icon" aria-hidden="true">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M1.5 8.67v8.58a3 3 0 0 0 3 3h15a3 3 0 0 0 3-3V8.67l-8.928 5.493a3 3 0 0 1-3.144 0L1.5 8.67Z" />
-                                <path d="M22.5 6.908V6.75a3 3 0 0 0-3-3h-15a3 3 0 0 0-3 3v.158l9.714 5.978a1.5 1.5 0 0 0 1.572 0L22.5 6.908Z" />
-                            </svg>
+                            <EmailEnvelopeIcon />
                         </div>
 
                         <h4 className="profile-otp__title">Check Your Email</h4>

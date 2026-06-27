@@ -1,4 +1,4 @@
-import { GridIcon, ShieldIcon, UserIcon } from "../components/LandingIcons";
+import { GridIcon, ShieldIcon, UserIcon } from "../components/landingIcons";
 
 export const navItems = [
     { label: "Home", href: "#home" },
