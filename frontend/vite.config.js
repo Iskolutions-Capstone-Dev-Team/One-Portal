@@ -36,6 +36,9 @@ export default defineConfig(({ mode }) => {
   const backendApiKey = env.VITE_BACKEND_API_KEY || "";
 
   return {
+    test: {
+      environment: 'jsdom',
+    },
     envDir: envDirectory,
     plugins: [tailwindcss(), react()],
     server: {
