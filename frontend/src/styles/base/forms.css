@@ -1,0 +1,10 @@
+/* Global accent color for radio inputs (Tailwind red-700) */
+input[type="radio"] {
+  accent-color: #b91c1c;
+}
+
+/* Global accent color for checkbox inputs (Tailwind red-700) */
+input[type="checkbox"] {
+  accent-color: #b91c1c;
+}
+
