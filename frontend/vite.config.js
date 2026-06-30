@@ -37,7 +37,9 @@ export default defineConfig(({ mode }) => {
 
   return {
     test: {
+      globals: true,
       environment: 'jsdom',
+      setupFiles: './setupTests.js',
     },
     envDir: envDirectory,
     plugins: [tailwindcss(), react()],
