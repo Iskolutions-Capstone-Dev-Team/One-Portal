@@ -1,8 +1,8 @@
 import { useEffect } from "react";
-import PortalNavbar from "../components/dashboard/PortalNavbar";
-import PortalFooter from "../components/dashboard/PortalFooter";
-import FloatingActionMenu from "../components/FloatingActionMenu";
-import { usePortalTheme } from "../context/PortalThemeContext";
+import PortalNavbar from "../components/navigation/PortalNavbar";
+import PortalFooter from "../features/portal/components/PortalFooter";
+import FloatingActionMenu from "../components/overlays/FloatingActionMenu";
+import { usePortalTheme } from "../providers/PortalThemeProvider";
 import { clearSessionRefreshTimestamp, getSessionRefreshDelay, refreshSession } from "../services/auth";
 
 const REFRESH_INTERVAL_MS = 10 * 60 * 1000;
