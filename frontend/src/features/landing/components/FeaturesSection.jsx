@@ -1,4 +1,4 @@
-import { StarBadgeIcon } from "./landingIcons";
+import { StarBadgeIcon } from "./LandingIcons";
 import { featureItems } from "../constants/landingContent";
 
 function FeatureCard({ item }) {
