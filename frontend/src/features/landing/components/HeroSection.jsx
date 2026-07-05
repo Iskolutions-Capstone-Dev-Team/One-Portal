@@ -1,4 +1,4 @@
-import { CalendarIcon, CampusIcon, GraduateIcon, HomeBadgeIcon, PeopleIcon, RegisterIcon } from "./landingIcons";
+import { CalendarIcon, CampusIcon, GraduateIcon, HomeBadgeIcon, PeopleIcon, RegisterIcon } from "./LandingIcons";
 
 function FloatingIcon({ children, className }) {
     return (

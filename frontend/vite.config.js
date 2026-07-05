@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import compression from "vite-plugin-compression2";
 
 function getEnvDirectory() {
   const repoRoot = resolve(__dirname, "..");
@@ -42,7 +43,25 @@ export default defineConfig(({ mode }) => {
       setupFiles: './setupTests.js',
     },
     envDir: envDirectory,
-    plugins: [tailwindcss(), react()],
+    plugins: [
+      tailwindcss(),
+      react(),
+      compression({ algorithm: "brotliCompress" }),
+      compression({ algorithm: "gzip" }),
+    ],
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes("node_modules")) {
+              if (id.includes("react")) return "vendor-react";
+              if (id.includes("axios")) return "vendor-axios";
+              return "vendor";
+            }
+          },
+        },
+      },
+    },
     server: {
       proxy: {
         "/api/v1": {
