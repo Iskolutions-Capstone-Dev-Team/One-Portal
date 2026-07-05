@@ -15,7 +15,7 @@ export default function SystemCard({ system }) {
 
     return (
         <article className={`system-card ${hasDescription ? "has-description" : ""}`}>
-            <img src={cardImage} alt="" className="system-card-image"
+            <img src={cardImage} loading="lazy" alt="" className="system-card-image"
                 onError={(event) => {
                     event.currentTarget.onerror = null;
                     event.currentTarget.src = fallbackBackgroundImage;
@@ -25,7 +25,7 @@ export default function SystemCard({ system }) {
             <div className="system-card-glow" aria-hidden="true" />
 
             <div className="system-card__content">
-                <img src={cardLogo} alt={`${system.title} logo`} className="system-card-logo"
+                <img src={cardLogo} loading="lazy" alt={`${system.title} logo`} className="system-card-logo"
                     onError={(event) => {
                         event.currentTarget.onerror = null;
                         event.currentTarget.src = fallbackLogoImage;

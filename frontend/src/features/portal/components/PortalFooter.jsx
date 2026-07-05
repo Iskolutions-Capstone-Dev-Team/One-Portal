@@ -27,7 +27,7 @@ export default function PortalFooter() {
       <div className="portal-footer__shell">
         <aside className="portal-footer__info">
           <div className="portal-footer__brand">
-            <img src="/assets/images/PUPlogo.png" alt="PUP Logo" className="portal-footer__logo"/>
+            <img src="/assets/images/PUPlogo.png" loading="lazy" alt="PUP Logo" className="portal-footer__logo"/>
 
             <div className="portal-footer__brand-copy">
               <h2 className="portal-footer__title">PUPT ONE PORTAL 2026</h2>
