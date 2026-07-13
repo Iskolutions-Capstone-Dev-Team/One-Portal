@@ -36,7 +36,7 @@ services:
       VITE_BACKEND_API_KEY: ${VITE_BACKEND_API_KEY}
       VITE_PROXY_TARGET_URL: ${VITE_PROXY_TARGET_URL}
     ports:
-      - "5173:5173"
+      - "5173:80"
     networks:
       - one_portal_network
     depends_on:
