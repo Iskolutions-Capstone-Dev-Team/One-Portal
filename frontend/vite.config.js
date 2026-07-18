@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { defineConfig, loadEnv } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import compression from "vite-plugin-compression2";
 
 function getEnvDirectory() {
   const repoRoot = resolve(__dirname, "..");
@@ -36,8 +37,22 @@ export default defineConfig(({ mode }) => {
   const backendApiKey = env.VITE_BACKEND_API_KEY || "";
 
   return {
+    test: {
+      globals: true,
+      environment: 'jsdom',
+      setupFiles: './setupTests.js',
+    },
     envDir: envDirectory,
-    plugins: [tailwindcss(), react()],
+    plugins: [
+      tailwindcss(),
+      react(),
+      compression({ algorithm: "brotliCompress" }),
+      compression({ algorithm: "gzip" }),
+    ],
+    build: {
+      rollupOptions: {
+      },
+    },
     server: {
       proxy: {
         "/api/v1": {
