@@ -146,8 +146,8 @@ jobs:
             echo "${{ secrets.GH_PAT }}" | \
               sudo docker login ghcr.io -u ${{ secrets.GH_USERNAME }} \
               --password-stdin
-            sudo docker compose -f docker-compose.ghcr.yml pull
-            sudo docker compose -f docker-compose.ghcr.yml up -d
+            sudo docker-compose -f docker-compose.ghcr.yml pull
+            sudo docker-compose -f docker-compose.ghcr.yml up -d
 
   deploy-production:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -200,5 +200,5 @@ jobs:
             echo "${{ secrets.GH_PAT }}" | \
               sudo docker login ghcr.io -u ${{ secrets.GH_USERNAME }} \
               --password-stdin
-            sudo docker compose -f docker-compose.ghcr.yml pull
-            sudo docker compose -f docker-compose.ghcr.yml up -d
+            sudo docker-compose -f docker-compose.ghcr.yml pull
+            sudo docker-compose -f docker-compose.ghcr.yml up -d
