@@ -27,9 +27,6 @@ var GlobalJWKS []dto.JWK
 // the presence of an API key in the request header.
 func APIKeyAuthMiddleware(c *gin.Context) {
 	validAPIKey := os.Getenv("BACKEND_API_KEY")
-	if validAPIKey == "" {
-		validAPIKey = os.Getenv("VITE_BACKEND_API_KEY")
-	}
 	apiKey := c.GetHeader(APIHeaderKey)
 	if apiKey == "" || apiKey != validAPIKey {
 		c.AbortWithStatusJSON(

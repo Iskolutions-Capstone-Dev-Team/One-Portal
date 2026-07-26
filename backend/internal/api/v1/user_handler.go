@@ -200,7 +200,7 @@ func (h *UserHandler) PatchUserName(c *gin.Context) {
 		return
 	}
 	proxyReq.Header.Set("Content-Type", "application/json")
-	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
+	proxyReq.Header.Set("X-API-Key", os.Getenv("BACKEND_API_KEY"))
 	if token != "" {
 		proxyReq.Header.Set("Authorization", "Bearer "+token)
 	}
@@ -258,7 +258,7 @@ func (h *UserHandler) PatchUserPasswordByEmail(c *gin.Context) {
 		return
 	}
 	proxyReq.Header.Set("Content-Type", "application/json")
-	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
+	proxyReq.Header.Set("X-API-Key", os.Getenv("BACKEND_API_KEY"))
 
 	resp, err := Client.Do(proxyReq)
 	if err != nil || resp.StatusCode != http.StatusOK {
@@ -305,7 +305,7 @@ func (h *UserHandler) PatchChangePassword(c *gin.Context) {
 		return
 	}
 	proxyReq.Header.Set("Content-Type", "application/json")
-	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
+	proxyReq.Header.Set("X-API-Key", os.Getenv("BACKEND_API_KEY"))
 
 	token, _ := c.Cookie(dto.AccessCookieName)
 	if token != "" {
