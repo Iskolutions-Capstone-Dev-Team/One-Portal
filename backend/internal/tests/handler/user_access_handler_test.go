@@ -27,10 +27,10 @@ func TestUserAccessHandler(t *testing.T) {
 	defer idpServer.Close()
 
 	os.Setenv("IDP_ACCESS_URL", idpServer.URL)
-	os.Setenv("VITE_BACKEND_API_KEY", "test-key")
+	os.Setenv("BACKEND_API_KEY", "test-key")
 	defer func() {
 		os.Unsetenv("IDP_ACCESS_URL")
-		os.Unsetenv("VITE_BACKEND_API_KEY")
+		os.Unsetenv("BACKEND_API_KEY")
 	}()
 
 	// Pass nil cache: handler degrades gracefully to live IDP proxy.
@@ -79,10 +79,10 @@ func TestUserAccessHandler_OnePortalLinkOverride(t *testing.T) {
 	defer idpServer.Close()
 
 	os.Setenv("IDP_ACCESS_URL", idpServer.URL)
-	os.Setenv("VITE_BACKEND_API_KEY", "test-key")
+	os.Setenv("BACKEND_API_KEY", "test-key")
 	defer func() {
 		os.Unsetenv("IDP_ACCESS_URL")
-		os.Unsetenv("VITE_BACKEND_API_KEY")
+		os.Unsetenv("BACKEND_API_KEY")
 	}()
 
 	h := v1.NewUserAccessHandler(nil)
