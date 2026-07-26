@@ -139,6 +139,41 @@ func (h *UserHandler) PatchUserName(c *gin.Context) {
 		return
 	}
 
+	claimsVal, exists := c.Get("claims")
+	if !exists {
+		c.JSON(
+			http.StatusUnauthorized,
+			dto.ErrorResponse{Error: "Unauthorized"},
+		)
+		return
+	}
+	claims, ok := claimsVal.(jwt.MapClaims)
+	if !ok {
+		c.JSON(
+			http.StatusUnauthorized,
+			dto.ErrorResponse{Error: "Unauthorized"},
+		)
+		return
+	}
+	tokenUserIDStr, _ := claims["userId"].(string)
+	tokenUserID, err := uuid.Parse(tokenUserIDStr)
+	if err != nil {
+		c.JSON(
+			http.StatusUnauthorized,
+			dto.ErrorResponse{Error: "Invalid session identity"},
+		)
+		return
+	}
+	if tokenUserID != userID {
+		c.JSON(
+			http.StatusForbidden,
+			dto.ErrorResponse{
+				Error: "Forbidden: You can only update your own profile",
+			},
+		)
+		return
+	}
+
 	var req dto.UpdateUserNameRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(
