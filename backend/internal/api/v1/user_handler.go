@@ -139,6 +139,41 @@ func (h *UserHandler) PatchUserName(c *gin.Context) {
 		return
 	}
 
+	claimsVal, exists := c.Get("claims")
+	if !exists {
+		c.JSON(
+			http.StatusUnauthorized,
+			dto.ErrorResponse{Error: "Unauthorized"},
+		)
+		return
+	}
+	claims, ok := claimsVal.(jwt.MapClaims)
+	if !ok {
+		c.JSON(
+			http.StatusUnauthorized,
+			dto.ErrorResponse{Error: "Unauthorized"},
+		)
+		return
+	}
+	tokenUserIDStr, _ := claims["userId"].(string)
+	tokenUserID, err := uuid.Parse(tokenUserIDStr)
+	if err != nil {
+		c.JSON(
+			http.StatusUnauthorized,
+			dto.ErrorResponse{Error: "Invalid session identity"},
+		)
+		return
+	}
+	if tokenUserID != userID {
+		c.JSON(
+			http.StatusForbidden,
+			dto.ErrorResponse{
+				Error: "Forbidden: You can only update your own profile",
+			},
+		)
+		return
+	}
+
 	var req dto.UpdateUserNameRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(
@@ -165,7 +200,7 @@ func (h *UserHandler) PatchUserName(c *gin.Context) {
 		return
 	}
 	proxyReq.Header.Set("Content-Type", "application/json")
-	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
+	proxyReq.Header.Set("X-API-Key", os.Getenv("BACKEND_API_KEY"))
 	if token != "" {
 		proxyReq.Header.Set("Authorization", "Bearer "+token)
 	}
@@ -223,7 +258,7 @@ func (h *UserHandler) PatchUserPasswordByEmail(c *gin.Context) {
 		return
 	}
 	proxyReq.Header.Set("Content-Type", "application/json")
-	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
+	proxyReq.Header.Set("X-API-Key", os.Getenv("BACKEND_API_KEY"))
 
 	resp, err := Client.Do(proxyReq)
 	if err != nil || resp.StatusCode != http.StatusOK {
@@ -270,7 +305,7 @@ func (h *UserHandler) PatchChangePassword(c *gin.Context) {
 		return
 	}
 	proxyReq.Header.Set("Content-Type", "application/json")
-	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
+	proxyReq.Header.Set("X-API-Key", os.Getenv("BACKEND_API_KEY"))
 
 	token, _ := c.Cookie(dto.AccessCookieName)
 	if token != "" {

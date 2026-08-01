@@ -53,7 +53,7 @@ func (h *OTPHandler) SendOTP(c *gin.Context) {
 		return
 	}
 	proxyReq.Header.Set("Content-Type", "application/json")
-	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
+	proxyReq.Header.Set("X-API-Key", os.Getenv("BACKEND_API_KEY"))
 
 	resp, err := Client.Do(proxyReq)
 	if err != nil || resp.StatusCode != http.StatusOK {
@@ -102,7 +102,7 @@ func (h *OTPHandler) VerifyOTP(c *gin.Context) {
 		return
 	}
 	proxyReq.Header.Set("Content-Type", "application/json")
-	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
+	proxyReq.Header.Set("X-API-Key", os.Getenv("BACKEND_API_KEY"))
 
 	resp, err := Client.Do(proxyReq)
 	if err != nil || resp.StatusCode != http.StatusOK {
