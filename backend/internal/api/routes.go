@@ -75,10 +75,16 @@ func (r *Routes) Register(router *gin.Engine) {
 		mfaGroup.POST("/verify", mfaRL, r.MFA.PostVerifyMFA)
 		mfaGroup.GET(
 			"/authenticators/list",
+			middleware.JWTAuthMiddleware,
 			mfaRL,
 			r.MFA.GetAuthenticatorList,
 		)
-		mfaGroup.DELETE("/authenticators", mfaRL, r.MFA.DeleteAuthenticator)
+		mfaGroup.DELETE(
+			"/authenticators",
+			middleware.JWTAuthMiddleware,
+			mfaRL,
+			r.MFA.DeleteAuthenticator,
+		)
 
 		// Passkey verification
 		mfaGroup.POST(
