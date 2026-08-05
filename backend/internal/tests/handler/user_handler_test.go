@@ -40,10 +40,14 @@ func TestUserHandler_PatchUserName(t *testing.T) {
 	svc := mocks.NewMockUserService(ctrl)
 	h := v1.NewUserHandler(svc)
 
-	r := gin.New()
-	r.PATCH("/user/:id/name", h.PatchUserName)
-
 	userID := uuid.New()
+
+	r := gin.New()
+	r.PATCH("/user/:id/name", func(c *gin.Context) {
+		claims := jwt.MapClaims{"userId": userID.String()}
+		c.Set("claims", claims)
+		c.Next()
+	}, h.PatchUserName)
 	reqBody := dto.UpdateUserNameRequest{
 		FirstName: "John",
 		LastName:  "Doe",

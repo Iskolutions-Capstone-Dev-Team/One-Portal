@@ -77,12 +77,12 @@ func (h *UserAccessHandler) GetUserDetailedAccess(c *gin.Context) {
 
 	// 4. Fetch external API details from environment
 	idpURL := os.Getenv("IDP_ACCESS_URL")
-	apiKey := os.Getenv("VITE_BACKEND_API_KEY")
+	apiKey := os.Getenv("BACKEND_API_KEY")
 
 	if idpURL == "" || apiKey == "" {
 		log.Printf(
 			"[GetUserDetailedAccess] Config Read: " +
-				"IDP_ACCESS_URL or VITE_BACKEND_API_KEY not set",
+				"IDP_ACCESS_URL or BACKEND_API_KEY not set",
 		)
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Identity Provider configuration missing",

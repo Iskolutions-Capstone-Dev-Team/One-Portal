@@ -34,7 +34,7 @@ export default defineConfig(({ mode }) => {
     ...process.env,
   };
   const proxyTargetUrl = getProxyTargetUrl(env);
-  const backendApiKey = env.VITE_BACKEND_API_KEY || "";
+  const backendApiKey = env.BACKEND_API_KEY || "";
 
   return {
     test: {

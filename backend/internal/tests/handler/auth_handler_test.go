@@ -42,12 +42,12 @@ func setupTestRouter(
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
 
-	validAPIKey := os.Getenv("VITE_BACKEND_API_KEY")
+	validAPIKey := os.Getenv("BACKEND_API_KEY")
 	if validAPIKey == "" {
 		keyBytes := make([]byte, 32)
 		_, _ = rand.Read(keyBytes)
 		validAPIKey = hex.EncodeToString(keyBytes)
-		os.Setenv("VITE_BACKEND_API_KEY", validAPIKey)
+		os.Setenv("BACKEND_API_KEY", validAPIKey)
 	}
 
 	authSvc := mocks.NewMockAuthService(ctrl)

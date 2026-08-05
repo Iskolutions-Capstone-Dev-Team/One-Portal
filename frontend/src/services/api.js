@@ -72,9 +72,6 @@ function buildHeaders(headers = {}, body) {
         requestHeaders.Authorization = `Bearer ${accessToken}`;
     }
 
-    if (!import.meta.env.DEV && import.meta.env.VITE_BACKEND_API_KEY && !hasHeader(requestHeaders, "X-API-Key")) {
-        requestHeaders["X-API-Key"] = import.meta.env.VITE_BACKEND_API_KEY;
-    }
 
     return requestHeaders;
 }
