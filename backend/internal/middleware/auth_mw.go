@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"os"
 
+	"time"
+
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/dto"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -24,7 +26,7 @@ var GlobalJWKS []dto.JWK
 // APIKeyAuthMiddleware returns a Gin middleware that checks for
 // the presence of an API key in the request header.
 func APIKeyAuthMiddleware(c *gin.Context) {
-	validAPIKey := os.Getenv("VITE_BACKEND_API_KEY")
+	validAPIKey := os.Getenv("BACKEND_API_KEY")
 	apiKey := c.GetHeader(APIHeaderKey)
 	if apiKey == "" || apiKey != validAPIKey {
 		c.AbortWithStatusJSON(
@@ -106,5 +108,16 @@ func JWTAuthMiddleware(c *gin.Context) {
 
 	// Set claims in context for use in downstream handlers
 	c.Set("claims", claims)
+
+	// Explicitly verify expiration claim
+	expVal, ok := claims["exp"].(float64)
+	if ok && time.Now().Unix() > int64(expVal) {
+		c.AbortWithStatusJSON(
+			http.StatusUnauthorized,
+			dto.ErrorResponse{Error: "Session has expired"},
+		)
+		return
+	}
+
 	c.Next()
 }
