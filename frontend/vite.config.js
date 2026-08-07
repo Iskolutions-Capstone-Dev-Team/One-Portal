@@ -42,6 +42,11 @@ export default defineConfig(({ mode }) => {
       environment: 'jsdom',
       setupFiles: './setupTests.js',
     },
+    resolve: {
+      alias: {
+        "@": resolve(__dirname, "./src"),
+      },
+    },
     envDir: envDirectory,
     plugins: [
       tailwindcss(),
