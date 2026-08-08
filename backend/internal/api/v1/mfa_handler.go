@@ -59,7 +59,7 @@ func (h *MFAHandler) GetTOTPSetup(c *gin.Context) {
 		})
 		return
 	}
-	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
+	proxyReq.Header.Set("X-API-Key", os.Getenv("BACKEND_API_KEY"))
 	if token := getAccessToken(c); token != "" {
 		proxyReq.Header.Set("Authorization", "Bearer "+token)
 	}
@@ -139,7 +139,7 @@ func (h *MFAHandler) PostAuthenticator(c *gin.Context) {
 		return
 	}
 	proxyReq.Header.Set("Content-Type", "application/json")
-	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
+	proxyReq.Header.Set("X-API-Key", os.Getenv("BACKEND_API_KEY"))
 	if token := getAccessToken(c); token != "" {
 		proxyReq.Header.Set("Authorization", "Bearer "+token)
 	}
@@ -220,7 +220,7 @@ func (h *MFAHandler) PostVerifyMFA(c *gin.Context) {
 		return
 	}
 	proxyReq.Header.Set("Content-Type", "application/json")
-	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
+	proxyReq.Header.Set("X-API-Key", os.Getenv("BACKEND_API_KEY"))
 	if token := getAccessToken(c); token != "" {
 		proxyReq.Header.Set("Authorization", "Bearer "+token)
 	}
@@ -296,7 +296,7 @@ func (h *MFAHandler) GetAuthenticatorList(c *gin.Context) {
 		})
 		return
 	}
-	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
+	proxyReq.Header.Set("X-API-Key", os.Getenv("BACKEND_API_KEY"))
 	if token := getAccessToken(c); token != "" {
 		proxyReq.Header.Set("Authorization", "Bearer "+token)
 	}
@@ -376,7 +376,7 @@ func (h *MFAHandler) DeleteAuthenticator(c *gin.Context) {
 		return
 	}
 	proxyReq.Header.Set("Content-Type", "application/json")
-	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
+	proxyReq.Header.Set("X-API-Key", os.Getenv("BACKEND_API_KEY"))
 	if token := getAccessToken(c); token != "" {
 		proxyReq.Header.Set("Authorization", "Bearer "+token)
 	}
@@ -446,7 +446,7 @@ func (h *MFAHandler) BeginPasskeyVerification(c *gin.Context) {
 		return
 	}
 	proxyReq.Header.Set("Content-Type", "application/json")
-	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
+	proxyReq.Header.Set("X-API-Key", os.Getenv("BACKEND_API_KEY"))
 	if origin := c.GetHeader("Origin"); origin != "" {
 		proxyReq.Header.Set("Origin", origin)
 		proxyReq.Header.Set("X-Original-Client-Origin", origin)
@@ -526,7 +526,7 @@ func (h *MFAHandler) FinishPasskeyVerification(c *gin.Context) {
 		return
 	}
 	proxyReq.Header.Set("Content-Type", "application/json")
-	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
+	proxyReq.Header.Set("X-API-Key", os.Getenv("BACKEND_API_KEY"))
 	if origin := c.GetHeader("Origin"); origin != "" {
 		proxyReq.Header.Set("Origin", origin)
 		proxyReq.Header.Set("X-Original-Client-Origin", origin)
@@ -603,7 +603,7 @@ func (h *MFAHandler) GetHasPasskey(c *gin.Context) {
 		})
 		return
 	}
-	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
+	proxyReq.Header.Set("X-API-Key", os.Getenv("BACKEND_API_KEY"))
 	if token := getAccessToken(c); token != "" {
 		proxyReq.Header.Set("Authorization", "Bearer "+token)
 	}
@@ -673,7 +673,7 @@ func (h *MFAHandler) BeginPasskeyRegistration(c *gin.Context) {
 		return
 	}
 	proxyReq.Header.Set("Content-Type", "application/json")
-	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
+	proxyReq.Header.Set("X-API-Key", os.Getenv("BACKEND_API_KEY"))
 	if origin := c.GetHeader("Origin"); origin != "" {
 		proxyReq.Header.Set("Origin", origin)
 		proxyReq.Header.Set("X-Original-Client-Origin", origin)
@@ -753,7 +753,7 @@ func (h *MFAHandler) FinishPasskeyRegistration(c *gin.Context) {
 		return
 	}
 	proxyReq.Header.Set("Content-Type", "application/json")
-	proxyReq.Header.Set("X-API-Key", os.Getenv("VITE_BACKEND_API_KEY"))
+	proxyReq.Header.Set("X-API-Key", os.Getenv("BACKEND_API_KEY"))
 	if origin := c.GetHeader("Origin"); origin != "" {
 		proxyReq.Header.Set("Origin", origin)
 		proxyReq.Header.Set("X-Original-Client-Origin", origin)
