@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unknown-property */
 'use client';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, Suspense } from 'react';
 import { Canvas, extend, useFrame } from '@react-three/fiber';
 import { useGLTF, useTexture, Environment, Lightformer } from '@react-three/drei';
 import { BallCollider, CuboidCollider, Physics, RigidBody, useRopeJoint, useSphericalJoint } from '@react-three/rapier';
@@ -37,10 +37,14 @@ export default function Lanyard({
   lanyardImage = null,
   lanyardWidth = 1
 }) {
-  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1024);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 768);
+  const [isTablet, setIsTablet] = useState(() => typeof window !== 'undefined' && window.innerWidth >= 768 && window.innerWidth < 1280);
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+      setIsTablet(window.innerWidth >= 768 && window.innerWidth < 1280);
+    };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
@@ -54,22 +58,24 @@ export default function Lanyard({
         gl={{ alpha: transparent }}
         onCreated={({ gl }) => gl.setClearColor(new THREE.Color(0x000000), transparent ? 0 : 1)}>
         <ambientLight intensity={Math.PI} />
-        <Physics gravity={gravity} timeStep={isMobile ? 1 / 30 : 1 / 60}>
-          <Band
-            isMobile={isMobile}
-            frontImage={frontImage}
-            backImage={backImage}
-            imageFit={imageFit}
-            lanyardImage={lanyardImage}
-            lanyardWidth={lanyardWidth} />
-        </Physics>
-        <Environment blur={0.75}>
-          <Lightformer
-            intensity={2}
-            color="white"
-            position={[0, -1, 5]}
-            rotation={[0, 0, Math.PI / 3]}
-            scale={[100, 0.1, 1]} />
+        <Suspense fallback={null}>
+          <Physics key={isMobile ? 'mobile' : isTablet ? 'tablet' : 'desktop'} gravity={gravity} timeStep={isMobile ? 1 / 30 : 1 / 60}>
+            <Band
+              isMobile={isMobile}
+              isTablet={isTablet}
+              frontImage={frontImage}
+              backImage={backImage}
+              imageFit={imageFit}
+              lanyardImage={lanyardImage}
+              lanyardWidth={lanyardWidth} />
+          </Physics>
+          <Environment blur={0.75}>
+            <Lightformer
+              intensity={2}
+              color="white"
+              position={[0, -1, 5]}
+              rotation={[0, 0, Math.PI / 3]}
+              scale={[100, 0.1, 1]} />
           <Lightformer
             intensity={3}
             color="white"
@@ -89,6 +95,7 @@ export default function Lanyard({
             rotation={[0, Math.PI / 2, Math.PI / 3]}
             scale={[100, 10, 1]} />
         </Environment>
+        </Suspense>
       </Canvas>
     </div>
   );
@@ -97,6 +104,7 @@ function Band({
   maxSpeed = 50,
   minSpeed = 0,
   isMobile = false,
+  isTablet = false,
   frontImage = null,
   backImage = null,
   imageFit = 'cover',
@@ -138,27 +146,60 @@ function Band({
     // Keep the original baked atlas for the card edges and any untouched face.
     ctx.drawImage(baseImg, 0, 0, W, H);
 
-    const drawFitted = (img, rect) => {
+    const drawCustomCard = (rect) => {
       const rx = rect.x * W;
       const ry = rect.y * H;
       const rw = rect.w * W;
       const rh = rect.h * H;
-      const pick = imageFit === 'contain' ? Math.min : Math.max;
-      const scale = pick(rw / img.width, rh / img.height);
-      const dw = img.width * scale;
-      const dh = img.height * scale;
-      const dx = rx + (rw - dw) / 2;
-      const dy = ry + (rh - dh) / 2;
+
       ctx.save();
       ctx.beginPath();
       ctx.rect(rx, ry, rw, rh);
       ctx.clip();
-      ctx.drawImage(img, dx, dy, dw, dh);
+
+      // 1. Draw pup bg (cover)
+      if (backTex.image) {
+        const bgImg = backTex.image;
+        const scale = Math.max(rw / bgImg.width, rh / bgImg.height);
+        const dw = bgImg.width * scale;
+        const dh = bgImg.height * scale;
+        const dx = rx + (rw - dw) / 2;
+        const dy = ry + (rh - dh) / 2;
+        ctx.drawImage(bgImg, dx, dy, dw, dh);
+      }
+
+      // 2. Draw maroon overlay (matches Image 2 style)
+      ctx.fillStyle = 'rgba(50, 15, 25, 0.85)';
+      ctx.fillRect(rx, ry, rw, rh);
+
+      // 3. Draw PUP logo
+      if (frontTex.image) {
+        const logoSize = Math.min(rw, rh) * 0.38; 
+        const lx = rx + (rw - logoSize) / 2;
+        const ly = ry + rh * 0.15; 
+        ctx.drawImage(frontTex.image, lx, ly, logoSize, logoSize);
+      }
+
+      // 4. Draw PUP TAGUIG text
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'center';
+      const titleSize = rw * 0.115;
+      ctx.font = `900 ${titleSize}px "Inter", sans-serif`;
+      ctx.fillText('PUP TAGUIG', rx + rw / 2, ry + rh * 0.65);
+
+      // 5. Draw ONE PORTAL text
+      const subSize = rw * 0.055;
+      ctx.font = `600 ${subSize}px "Inter", sans-serif`;
+      if ('letterSpacing' in ctx) {
+        ctx.letterSpacing = `${rw * 0.015}px`;
+      }
+      ctx.fillText('ONE PORTAL', rx + rw / 2, ry + rh * 0.74);
+      
       ctx.restore();
     };
 
-    if (frontImage && frontTex.image) drawFitted(frontTex.image, FRONT_UV_RECT);
-    if (backImage && backTex.image) drawFitted(backTex.image, BACK_UV_RECT);
+    drawCustomCard(FRONT_UV_RECT);
+    drawCustomCard(BACK_UV_RECT);
 
     const composite = new THREE.CanvasTexture(canvas);
     composite.colorSpace = THREE.SRGBColorSpace;
@@ -187,10 +228,9 @@ function Band({
     ctx.textBaseline = 'middle';
     
     const y = canvas.height / 2;
-    // Spaced at 1/6, 3/6, and 5/6 of the canvas width
-    ctx.fillText('PUP', canvas.width * (1/6), y);
-    ctx.fillText('PUP', canvas.width * (3/6), y);
-    ctx.fillText('PUP', canvas.width * (5/6), y);
+    // Draw twice per texture tile to create medium gaps
+    ctx.fillText('PUP', canvas.width * 0.25, y);
+    ctx.fillText('PUP', canvas.width * 0.75, y);
 
     const composite = new THREE.CanvasTexture(canvas);
     composite.colorSpace = THREE.SRGBColorSpace;
@@ -206,9 +246,10 @@ function Band({
   const [dragged, drag] = useState(false);
   const [hovered, hover] = useState(false);
 
-  useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 2.8]);
-  useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 2.8]);
-  useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], 2.8]);
+  const stringLength = 2.8;
+  useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], stringLength]);
+  useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], stringLength]);
+  useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], stringLength]);
   useSphericalJoint(j3, card, [
     [0, 0, 0],
     [0, 1.15, 0]
@@ -254,7 +295,7 @@ function Band({
 
   return (
     <>
-      <group position={[0, isMobile ? 9.4 : 8.25, 0]}>
+      <group position={[0, isTablet ? 8.45 : isMobile ? 8.9 : 8.25, 0]}>
         <RigidBody ref={fixed} {...segmentProps} type="fixed" />
         <RigidBody position={[0.5, 0, 0]} ref={j1} {...segmentProps}>
           <BallCollider args={[0.1]} />
@@ -297,12 +338,12 @@ function Band({
               material={materials.metal}
               material-roughness={0.3}
               material-transparent={true}
-              material-opacity={0.5} />
+              material-opacity={0.4} />
             <mesh 
               geometry={nodes.clamp.geometry} 
               material={materials.metal}
               material-transparent={true}
-              material-opacity={0.5} />
+              material-opacity={0.4} />
           </group>
         </RigidBody>
       </group>
@@ -317,7 +358,7 @@ function Band({
           repeat={[-4, 1]}
           lineWidth={lanyardWidth}
           transparent={true}
-          opacity={0.5} />
+          opacity={0.4} />
       </mesh>
     </>
   );

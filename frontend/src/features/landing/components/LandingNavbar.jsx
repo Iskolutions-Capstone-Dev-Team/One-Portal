@@ -1,10 +1,10 @@
-import { Menu, House, Star, MessageCircleQuestionMark, LogIn } from "lucide-react";
+import { Menu, House, Star, MessageCircleQuestionMark, LogIn, UserPlus } from "lucide-react";
 import { navItems } from "../constants/landingContent";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
 
-export default function LandingNavbar({ pendingAction, onLoginClick }) {
+export default function LandingNavbar({ pendingAction, onLoginClick, onRegisterClick }) {
     const getNavIcon = (label) => {
         switch (label) {
             case "Home": return <House className="w-4 h-4" />;
@@ -17,7 +17,7 @@ export default function LandingNavbar({ pendingAction, onLoginClick }) {
     return (
         <header className="sticky top-0 z-50 flex items-center justify-between gap-4 min-h-[4.6rem] py-3 px-5 md:px-16 bg-transparent w-full">
             <div className="flex items-center gap-3">
-                <div className="md:hidden">
+                <div className="lg:hidden">
                     <NavigationMenu>
                         <NavigationMenuList>
                             <NavigationMenuItem>
@@ -43,16 +43,16 @@ export default function LandingNavbar({ pendingAction, onLoginClick }) {
                     </NavigationMenu>
                 </div>
 
-                <a href="#home" className="flex items-center gap-2.5 text-orange-50 text-base font-extrabold uppercase no-underline">
-                    <Avatar className="w-8 h-8">
+                <a href="#home" className="flex items-center gap-1.5 md:gap-2.5 text-orange-50 text-xs md:text-base font-extrabold uppercase no-underline">
+                    <Avatar className="w-6 h-6 md:w-8 md:h-8">
                         <AvatarImage src="/assets/images/PUPlogo.png" alt="PUP Logo" />
                         <AvatarFallback>PUP</AvatarFallback>
                     </Avatar>
-                    <span>One Portal</span>
+                    <span className="leading-tight">One Portal</span>
                 </a>
             </div>
 
-            <nav className="hidden md:flex absolute left-1/2 -translate-x-1/2 items-center" aria-label="Landing sections">
+            <nav className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center" aria-label="Landing sections">
                 <ul className="flex items-center gap-1.5 m-0 p-0 list-none">
                     {navItems.map((item) => (
                         <li key={item.href}>
@@ -67,9 +67,9 @@ export default function LandingNavbar({ pendingAction, onLoginClick }) {
                 </ul>
             </nav>
 
-            <div className="flex items-center justify-end">
-                <Button className="bg-yellow-400 text-[#4f0d17] hover:bg-[#6b1115] hover:text-yellow-400 border border-yellow-400/70 hover:border-yellow-400/90 min-h-[2.65rem] px-4 py-2.5 rounded-xl font-extrabold text-[0.9rem] shadow-lg transition-all hover:-translate-y-[1px] h-auto gap-2 cursor-pointer" onClick={onLoginClick} disabled={Boolean(pendingAction)}>
-                    <LogIn className="w-4 h-4" aria-hidden="true" />
+            <div className="flex items-center justify-end gap-1.5 md:gap-3">
+                <Button className="bg-yellow-400 text-[#4f0d17] hover:bg-[#6b1115] hover:text-yellow-400 border border-yellow-400/70 hover:border-yellow-400/90 min-h-0 md:min-h-[2.65rem] px-2.5 py-1.5 md:px-4 md:py-2.5 rounded-lg md:rounded-xl font-extrabold text-xs md:text-[0.9rem] shadow-lg transition-all hover:-translate-y-[1px] h-auto gap-1.5 md:gap-2 cursor-pointer" onClick={onLoginClick} disabled={Boolean(pendingAction)}>
+                    <LogIn className="w-3.5 h-3.5 md:w-4 md:h-4" aria-hidden="true" />
                     {pendingAction === "login" ? "Opening..." : "Login"}
                 </Button>
             </div>
