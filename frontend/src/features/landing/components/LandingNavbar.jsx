@@ -44,11 +44,11 @@ export default function LandingNavbar({ pendingAction, onLoginClick, onRegisterC
                 </div>
 
                 <a href="#home" className="flex items-center gap-1.5 md:gap-2.5 text-orange-50 text-xs md:text-base font-extrabold uppercase no-underline">
-                    <Avatar className="w-6 h-6 md:w-8 md:h-8">
-                        <AvatarImage src="/assets/images/PUPlogo.png" alt="PUP Logo" />
+                    <Avatar className="w-6 h-6 md:w-8 md:h-8 drop-shadow-md">
+                        <AvatarImage src="/assets/images/PUPlogo.png" alt="PUP Logo" className="object-contain" />
                         <AvatarFallback>PUP</AvatarFallback>
                     </Avatar>
-                    <span className="leading-tight">One Portal</span>
+                    <span className="leading-tight">ONE PORTAL</span>
                 </a>
             </div>
 
