@@ -5,21 +5,31 @@ import Lanyard from "@/components/Lanyard";
 import { motion } from "framer-motion";
 
 function FloatingIcon({ children, className, rotate = "0deg", style }) {
+    const delay = parseFloat(style?.animationDelay || '0');
+    
     return (
-        <IconTile 
-            className={`absolute z-0 transition-transform duration-1000 ${className}`} 
-            style={{
-                ...style,
-                '--float-rotate': rotate,
-                transform: 'rotate(var(--float-rotate)) translateY(0)',
-                animation: 'landingFloat 6s ease-in-out infinite',
-                '--icon-tile-size': '4.25rem',
-                '--icon-tile-icon-size': '1.8rem'
-            }}
-            aria-hidden="true"
-        >
-            {children}
-        </IconTile>
+        <div className={`absolute z-0 ${className}`} style={{ transform: `rotate(${rotate})` }}>
+            <motion.div
+                animate={{ y: [-15, 15, -15] }}
+                transition={{
+                    duration: 6,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: delay
+                }}
+            >
+                <IconTile 
+                    className="transition-transform duration-1000" 
+                    style={{
+                        '--icon-tile-size': '4.25rem',
+                        '--icon-tile-icon-size': '1.8rem'
+                    }}
+                    aria-hidden="true"
+                >
+                    {children}
+                </IconTile>
+            </motion.div>
+        </div>
     );
 }
 
@@ -44,16 +54,16 @@ function IconTile({ children, className, style, "aria-hidden": ariaHidden }) {
 export default function HeroSection({ pendingAction, onRegisterClick }) {
     return (
         <section id="home" className="relative grid grid-cols-1 justify-items-center gap-10 md:gap-14 min-h-[calc(100vh-4.6rem)] py-12 md:py-20 px-5 md:px-16 text-center scroll-mt-20">
-            <FloatingIcon className="top-[5.6rem] left-[15%]" style={{ animationDelay: '0s' }}>
+            <FloatingIcon className="top-[5.6rem] left-[15%]" style={{ animationDelay: '0s' }} rotate="-12deg">
                 <GraduationCap />
             </FloatingIcon>
-            <FloatingIcon className="top-[17rem] left-[18%]" style={{ animationDelay: '1.4s' }} rotate="-15deg">
+            <FloatingIcon className="top-[17rem] left-[18%]" style={{ animationDelay: '1.4s' }} rotate="15deg">
                 <Landmark />
             </FloatingIcon>
-            <FloatingIcon className="top-[5rem] right-[17%]" style={{ animationDelay: '0.7s' }} rotate="10deg">
+            <FloatingIcon className="top-[5rem] right-[17%]" style={{ animationDelay: '0.7s' }} rotate="12deg">
                 <CalendarRange />
             </FloatingIcon>
-            <FloatingIcon className="top-[16.4rem] right-[18%]" style={{ animationDelay: '2s' }}>
+            <FloatingIcon className="top-[16.4rem] right-[18%]" style={{ animationDelay: '2s' }} rotate="-15deg">
                 <Users />
             </FloatingIcon>
 
