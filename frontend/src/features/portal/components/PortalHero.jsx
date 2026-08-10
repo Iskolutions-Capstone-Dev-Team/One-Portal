@@ -79,13 +79,13 @@ export default function PortalHero({ children }) {
                 </h1>
                 
                 <div className="flex flex-row items-center justify-center gap-2 sm:gap-4 w-full px-4" aria-label="Portal shortcuts">
-                    <Button asChild className="bg-[#6b1115] text-yellow-400 hover:bg-yellow-400 hover:text-[#4f0d17] border border-[#6b1115]/70 hover:border-yellow-400 min-h-0 md:min-h-[2.65rem] px-2.5 py-1.5 md:px-4 md:py-2.5 rounded-lg md:rounded-xl font-extrabold text-xs md:text-[0.9rem] shadow-lg transition-all hover:-translate-y-[1px] h-auto cursor-pointer">
+                    <Button asChild className="bg-transparent text-yellow-400 border-2 border-yellow-400 hover:bg-yellow-400 hover:text-[#4f0d17] min-h-0 md:min-h-[2.65rem] px-2.5 py-1.5 md:px-4 md:py-2.5 rounded-lg md:rounded-xl font-extrabold text-xs md:text-[0.9rem] shadow-lg transition-all hover:-translate-y-[1px] h-auto cursor-pointer">
                         <a href="#portal-systems" className="flex flex-row items-center justify-center gap-1.5 md:gap-2">
                             <Search className="w-3.5 h-3.5 md:w-4 md:h-4" />
                             Explore Services
                         </a>
                     </Button>
-                    <Button asChild className="bg-yellow-400 text-[#4f0d17] hover:bg-[#6b1115] hover:text-yellow-400 border border-yellow-400/70 hover:border-[#6b1115] min-h-0 md:min-h-[2.65rem] px-2.5 py-1.5 md:px-4 md:py-2.5 rounded-lg md:rounded-xl font-extrabold text-xs md:text-[0.9rem] shadow-lg transition-all hover:-translate-y-[1px] h-auto cursor-pointer">
+                    <Button asChild className="bg-[#6b1115] text-white hover:bg-yellow-400 hover:text-[#4f0d17] border border-[#6b1115]/70 hover:border-yellow-400 min-h-0 md:min-h-[2.65rem] px-2.5 py-1.5 md:px-4 md:py-2.5 rounded-lg md:rounded-xl font-extrabold text-xs md:text-[0.9rem] shadow-lg transition-all hover:-translate-y-[1px] h-auto cursor-pointer">
                         <a href="#portal-footer" className="flex flex-row items-center justify-center gap-1.5 md:gap-2">
                             <Info className="w-3.5 h-3.5 md:w-4 md:h-4" />
                             Learn More
