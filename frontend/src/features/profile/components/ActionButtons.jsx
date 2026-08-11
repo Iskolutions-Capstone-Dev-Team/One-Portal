@@ -1,19 +1,18 @@
+import { Button } from "@/components/ui/button";
+import { Pencil, Lock } from "lucide-react";
+
 export default function ActionButtons({ openEdit, openPassword }) {
     return (
-        <div className="profile-actions">
-            <button type="button" onClick={openEdit} className="profile-action profile-action--secondary">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125" />
-                </svg>
+        <div className="flex flex-wrap justify-start gap-2 sm:gap-4 mt-6 w-full">
+            <Button type="button" onClick={openEdit} variant="outline" className="bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 min-h-0 md:min-h-[2.65rem] px-2.5 py-1.5 md:px-4 md:py-2.5 rounded-lg md:rounded-xl font-extrabold text-xs md:text-[0.9rem] shadow-lg transition-all hover:-translate-y-[1px] h-auto cursor-pointer flex flex-row items-center justify-center gap-1.5 md:gap-2">
+                <Pencil className="w-3.5 h-3.5 md:w-4 md:h-4" strokeWidth={2.5} />
                 Edit Profile
-            </button>
+            </Button>
 
-            <button type="button" onClick={openPassword} className="profile-action profile-action--primary">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
+            <Button type="button" onClick={openPassword} className="bg-[#6b1115] text-white hover:bg-yellow-400 hover:text-[#4f0d17] border border-[#6b1115]/70 hover:border-yellow-400 min-h-0 md:min-h-[2.65rem] px-2.5 py-1.5 md:px-4 md:py-2.5 rounded-lg md:rounded-xl font-extrabold text-xs md:text-[0.9rem] shadow-lg transition-all hover:-translate-y-[1px] h-auto cursor-pointer flex flex-row items-center justify-center gap-1.5 md:gap-2">
+                <Lock className="w-3.5 h-3.5 md:w-4 md:h-4" strokeWidth={2.5} />
                 Change Password
-            </button>
+            </Button>
         </div>
     );
 }
