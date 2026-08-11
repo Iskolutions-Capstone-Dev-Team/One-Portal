@@ -65,7 +65,7 @@ export default function PortalHero({ children }) {
                 transition={{ duration: 0.6 }}
             >
                 <div className="flex justify-center mb-3">
-                    <Badge variant="outline" className="flex items-center gap-2 px-3 py-1.5 bg-black/40 text-white border-white/20 backdrop-blur-md rounded-lg shadow-sm">
+                    <Badge variant="outline" className="flex items-center gap-2 px-3 py-1.5 bg-[#f8d24e]/10 border-[#f8d24e]/20 text-[#ffe28a] hover:bg-[#f8d24e]/20 backdrop-blur-md rounded-lg shadow-sm transition-colors">
                         <Avatar className="w-5 h-5 bg-transparent rounded-none">
                             <AvatarImage src="/assets/images/PUPlogo.png" alt="PUP Taguig Seal" className="object-contain" />
                             <AvatarFallback>PUP</AvatarFallback>
