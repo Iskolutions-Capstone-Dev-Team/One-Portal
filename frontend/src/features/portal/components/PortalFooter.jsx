@@ -5,6 +5,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { IconTile } from "@/components/reui/icon-tile";
+import { Button } from "@/components/ui/button";
+import PrivacyPolicySheet from "./PrivacyPolicySheet";
 
 const socialLinks = [
   {
@@ -73,7 +75,7 @@ export default function PortalFooter() {
                 key={name}
                 render={<a href={href} target="_blank" rel="noopener noreferrer" aria-label={name} />}
                 variant="elevated"
-                className="bg-transparent text-[#7b0d15] dark:text-red-500 border-2 border-[#7b0d15] dark:border-red-500 hover:bg-[#7b0d15] dark:hover:bg-red-500 hover:text-white hover:scale-110 hover:-translate-y-1 focus-visible:ring-ring focus-visible:ring-offset-background transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                className="bg-transparent text-[#7b0d15] dark:text-red-500 border-2 border-[#7b0d15] dark:border-red-500 hover:bg-[#7b0d15] dark:hover:bg-red-500 hover:text-white focus-visible:ring-ring focus-visible:ring-offset-background transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
               >
                 {icon}
               </IconTile>
@@ -82,17 +84,14 @@ export default function PortalFooter() {
         </nav>
       </Card>
 
-      <div className="relative z-10 max-w-7xl mx-auto mt-12 flex flex-wrap justify-center gap-4 text-sm text-slate-500 dark:text-slate-400">
-        {legalLinks.map((link, index) => (
-          <div key={link.label} className="flex items-center">
-            {index > 0 && (
-              <span className="w-1.5 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600 mx-4" aria-hidden="true" />
-            )}
-            <a href={link.href} target="_blank" rel="noopener noreferrer" className="hover:text-red-700 dark:hover:text-red-400 transition-colors">
-              {link.label}
-            </a>
-          </div>
-        ))}
+      <div className="relative z-10 max-w-7xl mx-auto mt-12 flex flex-wrap justify-center items-center text-slate-500 dark:text-slate-400">
+        <PrivacyPolicySheet />
+
+        <Separator orientation="vertical" className="h-4 w-px bg-slate-300 dark:bg-slate-600 mx-2" />
+
+        <a href="https://www.pup.edu.ph/terms/" target="_blank" rel="noopener noreferrer" className="text-sm font-medium leading-none hover:text-red-700 dark:hover:text-red-400 transition-colors">
+          Terms of Service
+        </a>
       </div>
     </footer>
   );
