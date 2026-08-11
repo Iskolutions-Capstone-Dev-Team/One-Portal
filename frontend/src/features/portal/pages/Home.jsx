@@ -3,7 +3,7 @@ import OnePortalLayout from "../../../layouts/OnePortalLayout";
 import PortalHero from "../components/PortalHero";
 import PortalToolbar from "../components/PortalToolbar";
 import SystemGrid from "../components/SystemGrid";
-import Pagination from "../../../components/ui/Pagination";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "../../../components/ui/Pagination";
 import { clearSessionState, navigateToLandingPage } from "../../../services/auth";
 import { getUserAccessSystems } from "../../../services/userAccess";
 
@@ -112,10 +112,10 @@ export default function OnePortalHome() {
 
     return (
         <OnePortalLayout>
-            <div className="portal-home">
+            <div className="relative min-h-screen w-full bg-slate-100 dark:bg-slate-900 transition-colors duration-300">
                 <PortalHero />
-                <main className="portal-home__main">
-                    <div className="portal-home__shell">
+                <main className="relative z-10 px-4 md:px-8 py-12 md:py-20">
+                    <div className="mx-auto max-w-7xl">
                         <PortalToolbar
                             searchQuery={searchQuery}
                             setSearchQuery={setSearchQuery}
@@ -129,11 +129,51 @@ export default function OnePortalHome() {
                             emptyMessage={emptyStateMessage}
                         />
 
-                        <Pagination
-                            totalPages={totalPages}
-                            currentPage={currentPage}
-                            onPageChange={setCurrentPage}
-                        />
+                        <Pagination className="mt-8 md:mt-12">
+                            <PaginationContent>
+                                <PaginationItem>
+                                    <PaginationPrevious 
+                                        href="#" 
+                                        onClick={(e) => { 
+                                            e.preventDefault(); 
+                                            setCurrentPage(Math.max(1, currentPage - 1)); 
+                                        }}
+                                        className={currentPage === 1 ? "pointer-events-none opacity-50" : ""}
+                                    />
+                                </PaginationItem>
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                                    const isActive = currentPage === page;
+                                    return (
+                                        <PaginationItem key={page}>
+                                            <PaginationLink
+                                                href="#"
+                                                isActive={isActive}
+                                                onClick={(e) => { 
+                                                    e.preventDefault(); 
+                                                    setCurrentPage(page); 
+                                                }}
+                                                className={isActive 
+                                                    ? "bg-[#6b1115] text-yellow-400 hover:bg-yellow-400 hover:text-[#4f0d17] border-[#6b1115]/70" 
+                                                    : "hover:border-border hover:border!"
+                                                }
+                                            >
+                                                {page}
+                                            </PaginationLink>
+                                        </PaginationItem>
+                                    );
+                                })}
+                                <PaginationItem>
+                                    <PaginationNext 
+                                        href="#" 
+                                        onClick={(e) => { 
+                                            e.preventDefault(); 
+                                            setCurrentPage(Math.min(totalPages, currentPage + 1)); 
+                                        }}
+                                        className={currentPage === totalPages ? "pointer-events-none opacity-50" : ""}
+                                    />
+                                </PaginationItem>
+                            </PaginationContent>
+                        </Pagination>
                     </div>
                 </main>
             </div>
