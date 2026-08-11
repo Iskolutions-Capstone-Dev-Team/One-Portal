@@ -56,7 +56,6 @@ export default function PortalFooter() {
         </aside>
 
         <Separator orientation="vertical" className="hidden lg:block w-px bg-slate-200 dark:bg-slate-700 self-stretch mx-4" />
-        <Separator className="lg:hidden" />
 
         <nav className="lg:w-[35%] flex flex-col justify-center" aria-label="Stay Connected">
           <p className="text-sm font-medium leading-none mb-2 tracking-widest uppercase text-[#7b0d15] dark:text-red-500">
