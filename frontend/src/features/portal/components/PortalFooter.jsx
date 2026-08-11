@@ -28,7 +28,7 @@ const legalLinks = [
 
 export default function PortalFooter() {
   return (
-    <footer id="portal-footer" className="relative pt-16 pb-8 px-4 md:px-8 bg-slate-100 dark:bg-slate-900 transition-colors duration-300">
+    <footer id="portal-footer" className="relative -mt-1 z-20 border-0 border-transparent shadow-none ring-0 outline-none pt-16 pb-8 px-4 md:px-8 !bg-slate-100 dark:!bg-slate-900 transition-colors duration-300">
       <Card className="relative z-10 max-w-7xl mx-auto flex flex-col lg:flex-row gap-12 lg:gap-8 bg-white dark:bg-slate-800 rounded-xl p-8 shadow-sm border border-slate-200 dark:border-slate-700 ring-0 ring-offset-0">
         <aside className="lg:w-[65%]">
           <div className="mb-6">
