@@ -117,13 +117,13 @@ export default function PortalNavbar() {
                         </DropdownMenuTrigger>
 
                         <DropdownMenuContent align="end" className="font-[Poppins] w-48 p-1.5 mt-2 rounded-2xl bg-[#2a050a]/95 border border-white/10 shadow-[0_18px_42px_rgba(0,0,0,0.26)] backdrop-blur-md ring-0 outline-none">
-                            <DropdownMenuItem onClick={handleFirstOption} className="px-4 py-2.5 rounded-xl cursor-pointer text-sm font-medium text-orange-50/90 focus:bg-white/10 focus:text-orange-50 data-[highlighted]:bg-white/10 data-[highlighted]:text-orange-50">
-                                {firstOption === "Dashboard" ? <LayoutDashboard className="mr-3 w-5 h-5 text-orange-50/70" /> : <User className="mr-3 w-5 h-5 text-orange-50/70" />}
+                            <DropdownMenuItem onClick={handleFirstOption} className="group px-4 py-2.5 rounded-xl cursor-pointer text-sm font-medium text-orange-50/90 focus:bg-white/10 focus:text-orange-50 data-[highlighted]:bg-white/10 data-[highlighted]:text-orange-50">
+                                {firstOption === "Dashboard" ? <LayoutDashboard className="mr-3 w-5 h-5" style={{ color: "inherit" }} /> : <User className="mr-3 w-5 h-5" style={{ color: "inherit" }} />}
                                 {firstOption}
                             </DropdownMenuItem>
 
-                            <DropdownMenuItem onClick={handleLogout} className="px-4 py-2.5 rounded-xl cursor-pointer text-sm font-medium text-red-400 focus:bg-white/10 focus:text-red-300 data-[highlighted]:bg-white/10 data-[highlighted]:text-red-300">
-                                <LogOut className="mr-3 w-5 h-5 text-red-400/80" />
+                            <DropdownMenuItem onClick={handleLogout} className="group px-4 py-2.5 rounded-xl cursor-pointer text-sm font-medium text-red-400 focus:bg-white/10 focus:text-red-300 data-[highlighted]:bg-white/10 data-[highlighted]:text-red-300">
+                                <LogOut className="mr-3 w-5 h-5" style={{ color: "inherit" }} />
                                 Logout
                             </DropdownMenuItem>
                         </DropdownMenuContent>
