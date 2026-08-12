@@ -5,6 +5,7 @@ import { ProtectedPortalRoute } from "../routes/guards/AppRouteGuards";
 import { landingRoutes } from "../routes/routeConfig";
 import { ROUTE_PATHS } from "../routes/routePaths";
 import { authPageBackground, authPagePatternStyle } from "../utils/authBackground";
+import { Toaster } from "@/components/ui/sonner";
 
 const Callback = lazy(() => import("../pages/Callback"));
 const Home = lazy(() => import("../features/portal/pages/Home"));
@@ -35,6 +36,7 @@ export default function App() {
             <Route path={ROUTE_PATHS.PROFILE} element={<ProtectedPortalRoute><Profile /></ProtectedPortalRoute>} />
           </Routes>
         </Suspense>
+        <Toaster position="top-right" />
       </BrowserRouter>
     </PortalThemeProvider>
   );
