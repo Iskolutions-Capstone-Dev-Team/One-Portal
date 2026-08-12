@@ -1,6 +1,10 @@
 import { useState } from "react";
 import ErrorAlert from "../../../components/feedback/ErrorAlert";
-import { CloseIcon, EyeIcon, EyeSlashIcon } from "./profileIcons";
+import { EyeIcon, EyeOffIcon, LockIcon, Check, Minus } from "lucide-react";
+import { Field, FieldLabel } from "@/components/ui/field";
+import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from "@/components/ui/input-group";
+import { DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 export default function ChangePasswordStep({
     form,
@@ -92,20 +96,16 @@ export default function ChangePasswordStep({
     const alertMessage = Object.values(fieldErrors)[0] ?? "";
 
     return (
-        <section className="profile-modal__surface">
-            <div className="profile-modal__hero">
-                <div>
-                    <h3 className="profile-modal__title">Change Password</h3>
-                    <p className="profile-modal__subtitle">Secure your account with a new password</p>
-                </div>
+        <>
+            <DialogHeader className="-mx-4 -mt-4 mb-2 rounded-t-xl p-4 bg-[linear-gradient(180deg,rgba(123,13,21,0.97),rgba(43,3,7,0.98))]">
+                <DialogTitle className="font-heading text-base leading-none font-medium text-white text-left">Change Password</DialogTitle>
+                <DialogDescription className="sr-only">
+                    Secure your account with a new password
+                </DialogDescription>
+            </DialogHeader>
 
-                <button type="button" className="profile-modal__close" onClick={onClose} aria-label="Close change password modal">
-                    <CloseIcon />
-                </button>
-            </div>
-
-            <div className="profile-modal__body">
-                <form className="profile-form" onSubmit={(event) => event.preventDefault()}>
+            <div className="-mx-4 no-scrollbar max-h-[60vh] overflow-y-auto px-4 bg-white dark:bg-slate-900 flex-1">
+                <form className="space-y-6 px-2 pb-6" onSubmit={(event) => event.preventDefault()}>
                     {errorMessage && (
                         <ErrorAlert
                             message={errorMessage}
@@ -120,60 +120,76 @@ export default function ChangePasswordStep({
                         />
                     )}
 
-                    <div className="profile-form__stack">
+                    <div className="grid grid-cols-1 gap-6">
                         {fields.map((field) => (
-                            <div className="profile-form__field" key={field}>
-                                <label className="profile-form__label" htmlFor={field}>
-                                    {getFieldLabel(field)}
-                                    <span className="profile-form__required">*</span>
-                                </label>
-
-                                <div className="profile-form__input-wrap">
-                                    <input id={field} value={form[field]} type={showPassword[field] ? "text" : "password"} name={field} placeholder={getFieldPlaceholder(field)} className={`profile-form__input ${isFieldInvalid(field) ? "is-invalid" : ""}`} onChange={handleChange} aria-invalid={isFieldInvalid(field)}/>
-
-                                    <button type="button" className="profile-form__toggle" onClick={() => toggleShowPassword(field)} aria-label={`Toggle ${getFieldLabel(field)} visibility`}>
-                                        {showPassword[field] ? (
-                                            <EyeSlashIcon />
-                                        ) : (
-                                            <EyeIcon />
-                                        )}
-                                    </button>
+                            <Field className="w-full text-left space-y-2 gap-0" key={field}>
+                                <div className="flex items-center justify-between gap-2">
+                                    <FieldLabel htmlFor={field}>
+                                        {getFieldLabel(field)}
+                                        <span className="text-red-500 ml-1">*</span>
+                                    </FieldLabel>
                                 </div>
 
+                                <InputGroup className={`h-10 rounded-md bg-white dark:bg-slate-950 ${isFieldInvalid(field) ? "border-red-500 focus-within:border-red-500 focus-within:ring-red-500" : "border-slate-300 dark:border-slate-700"}`}>
+                                    <InputGroupAddon>
+                                        <LockIcon className="text-muted-foreground size-4" />
+                                    </InputGroupAddon>
+                                    <InputGroupInput 
+                                        id={field} 
+                                        value={form[field]} 
+                                        type={showPassword[field] ? "text" : "password"} 
+                                        name={field} 
+                                        placeholder={getFieldPlaceholder(field)} 
+                                        className={isFieldInvalid(field) ? "text-red-900 dark:text-red-400" : ""}
+                                        onChange={handleChange} 
+                                        aria-invalid={isFieldInvalid(field)}
+                                    />
+                                    <InputGroupButton
+                                        type="button"
+                                        variant="ghost"
+                                        onClick={() => toggleShowPassword(field)}
+                                        aria-label={`Toggle ${getFieldLabel(field)} visibility`}
+                                    >
+                                        {showPassword[field] ? (
+                                            <EyeOffIcon className="text-muted-foreground size-4" />
+                                        ) : (
+                                            <EyeIcon className="text-muted-foreground size-4" />
+                                        )}
+                                    </InputGroupButton>
+                                </InputGroup>
+
                                 {showValidationError && fieldErrors[field] && (
-                                    <p className="profile-form__helper is-error">{fieldErrors[field]}</p>
+                                    <p className="text-[0.8rem] font-medium text-red-500 mt-1">{fieldErrors[field]}</p>
                                 )}
 
                                 {field === "newPassword" && (
-                                    <div className="profile-checklist">
+                                    <div className="mt-3 grid gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
                                         {requirements.map((requirement) => (
-                                            <p key={requirement.key} className={`profile-checklist__item ${requirement.valid ? "is-valid" : ""}`}>
-                                                <span className="profile-checklist__indicator">{requirement.valid ? "OK" : "-"}</span>
+                                            <p key={requirement.key} className={`flex items-center gap-2 ${requirement.valid ? "text-green-700 dark:text-green-400" : ""}`}>
+                                                {requirement.valid ? (
+                                                    <Check className="size-3.5 shrink-0 text-green-700 dark:text-green-400" />
+                                                ) : (
+                                                    <Minus className="size-3.5 shrink-0 text-slate-500 dark:text-slate-400" />
+                                                )}
                                                 {requirement.label}
                                             </p>
                                         ))}
                                     </div>
                                 )}
-                            </div>
+                            </Field>
                         ))}
                     </div>
                 </form>
             </div>
 
-            <div className="profile-modal__footer">
-                <p className="profile-modal__note">
-                    <span className="profile-form__required">*</span> Required fields
-                </p>
-
-                <div className="profile-modal__actions">
-                    <button type="button" className="profile-action profile-action--secondary" onClick={onClose}>
-                        Cancel
-                    </button>
-                    <button type="button" className="profile-action profile-action--primary" onClick={handleNext} disabled={isContinueDisabled}>
-                        {isSubmitting ? "Sending OTP..." : "Continue"}
-                    </button>
-                </div>
-            </div>
-        </section>
+            <DialogFooter className="-mx-4 -mb-4 border-t-0 bg-slate-50 dark:bg-slate-900/50 flex flex-row items-center justify-end gap-2 rounded-b-xl p-4">
+                <Button variant="outline" onClick={onClose} className="rounded-lg h-8 px-2.5 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700 bg-white dark:bg-slate-900 font-bold text-sm">
+                    Cancel
+                </Button>
+                <Button onClick={handleNext} disabled={isContinueDisabled} className="rounded-lg h-8 px-2.5 bg-[#7b0d15] hover:bg-yellow-400 text-white hover:text-[#7b0d15] border-none font-bold text-sm transition-colors">
+                    {isSubmitting ? "Sending OTP..." : "Continue"}
+                </Button>
+            </DialogFooter>
+        </>
     );
 }
