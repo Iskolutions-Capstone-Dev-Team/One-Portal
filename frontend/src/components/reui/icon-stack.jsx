@@ -13,7 +13,7 @@ function IconStack({
     <div
       data-slot="icon-stack"
       className={cn(
-        "text-foreground **:data-[slot=icon-stack-layer]:fill-background relative h-20 w-18",
+        "text-foreground relative h-20 w-18",
         className
       )}
       style={
