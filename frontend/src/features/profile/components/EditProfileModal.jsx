@@ -135,7 +135,7 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
 
     return (
         <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) close(); }}>
-            <DialogContent className="font-[Poppins] sm:max-w-2xl bg-white dark:bg-slate-900 border-none ring-0 outline-none shadow-xl [&>button]:text-white [&>button:hover]:bg-white/20">
+            <DialogContent onPointerDownOutside={(e) => e.preventDefault()} onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()} className="font-[Poppins] sm:max-w-2xl bg-white dark:bg-slate-900 border-none ring-0 outline-none shadow-xl [&>button]:text-white [&>button:hover]:bg-white/20">
                 <DialogHeader className="-mx-4 -mt-4 mb-2 rounded-t-xl p-4 bg-[linear-gradient(180deg,rgba(123,13,21,0.97),rgba(43,3,7,0.98))]">
                     <DialogTitle className="font-heading text-base leading-none font-medium text-white text-left">Edit Profile</DialogTitle>
                     <DialogDescription className="sr-only">
