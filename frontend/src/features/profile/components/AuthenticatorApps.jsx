@@ -10,6 +10,36 @@ import MfaSetupModal from "./MfaSetupModal";
 import { CalendarIcon, ClockIcon } from "./profileIcons";
 import { Button } from "@/components/ui/button";
 import { KeySquare, Smartphone, Trash } from "lucide-react";
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
+
+function AutomationIllustration() {
+    return (
+        <svg width="200" height="120" viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            {/* Left connection line with arrow */}
+            <path d="M30 60 L68 60" className="stroke-[#7b0d15]/30 dark:stroke-red-400/30" strokeWidth="2" strokeLinecap="round" markerEnd="url(#arrowhead)"/>
+            <polygon points="66,56 74,60 66,64" className="fill-[#7b0d15]/30 dark:fill-red-400/30"/>
+
+            {/* Toggle body */}
+            <rect x="76" y="42" width="56" height="36" rx="18" className="stroke-[#7b0d15]/60 fill-[#7b0d15]/5 dark:stroke-red-400/60 dark:fill-red-400/10" strokeWidth="2"/>
+            {/* Toggle circle */}
+            <circle cx="94" cy="60" r="12" className="fill-[#7b0d15]/40 dark:fill-red-400/40" />
+            <circle cx="94" cy="60" r="6" className="fill-[#7b0d15] dark:fill-red-400" />
+
+            {/* Right connection line */}
+            <path d="M134 60 Q150 60 158 48" className="stroke-[#7b0d15]/30 dark:stroke-red-400/30" strokeWidth="2" fill="none" strokeLinecap="round"/>
+            <circle cx="162" cy="44" r="3" className="fill-[#7b0d15]/20 dark:fill-red-400/20" />
+
+            {/* Bottom right connection */}
+            <path d="M134 60 Q150 60 158 72" className="stroke-[#7b0d15]/30 dark:stroke-red-400/30" strokeWidth="2" fill="none" strokeLinecap="round"/>
+            <circle cx="162" cy="76" r="3" className="fill-[#7b0d15]/20 dark:fill-red-400/20" />
+
+            {/* Decorative dots */}
+            <circle cx="22" cy="60" r="2" className="fill-[#7b0d15]/20 dark:fill-red-400/20" />
+            <circle cx="174" cy="44" r="2" className="fill-[#7b0d15]/15 dark:fill-red-400/15" />
+            <circle cx="174" cy="76" r="2" className="fill-[#7b0d15]/15 dark:fill-red-400/15" />
+        </svg>
+    );
+}
 
 function formatAuthenticatorDate(value) {
     if (!value) {
@@ -144,7 +174,7 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
                     <p className="text-muted-foreground text-sm font-medium text-slate-500 dark:text-slate-400 capitalize truncate">
                         {formatAuthenticatorType(authenticator.type)}
                     </p>
-                    
+
                     <button type="button" className="absolute top-4 right-4 w-8 h-8 inline-flex items-center justify-center text-[#7b0d15] hover:bg-[#7b0d15]/10 dark:text-red-400 dark:hover:bg-[#7b0d15]/30 rounded-full transition-colors disabled:opacity-50" onClick={() => handleDeleteClick(authenticator)} disabled={deletingId === authenticator.id} aria-label={`Delete ${authenticator.name || "authenticator"}`}>
                         <Trash className="w-4 h-4" strokeWidth={1.5} />
                     </button>
@@ -201,33 +231,41 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
                         <div>
                             {authenticators.length > 0 ? (
                                 <Carousel
-                                  opts={{
-                                    align: "start",
-                                  }}
-                                  className="w-full relative px-0 sm:px-12"
+                                    opts={{
+                                        align: "start",
+                                    }}
+                                    className="w-full relative px-0 sm:px-12"
                                 >
-                                  <CarouselContent className="-ml-2">
-                                    {authenticators.map((authenticator, index) => (
-                                      <CarouselItem
-                                        key={authenticator.id}
-                                        className="sm:basis-1/2 lg:basis-1/3 pl-2"
-                                      >
-                                          <div className="p-1 h-[372px]">
-                                            {renderAuthenticatorCard(authenticator)}
-                                          </div>
-                                      </CarouselItem>
-                                    ))}
-                                  </CarouselContent>
-                                  <CarouselPrevious className="left-0 bg-[#7b0d15] hover:bg-yellow-400 text-white hover:text-[#7b0d15] border-none" />
-                                  <CarouselNext className="right-0 bg-[#7b0d15] hover:bg-yellow-400 text-white hover:text-[#7b0d15] border-none" />
+                                    <CarouselContent className="-ml-2">
+                                        {authenticators.map((authenticator, index) => (
+                                            <CarouselItem key={authenticator.id} className="sm:basis-1/2 lg:basis-1/3 pl-2">
+                                                <div className="p-1 h-[372px]">
+                                                    {renderAuthenticatorCard(authenticator)}
+                                                </div>
+                                            </CarouselItem>
+                                        ))}
+                                    </CarouselContent>
+                                    <CarouselPrevious className="left-0 bg-[#7b0d15] hover:bg-yellow-400 text-white hover:text-[#7b0d15] border-none" />
+                                    <CarouselNext className="right-0 bg-[#7b0d15] hover:bg-yellow-400 text-white hover:text-[#7b0d15] border-none" />
                                 </Carousel>
                             ) : (
-                                <div className="text-center py-16 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700">
-                                    <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 mb-4">
-                                        <span className="w-8 h-8 block"><Smartphone /></span>
-                                    </div>
-                                    <p className="text-slate-500 dark:text-slate-400 font-medium">No authenticator apps connected yet.</p>
-                                    <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">Click "New Connection" to add one.</p>
+                                <div className="flex items-center justify-center p-4">
+                                    <Empty className="py-12">
+                                        <EmptyHeader>
+                                            <EmptyMedia>
+                                                <AutomationIllustration />
+                                            </EmptyMedia>
+                                            <EmptyTitle>No authenticator yet</EmptyTitle>
+                                            <EmptyDescription>
+                                                Get started by setting up your authenticator.
+                                            </EmptyDescription>
+                                        </EmptyHeader>
+                                        <EmptyContent>
+                                            <Button onClick={() => setModalOpen(true)} className="bg-[#7b0d15] text-white hover:bg-yellow-400 hover:text-[#7b0d15] transition-all">
+                                                New connection
+                                            </Button>
+                                        </EmptyContent>
+                                    </Empty>
                                 </div>
                             )}
                         </div>
