@@ -81,15 +81,15 @@ export default function PortalNavbar() {
                 </div>
 
                 <div className="relative flex items-center gap-3">
-                    <Button variant="outline" size="icon" className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 border-white/20 text-white transition-colors" onClick={handleThemeToggle} aria-label={themeLabel}>
+                    <Button variant="outline" size="icon" className="w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 border-white/20 text-white hover:text-white focus:text-white transition-colors" onClick={handleThemeToggle} aria-label={themeLabel}>
                         <SunIcon className={cn(
-                            "size-5 transition-all duration-300",
+                            "size-5 !text-white transition-all duration-300",
                             isDarkMode
                                 ? "scale-0 -rotate-90 opacity-0"
                                 : "scale-100 rotate-0 opacity-100"
                         )} />
                         <MoonIcon className={cn(
-                            "absolute size-5 transition-all duration-300",
+                            "absolute size-5 !text-white transition-all duration-300",
                             isDarkMode
                                 ? "scale-100 rotate-0 opacity-100"
                                 : "scale-0 rotate-90 opacity-0"
@@ -101,16 +101,16 @@ export default function PortalNavbar() {
 
                     <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
                         <DropdownMenuTrigger asChild>
-                            <Button size="icon" variant="outline" className={cn("w-10 h-10 rounded-xl transition-colors border-white/20 outline-none ring-0", dropdownOpen ? "bg-white/20 text-white ring-2 ring-white/50 ring-offset-0" : "bg-white/10 text-white hover:bg-white/20")} aria-label={dropdownOpen ? "Close menu" : "Open menu"}>
+                            <Button size="icon" variant="outline" className={cn("w-10 h-10 rounded-xl transition-colors border-white/20 outline-none ring-0 bg-white/10 text-white hover:bg-white/20 hover:text-white focus:text-white data-[state=open]:bg-white/20 data-[state=open]:ring-2 data-[state=open]:ring-white/50 data-[state=open]:ring-offset-0 data-[state=open]:text-white")} aria-label={dropdownOpen ? "Close menu" : "Open menu"}>
                                 <span className="relative flex size-5 items-center justify-center">
                                     <MenuIcon aria-hidden="true" className={cn(
-                                        "absolute size-5 transition-all duration-200",
+                                        "absolute size-5 !text-white transition-all duration-200",
                                         dropdownOpen
                                             ? "scale-75 rotate-90 opacity-0"
                                             : "scale-100 rotate-0 opacity-100"
                                     )} />
                                     <XIcon aria-hidden="true" className={cn(
-                                        "absolute size-5 transition-all duration-200",
+                                        "absolute size-5 !text-white transition-all duration-200",
                                         dropdownOpen
                                             ? "scale-100 rotate-0 opacity-100"
                                             : "scale-75 -rotate-90 opacity-0"
