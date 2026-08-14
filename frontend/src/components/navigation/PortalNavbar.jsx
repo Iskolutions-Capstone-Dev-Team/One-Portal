@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { SunIcon, MoonIcon, MenuIcon, XIcon, LayoutDashboard, User, LogOut } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import NotificationCenter from "../../features/notifications/components/NotificationCenter";
 
 const PAGE_TRANSITION_MS = 240;
 
@@ -95,6 +96,8 @@ export default function PortalNavbar() {
                         )} />
                         <span className="sr-only">Toggle theme</span>
                     </Button>
+
+                    <NotificationCenter />
 
                     <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
                         <DropdownMenuTrigger asChild>
