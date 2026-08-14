@@ -204,8 +204,8 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
 
     return (
         <>
-            <Card className="mt-12 bg-white dark:bg-slate-800 shadow-sm border-none ring-0 ring-offset-0 transition-colors duration-300">
-                <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-2 px-6 sm:px-10 pt-6 sm:pt-10 rounded-t-xl bg-transparent">
+            <Card className="mt-6 py-0 bg-white dark:bg-slate-800 shadow-sm border-none rounded-3xl ring-0 ring-offset-0 transition-colors duration-300">
+                <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-2 px-6 sm:px-10 pt-6 sm:pt-10 rounded-t-3xl bg-transparent">
                     <div>
                         <CardTitle className="text-2xl font-bold uppercase tracking-wide text-slate-900 dark:text-slate-100">AUTHENTICATOR APPS</CardTitle>
                         <CardDescription className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage the authenticator apps connected to your account.</CardDescription>

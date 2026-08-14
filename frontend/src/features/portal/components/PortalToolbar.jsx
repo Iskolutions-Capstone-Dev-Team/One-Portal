@@ -6,7 +6,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/in
 
 export default function PortalToolbar({ searchQuery, setSearchQuery, isSearchDisabled = false }) {
     return (
-        <Card className="mb-8 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-800 ring-0 ring-offset-0 w-full">
+        <Card className="mb-8 rounded-3xl border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-800 ring-0 ring-offset-0 w-full">
             <CardContent className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 lg:gap-6 p-4 sm:p-5 w-full">
                 <div className="flex-1 w-full text-center lg:text-left mb-2 lg:mb-0 lg:pb-1">
                     <h1 className="scroll-m-20 text-2xl sm:text-3xl font-bold tracking-tight mb-1 text-slate-900 dark:text-white">
