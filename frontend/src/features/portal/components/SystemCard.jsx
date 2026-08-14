@@ -77,7 +77,7 @@ export default function SystemCard({ system }) {
     return (
         <TooltipProvider delayDuration={100}>
             {/* Desktop / Tablet Layout */}
-            <div className={`hidden md:flex justify-center w-full h-full ${isAccessDisabled ? 'opacity-80' : ''}`}>
+            <div className={`hidden md:flex justify-center w-full h-full min-h-[360px] ${isAccessDisabled ? 'opacity-80' : ''}`}>
                 <Card className="group/card w-full max-w-xs p-0 overflow-hidden border-0 rounded-3xl bg-zinc-950 flex flex-col h-full relative">
                     {/* Background Images covering the whole card */}
                     <img
@@ -99,15 +99,15 @@ export default function SystemCard({ system }) {
                         }}
                     />
 
-                    {/* Gradient overlay mimicking Image 2's lower half fade */}
-                    <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-transparent pointer-events-none z-10" />
+                    {/* Dark gradient overlay mimicking previous behavior but extending higher/left */}
+                    <div className="absolute inset-0 bg-gradient-to-tr from-zinc-950 via-zinc-950/80 to-transparent pointer-events-none z-10" />
 
                     {/* Shimmer Effect */}
                     <div className="absolute inset-0 z-20 -translate-x-[150%] bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12 transition-transform duration-1000 group-hover/card:translate-x-[150%] pointer-events-none" />
 
-                    <CardContent className="flex flex-col gap-0 p-0 h-full relative z-20">
-                        {/* Top half: Logo centered in the top space */}
-                        <div className="relative h-48 w-full shrink-0 flex items-center justify-center pointer-events-none transition-transform duration-500 group-hover/card:-translate-y-2">
+                    <CardContent className="flex flex-col gap-0 p-6 md:p-8 h-full relative z-20 text-left">
+                        {/* Top left: Logo */}
+                        <div className="relative w-full shrink-0 flex items-start justify-start pointer-events-none transition-transform duration-500 group-hover/card:-translate-y-1">
                             <div className="relative">
                                 {/* Logo Glow */}
                                 <div className="absolute inset-0 scale-150 rounded-full bg-[#6b1115]/30 blur-2xl transition-opacity duration-700 opacity-100 group-hover/card:opacity-0" />
@@ -121,27 +121,19 @@ export default function SystemCard({ system }) {
                         </div>
 
                         {/* Lower half: Content */}
-                        <div className="flex flex-col gap-2 p-6 flex-1 text-center justify-end pb-8 min-w-0 w-full relative z-30">
-                            <div className="flex flex-col gap-2 items-center w-full min-w-0">
+                        <div className="flex flex-col gap-2 flex-1 text-left pb-0 min-w-0 w-full relative z-30 mt-28">
+                            <div className="flex flex-col gap-2 items-start w-full min-w-0">
                                 <TruncatedText 
                                     text={systemName} 
                                     as="h3" 
-                                    className="text-lg md:text-xl font-bold text-white tracking-tight truncate text-center w-full max-w-full" 
+                                    className="text-lg md:text-xl font-bold text-white tracking-tight line-clamp-3 text-left w-full max-w-full leading-tight" 
                                 />
-                                
-                                {hasDescription && (
-                                    <TruncatedText 
-                                        text={description} 
-                                        as="p" 
-                                        className="text-xs md:text-sm text-zinc-300 line-clamp-2 text-center w-full max-w-full break-all" 
-                                    />
-                                )}
                             </div>
                             
-                            {/* Action Button */}
-                            <div className="pt-4 w-full flex justify-center mt-2">
-                                <Button variant={isAccessDisabled ? "outline" : "default"} className={`group/sliding relative overflow-hidden w-fit px-5 md:px-7 h-9 md:h-10 text-xs md:text-sm font-extrabold rounded-lg md:rounded-xl shadow-lg transition-all cursor-pointer ${!isAccessDisabled ? 'bg-transparent text-yellow-400 border-2 border-yellow-400 hover:bg-yellow-400 hover:text-[#4f0d17] hover:-translate-y-[1px]' : ''}`} asChild>
-                                    <a href={isAccessDisabled ? undefined : accessLink}target={isAccessDisabled ? undefined : "_blank"} rel={isAccessDisabled ? undefined : "noreferrer"} onClick={(e) => isAccessDisabled && e.preventDefault()} className="flex items-center justify-center">
+                            {/* Action Button (Full Width) */}
+                            <div className="pt-4 w-full flex justify-center mt-auto">
+                                <Button variant={isAccessDisabled ? "outline" : "default"} className={`group/sliding relative overflow-hidden w-full px-5 md:px-7 h-9 md:h-10 text-xs md:text-sm font-extrabold rounded-lg md:rounded-xl shadow-lg transition-all cursor-pointer ${!isAccessDisabled ? 'bg-transparent text-yellow-400 border-2 border-yellow-400 hover:bg-yellow-400 hover:text-[#4f0d17] hover:-translate-y-[1px]' : ''}`} asChild>
+                                    <a href={isAccessDisabled ? undefined : accessLink} target={isAccessDisabled ? undefined : "_blank"} rel={isAccessDisabled ? undefined : "noreferrer"} onClick={(e) => isAccessDisabled && e.preventDefault()} className="flex items-center justify-center">
                                         <span className={!isAccessDisabled ? "inline-flex items-center transition-transform duration-300 lg:group-hover/sliding:-translate-x-2" : ""}>
                                             {isAccessDisabled ? "Unavailable" : "Access"}
                                         </span>
