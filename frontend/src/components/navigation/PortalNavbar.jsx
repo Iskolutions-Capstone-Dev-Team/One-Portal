@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { usePortalTheme } from "../../providers/PortalThemeProvider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { SunIcon, MoonIcon, MenuIcon, XIcon, LayoutDashboard, User, LogOut } from 'lucide-react';
+import { SunIcon, MoonIcon, MenuIcon, XIcon, LayoutDashboard, User, LogOut, HelpCircle } from 'lucide-react';
 import { cn } from "@/lib/utils";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import NotificationCenter from "../../features/notifications/components/NotificationCenter";
@@ -123,6 +123,11 @@ export default function PortalNavbar() {
                             <DropdownMenuItem onClick={handleFirstOption} className="group px-4 py-2.5 rounded-xl cursor-pointer text-sm font-medium text-orange-50/90 focus:bg-white/10 focus:text-orange-50 data-[highlighted]:bg-white/10 data-[highlighted]:text-orange-50">
                                 {firstOption === "Dashboard" ? <LayoutDashboard className="mr-3 w-5 h-5" style={{ color: "inherit" }} /> : <User className="mr-3 w-5 h-5" style={{ color: "inherit" }} />}
                                 {firstOption}
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem onClick={() => window.location.href = "mailto:iskolutions.team@gmail.com"} className="group px-4 py-2.5 rounded-xl cursor-pointer text-sm font-medium text-orange-50/90 focus:bg-white/10 focus:text-orange-50 data-[highlighted]:bg-white/10 data-[highlighted]:text-orange-50">
+                                <HelpCircle className="mr-3 w-5 h-5" style={{ color: "inherit" }} />
+                                Support
                             </DropdownMenuItem>
 
                             <DropdownMenuItem onClick={handleLogout} className="group px-4 py-2.5 rounded-xl cursor-pointer text-sm font-medium text-red-400 focus:bg-white/10 focus:text-red-300 data-[highlighted]:bg-white/10 data-[highlighted]:text-red-300">
