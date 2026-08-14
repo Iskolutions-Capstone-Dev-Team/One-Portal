@@ -195,3 +195,10 @@ body,
     @apply font-sans;
   }
 }
+
+/* Ensure the accessibility widget doesn't float over sheets and modals */
+.asw-widget,
+.asw-menu-btn,
+.asw-container {
+  z-index: 40 !important;
+}
