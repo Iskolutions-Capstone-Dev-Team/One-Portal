@@ -16,27 +16,27 @@ function AutomationIllustration() {
     return (
         <svg width="200" height="120" viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             {/* Left connection line with arrow */}
-            <path d="M30 60 L68 60" className="stroke-[#7b0d15]/30 dark:stroke-red-400/30" strokeWidth="2" strokeLinecap="round" markerEnd="url(#arrowhead)"/>
-            <polygon points="66,56 74,60 66,64" className="fill-[#7b0d15]/30 dark:fill-red-400/30"/>
+            <path d="M30 60 L68 60" className="stroke-[#7b0d15]/30 dark:stroke-yellow-400/30" strokeWidth="2" strokeLinecap="round" markerEnd="url(#arrowhead)"/>
+            <polygon points="66,56 74,60 66,64" className="fill-[#7b0d15]/30 dark:fill-yellow-400/30"/>
 
             {/* Toggle body */}
-            <rect x="76" y="42" width="56" height="36" rx="18" className="stroke-[#7b0d15]/60 fill-[#7b0d15]/5 dark:stroke-red-400/60 dark:fill-red-400/10" strokeWidth="2"/>
+            <rect x="76" y="42" width="56" height="36" rx="18" className="stroke-[#7b0d15]/60 fill-[#7b0d15]/5 dark:stroke-yellow-400/60 dark:fill-yellow-400/10" strokeWidth="2"/>
             {/* Toggle circle */}
-            <circle cx="94" cy="60" r="12" className="fill-[#7b0d15]/40 dark:fill-red-400/40" />
-            <circle cx="94" cy="60" r="6" className="fill-[#7b0d15] dark:fill-red-400" />
+            <circle cx="94" cy="60" r="12" className="fill-[#7b0d15]/40 dark:fill-yellow-400/40" />
+            <circle cx="94" cy="60" r="6" className="fill-[#7b0d15] dark:fill-yellow-400" />
 
             {/* Right connection line */}
-            <path d="M134 60 Q150 60 158 48" className="stroke-[#7b0d15]/30 dark:stroke-red-400/30" strokeWidth="2" fill="none" strokeLinecap="round"/>
-            <circle cx="162" cy="44" r="3" className="fill-[#7b0d15]/20 dark:fill-red-400/20" />
+            <path d="M134 60 Q150 60 158 48" className="stroke-[#7b0d15]/30 dark:stroke-yellow-400/30" strokeWidth="2" fill="none" strokeLinecap="round"/>
+            <circle cx="162" cy="44" r="3" className="fill-[#7b0d15]/20 dark:fill-yellow-400/20" />
 
             {/* Bottom right connection */}
-            <path d="M134 60 Q150 60 158 72" className="stroke-[#7b0d15]/30 dark:stroke-red-400/30" strokeWidth="2" fill="none" strokeLinecap="round"/>
-            <circle cx="162" cy="76" r="3" className="fill-[#7b0d15]/20 dark:fill-red-400/20" />
+            <path d="M134 60 Q150 60 158 72" className="stroke-[#7b0d15]/30 dark:stroke-yellow-400/30" strokeWidth="2" fill="none" strokeLinecap="round"/>
+            <circle cx="162" cy="76" r="3" className="fill-[#7b0d15]/20 dark:fill-yellow-400/20" />
 
             {/* Decorative dots */}
-            <circle cx="22" cy="60" r="2" className="fill-[#7b0d15]/20 dark:fill-red-400/20" />
-            <circle cx="174" cy="44" r="2" className="fill-[#7b0d15]/15 dark:fill-red-400/15" />
-            <circle cx="174" cy="76" r="2" className="fill-[#7b0d15]/15 dark:fill-red-400/15" />
+            <circle cx="22" cy="60" r="2" className="fill-[#7b0d15]/20 dark:fill-yellow-400/20" />
+            <circle cx="174" cy="44" r="2" className="fill-[#7b0d15]/15 dark:fill-yellow-400/15" />
+            <circle cx="174" cy="76" r="2" className="fill-[#7b0d15]/15 dark:fill-yellow-400/15" />
         </svg>
     );
 }
@@ -261,7 +261,7 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
                                             </EmptyDescription>
                                         </EmptyHeader>
                                         <EmptyContent>
-                                            <Button onClick={() => setModalOpen(true)} className="bg-[#7b0d15] text-white hover:bg-yellow-400 hover:text-[#7b0d15] transition-all">
+                                            <Button onClick={() => setModalOpen(true)} className="bg-[#7b0d15] dark:bg-yellow-400 text-white dark:text-[#7b0d15] hover:bg-yellow-400 dark:hover:bg-[#7b0d15] hover:text-[#7b0d15] dark:hover:text-yellow-400 transition-all">
                                                 New connection
                                             </Button>
                                         </EmptyContent>

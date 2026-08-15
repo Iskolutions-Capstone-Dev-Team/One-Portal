@@ -127,6 +127,7 @@ export default function OnePortalHome() {
                             currentPage={currentPage}
                             cardsPerPage={CARDS_PER_PAGE}
                             emptyMessage={emptyStateMessage}
+                            searchQuery={searchQuery}
                         />
 
                         <Pagination className="mt-8 md:mt-12">
