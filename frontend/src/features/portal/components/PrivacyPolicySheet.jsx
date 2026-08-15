@@ -1,30 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Sheet,
-  SheetClose,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Sheet, SheetClose, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { XIcon } from "lucide-react";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { privacyPolicySections } from "../data/privacyPolicyData";
 
 export default function PrivacyPolicySheet() {
   return (
     <Sheet>
-      <SheetTrigger
-        render={<a href="#" onClick={(e) => e.preventDefault()} className="text-sm font-medium leading-none hover:text-red-700 dark:hover:text-yellow-400 transition-colors cursor-pointer" />}
-      >
+      <SheetTrigger render={<a href="#" onClick={(e) => e.preventDefault()} className="text-sm font-medium leading-none hover:text-red-700 dark:hover:text-yellow-400 transition-colors cursor-pointer" />}>
         Privacy Policy
       </SheetTrigger>
       <SheetContent side="right" showCloseButton={false} className="!right-0 !mr-0 font-[Poppins] flex flex-col gap-0 space-y-0 bg-white dark:bg-[#0a0a0a] border-none w-full sm:max-w-lg p-0">

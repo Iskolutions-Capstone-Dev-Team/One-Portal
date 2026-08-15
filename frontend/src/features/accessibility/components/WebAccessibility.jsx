@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { usePortalTheme } from "../../../providers/PortalThemeProvider";
-import { AccessibilityIcon } from "./accessibilityIcons";
 const SIENNA_SCRIPT_ID = "portal-accessibility-script";
 const SIENNA_SCRIPT_SRC = "https://cdn.jsdelivr.net/npm/sienna-accessibility@latest/dist/sienna-accessibility.umd.js";
 const SIENNA_TRIGGER_SELECTOR = ".asw-menu-btn";

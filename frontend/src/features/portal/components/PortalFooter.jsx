@@ -5,7 +5,6 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { IconTile } from "@/components/reui/icon-tile";
-import { Button } from "@/components/ui/button";
 import PrivacyPolicySheet from "./PrivacyPolicySheet";
 
 const socialLinks = [
