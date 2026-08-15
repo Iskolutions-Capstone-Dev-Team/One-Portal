@@ -1,15 +1,22 @@
-import { FacebookIcon, EmailIcon } from "./portalIcons";
+import { Mail } from "lucide-react";
+import { FacebookIcon } from "./portalIcons";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { IconTile } from "@/components/reui/icon-tile";
+import PrivacyPolicySheet from "./PrivacyPolicySheet";
 
 const socialLinks = [
   {
     name: "Facebook",
     href: "https://www.facebook.com/profile.php?id=61590127270893",
-    icon: <FacebookIcon />,
+    icon: <FacebookIcon className="w-5 h-5" />,
   },
   {
     name: "Email",
     href: "mailto:iskolutions.team@gmail.com",
-    icon: <EmailIcon />,
+    icon: <Mail className="w-5 h-5" />,
   },
 ];
 
@@ -20,67 +27,69 @@ const legalLinks = [
 
 export default function PortalFooter() {
   return (
-    <footer id="portal-footer" className="portal-footer">
-      <span className="portal-footer__glow portal-footer__glow--left" aria-hidden="true" />
-      <span className="portal-footer__glow portal-footer__glow--right" aria-hidden="true" />
-
-      <div className="portal-footer__shell">
-        <aside className="portal-footer__info">
-          <div className="portal-footer__brand">
-            <img src="/assets/images/PUPlogo.png" loading="lazy" alt="PUP Logo" className="portal-footer__logo"/>
-
-            <div className="portal-footer__brand-copy">
-              <h2 className="portal-footer__title">PUPT ONE PORTAL 2026</h2>
-              <p className="portal-footer__tagline">One Portal System</p>
-            </div>
+    <footer id="portal-footer" className="relative -mt-1 z-20 border-0 border-transparent shadow-none ring-0 outline-none pt-16 pb-8 px-4 md:px-8 !bg-slate-100 dark:!bg-[#080808]">
+      <Card className="relative z-10 max-w-7xl mx-auto flex flex-col lg:flex-row gap-12 lg:gap-8 bg-white dark:bg-[#0a0a0a] rounded-3xl p-8 shadow-sm border border-slate-200 dark:border-white/10 ring-0 ring-offset-0">
+        <aside className="lg:w-[65%]">
+          <div className="mb-6">
+            <Badge variant="outline" className="flex items-center w-fit gap-2 px-3 py-1.5 bg-[#7b0d15]/10 border-[#7b0d15]/20 text-[#7b0d15] hover:bg-[#7b0d15]/20 dark:bg-[#f8d24e]/10 dark:border-[#f8d24e]/20 dark:text-[#ffe28a] dark:hover:bg-[#f8d24e]/20 font-semibold rounded-md shadow-sm transition-colors">
+                <Avatar className="w-5 h-5 bg-transparent rounded-none">
+                    <AvatarImage src="/assets/images/PUPlogo.png" alt="PUP Taguig Seal" className="object-contain" />
+                    <AvatarFallback>PUP</AvatarFallback>
+                </Avatar>
+                <span className="font-semibold text-sm md:text-base tracking-wide pr-1">One Portal</span>
+            </Badge>
           </div>
 
-          <p className="portal-footer__description">
+          <p className="max-w-2xl text-base text-foreground leading-relaxed mb-6">
             PUPT One Portal is a centralized platform that unifies campus
             services and resources into a single access point, providing a more
             accessible, connected, and convenient experience for the university
             community and its users.
           </p>
 
-          <p className="portal-footer__copyright">
-            &copy; 2026 <span>Polytechnic University of the Philippines</span>
+          <p className="text-base text-foreground">
+            &copy; 2026 <span className="font-bold">Polytechnic University of the Philippines</span>
             <br />
             All rights reserved. PUPT One Portal System
           </p>
         </aside>
 
-        <nav className="portal-footer__connect" aria-label="Stay Connected">
-          <p className="portal-footer__eyebrow">Stay Connected</p>
-          <h3 className="portal-footer__connect-title">
+        <Separator orientation="vertical" className="hidden lg:block w-px bg-slate-200 dark:bg-white/10 self-stretch mx-4" />
+
+        <nav className="lg:w-[35%] flex flex-col justify-center" aria-label="Stay Connected">
+          <p className="text-sm font-medium leading-none mb-2 tracking-widest uppercase text-[#7b0d15] dark:text-yellow-400">
+            Stay Connected
+          </p>
+          <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight mb-1">
             Official PUP Taguig channels
           </h3>
-          <p className="portal-footer__connect-copy">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
             Follow us for updates
           </p>
 
-          <div className="portal-footer__socials">
+          <div className="flex gap-4">
             {socialLinks.map(({ name, href, icon }) => (
-              <a key={name} href={href} target="_blank" rel="noopener noreferrer" className="portal-footer__social-link" aria-label={name}>
+              <IconTile
+                key={name}
+                render={<a href={href} target="_blank" rel="noopener noreferrer" aria-label={name} />}
+                variant="elevated"
+                className="bg-transparent text-[#7b0d15] dark:text-yellow-400 border-2 border-[#7b0d15] dark:border-yellow-400 hover:bg-[#7b0d15] dark:hover:bg-yellow-400 hover:text-white dark:hover:text-[#0a0a0a] focus-visible:ring-ring focus-visible:ring-offset-background transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+              >
                 {icon}
-                <span className="sr-only">{name}</span>
-              </a>
+              </IconTile>
             ))}
           </div>
         </nav>
-      </div>
+      </Card>
 
-      <div className="portal-footer__bottom">
-        {legalLinks.map((link, index) => (
-          <div key={link.label} className="portal-footer__bottom-item">
-            {index > 0 ? (
-              <span className="portal-footer__dot" aria-hidden="true" />
-            ) : null}
+      <div className="relative z-10 max-w-7xl mx-auto mt-12 flex flex-wrap justify-center items-center text-slate-500 dark:text-slate-400">
+        <PrivacyPolicySheet />
 
-            <a href={link.href} target="_blank" rel="noopener noreferrer" className="portal-footer__legal-link">
-              {link.label}
-            </a>
-          </div>
-        ))}
+        <Separator orientation="vertical" className="h-4 w-px bg-slate-300 dark:bg-white/10 mx-2" />
+
+        <a href="https://www.pup.edu.ph/terms/" target="_blank" rel="noopener noreferrer" className="text-sm font-medium leading-none hover:text-red-700 dark:hover:text-yellow-400 transition-colors">
+          Terms of Service
+        </a>
       </div>
     </footer>
   );

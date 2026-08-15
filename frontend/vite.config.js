@@ -37,10 +37,16 @@ export default defineConfig(({ mode }) => {
   const backendApiKey = env.BACKEND_API_KEY || "";
 
   return {
+    assetsInclude: ['**/*.glb'],
     test: {
       globals: true,
       environment: 'jsdom',
       setupFiles: './setupTests.js',
+    },
+    resolve: {
+      alias: {
+        "@": resolve(__dirname, "./src"),
+      },
     },
     envDir: envDirectory,
     plugins: [

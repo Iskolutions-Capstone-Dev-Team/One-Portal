@@ -1,12 +1,45 @@
 import { useCallback, useEffect, useState } from "react";
-import SuccessAlert from "../../../components/feedback/SuccessAlert";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import { cn } from "@/lib/utils";
 import { deleteAuthenticator, getAuthenticators } from "../../../services/userMfa";
 import { formatTimestamp } from "../../../utils/formatTimestamp";
+import { toast } from "sonner";
 import MfaDeleteConfirmModal from "./MfaDeleteConfirmModal";
 import MfaSetupModal from "./MfaSetupModal";
-import { AuthenticatorTypeIcon, CalendarIcon, ClockIcon, TrashIcon } from "./profileIcons";
+import { CalendarIcon, ClockIcon } from "./profileIcons";
+import { Button } from "@/components/ui/button";
+import { KeySquare, Smartphone, Trash } from "lucide-react";
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 
-const AUTHENTICATORS_PER_SLIDE = 3;
+function AutomationIllustration() {
+    return (
+        <svg width="200" height="120" viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            {/* Left connection line with arrow */}
+            <path d="M30 60 L68 60" className="stroke-[#7b0d15]/30 dark:stroke-yellow-400/30" strokeWidth="2" strokeLinecap="round" markerEnd="url(#arrowhead)"/>
+            <polygon points="66,56 74,60 66,64" className="fill-[#7b0d15]/30 dark:fill-yellow-400/30"/>
+
+            {/* Toggle body */}
+            <rect x="76" y="42" width="56" height="36" rx="18" className="stroke-[#7b0d15]/60 fill-[#7b0d15]/5 dark:stroke-yellow-400/60 dark:fill-yellow-400/10" strokeWidth="2"/>
+            {/* Toggle circle */}
+            <circle cx="94" cy="60" r="12" className="fill-[#7b0d15]/40 dark:fill-yellow-400/40" />
+            <circle cx="94" cy="60" r="6" className="fill-[#7b0d15] dark:fill-yellow-400" />
+
+            {/* Right connection line */}
+            <path d="M134 60 Q150 60 158 48" className="stroke-[#7b0d15]/30 dark:stroke-yellow-400/30" strokeWidth="2" fill="none" strokeLinecap="round"/>
+            <circle cx="162" cy="44" r="3" className="fill-[#7b0d15]/20 dark:fill-yellow-400/20" />
+
+            {/* Bottom right connection */}
+            <path d="M134 60 Q150 60 158 72" className="stroke-[#7b0d15]/30 dark:stroke-yellow-400/30" strokeWidth="2" fill="none" strokeLinecap="round"/>
+            <circle cx="162" cy="76" r="3" className="fill-[#7b0d15]/20 dark:fill-yellow-400/20" />
+
+            {/* Decorative dots */}
+            <circle cx="22" cy="60" r="2" className="fill-[#7b0d15]/20 dark:fill-yellow-400/20" />
+            <circle cx="174" cy="44" r="2" className="fill-[#7b0d15]/15 dark:fill-yellow-400/15" />
+            <circle cx="174" cy="76" r="2" className="fill-[#7b0d15]/15 dark:fill-yellow-400/15" />
+        </svg>
+    );
+}
 
 function formatAuthenticatorDate(value) {
     if (!value) {
@@ -48,7 +81,6 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
     const [deletingId, setDeletingId] = useState("");
     const [pendingDeleteAuthenticator, setPendingDeleteAuthenticator] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
-    const [toastMessage, setToastMessage] = useState("");
 
     const loadAuthenticators = useCallback(async () => {
         if (isProfileLoading) {
@@ -109,7 +141,7 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
         try {
             await deleteAuthenticator({ email, id: pendingDeleteAuthenticator.id });
             await loadAuthenticators();
-            setToastMessage("Authenticator removed successfully!");
+            toast.success("Authenticator removed successfully!");
             setPendingDeleteAuthenticator(null);
         } catch (error) {
             setErrorMessage(error.message || "Failed to remove authenticator.");
@@ -120,125 +152,126 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
 
     const handleSaved = async () => {
         await loadAuthenticators();
-        setToastMessage("Authenticator added successfully!");
-    };
-
-    const slideCount = Math.ceil(authenticators.length / AUTHENTICATORS_PER_SLIDE);
-    const hasCarouselControls = slideCount > 1;
-    const authenticatorSlides = Array.from({ length: slideCount }, (_, slideIndex) =>
-        authenticators.slice(
-            slideIndex * AUTHENTICATORS_PER_SLIDE,
-            slideIndex * AUTHENTICATORS_PER_SLIDE + AUTHENTICATORS_PER_SLIDE,
-        ),
-    );
-
-    const goToPreviousSlide = () => {
-        setCurrentSlide((slide) => (slide === 0 ? slideCount - 1 : slide - 1));
-    };
-
-    const goToNextSlide = () => {
-        setCurrentSlide((slide) => (slide + 1) % slideCount);
     };
 
     const renderAuthenticatorCard = (authenticator) => (
-        <article key={authenticator.id} className="mfa-card">
-            <button type="button" className="mfa-card__delete" onClick={() => handleDeleteClick(authenticator)} disabled={deletingId === authenticator.id} aria-label={`Delete ${authenticator.name || "authenticator"}`}>
-                <TrashIcon />
-            </button>
+        <Card key={authenticator.id} className="w-full overflow-hidden p-0 relative group shadow-sm bg-white dark:bg-[#141414] border border-slate-200 dark:border-white/10 transition-all duration-300 h-full flex flex-col">
+            <CardContent className="flex flex-col items-center p-0 h-full flex-1">
+                <div className="flex w-full flex-col items-center justify-center bg-gradient-to-b from-[#7b0d15]/10 dark:from-yellow-400/20 to-transparent py-12 rounded-t-xl shrink-0">
+                    <div className="relative mb-6">
+                        <div className="absolute inset-0 scale-150 rounded-full bg-[#7b0d15]/10 dark:bg-yellow-400/20 blur-2xl" />
+                        <span className="relative block text-[#7b0d15] dark:text-yellow-400">
+                            {String(authenticator.type || "").toLowerCase() === "passkey" ? (
+                                <KeySquare className="size-16" strokeWidth={1.5} />
+                            ) : (
+                                <Smartphone className="size-16" strokeWidth={1.5} />
+                            )}
+                        </span>
+                    </div>
+                    <h3 className="text-foreground text-lg font-semibold text-slate-900 dark:text-slate-100 truncate">
+                        {authenticator.name || "Authenticator"}
+                    </h3>
+                    <p className="text-muted-foreground text-sm font-medium text-slate-500 dark:text-slate-400 capitalize truncate">
+                        {formatAuthenticatorType(authenticator.type)}
+                    </p>
 
-            <div className="mfa-card__icon" aria-hidden="true">
-                <AuthenticatorTypeIcon type={authenticator.type} />
-            </div>
+                    <button type="button" className="absolute top-4 right-4 w-8 h-8 inline-flex items-center justify-center text-[#7b0d15] hover:bg-[#7b0d15]/10 dark:text-yellow-400 dark:hover:bg-yellow-400/20 rounded-full transition-colors disabled:opacity-50" onClick={() => handleDeleteClick(authenticator)} disabled={deletingId === authenticator.id} aria-label={`Delete ${authenticator.name || "authenticator"}`}>
+                        <Trash className="w-4 h-4" strokeWidth={1.5} />
+                    </button>
+                </div>
 
-            <div className="mfa-card__content">
-                <h4 className="mfa-card__name">{authenticator.name || "Authenticator"}</h4>
-                <p className="mfa-card__type">Type: {formatAuthenticatorType(authenticator.type)}</p>
-            </div>
-
-            <div className="mfa-card__dates">
-                <p>
-                    <span className="mfa-card__date-icon">
-                        <CalendarIcon />
-                    </span>
-                    <span>Added: {formatAuthenticatorDate(authenticator.createdAt)}</span>
-                </p>
-                <p>
-                    <span className="mfa-card__date-icon">
-                        <ClockIcon />
-                    </span>
-                    <span>Last used: {formatAuthenticatorDate(authenticator.lastUsedAt)}</span>
-                </p>
-            </div>
-        </article>
+                <div className="w-full space-y-1 px-3 pb-6 mt-auto">
+                    <div className="rounded-lg flex items-center justify-between px-2 sm:px-3 py-2.5 gap-2 min-h-[52px] bg-slate-100/60 dark:bg-[#0a0a0a] border border-transparent dark:border-white/10">
+                        <span className="flex items-center gap-2 text-foreground text-sm font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                            <span className="text-slate-400 dark:text-slate-500 w-4 h-4 block"><CalendarIcon /></span> Added
+                        </span>
+                        <span className="text-muted-foreground text-xs text-slate-500 dark:text-slate-400 text-right leading-tight whitespace-pre-wrap">
+                            {formatAuthenticatorDate(authenticator.createdAt)}
+                        </span>
+                    </div>
+                    <div className="rounded-lg flex items-center justify-between px-2 sm:px-3 py-2.5 gap-2 min-h-[52px]">
+                        <span className="flex items-center gap-2 text-foreground text-sm font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">
+                            <span className="text-slate-400 dark:text-slate-500 w-4 h-4 block"><ClockIcon /></span> Last used
+                        </span>
+                        <span className="text-muted-foreground text-xs text-slate-500 dark:text-slate-400 text-right leading-tight whitespace-pre-wrap">
+                            {formatAuthenticatorDate(authenticator.lastUsedAt)}
+                        </span>
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
     );
 
     return (
         <>
-            <section className="mfa-panel">
-                <div className="mfa-panel__header">
+            <Card className="mt-6 py-0 bg-white dark:bg-[#0a0a0a] shadow-sm border border-transparent dark:border-white/10 rounded-3xl ring-0 ring-offset-0 transition-colors duration-300">
+                <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-2 px-6 sm:px-10 pt-6 sm:pt-10 rounded-t-3xl bg-transparent">
                     <div>
-                        <h3 className="mfa-panel__title">Authenticator Apps</h3>
-                        <p className="mfa-panel__description">Manage the authenticator apps connected to your account.</p>
+                        <CardTitle className="text-2xl font-bold uppercase tracking-wide text-slate-900 dark:text-slate-100">AUTHENTICATOR APPS</CardTitle>
+                        <CardDescription className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage the authenticator apps connected to your account.</CardDescription>
                     </div>
 
-                    <button type="button" className="profile-action profile-action--primary mfa-panel__add" onClick={() => setModalOpen(true)} disabled={!email}>
+                    <Button onClick={() => setModalOpen(true)} disabled={!email} className="bg-[#6b1115] dark:bg-yellow-400 text-white dark:text-[#7b0d15] hover:bg-yellow-400 dark:hover:bg-[#7b0d15] hover:text-[#4f0d17] dark:hover:text-yellow-400 border border-[#6b1115]/70 dark:border-yellow-400 dark:hover:border-[#7b0d15] min-h-[2.5rem] md:min-h-[2.65rem] px-3 py-2 md:px-4 md:py-2.5 rounded-lg md:rounded-xl font-extrabold text-xs md:text-[0.9rem] shadow-lg transition-all hover:-translate-y-[1px] h-auto cursor-pointer flex flex-row items-center justify-center gap-1.5 md:gap-2">
                         + New Connection
-                    </button>
-                </div>
+                    </Button>
+                </CardHeader>
+                <CardContent className="p-4 sm:p-6 lg:p-8">
 
-                {errorMessage && (
-                    <p className="mfa-panel__message mfa-panel__message--error">{errorMessage}</p>
-                )}
+                    {errorMessage && (
+                        <p className="text-red-600 dark:text-red-400 text-sm font-medium mb-6 px-4 py-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-900/50">{errorMessage}</p>
+                    )}
 
-                {isLoading ? (
-                    <p className="mfa-panel__message">
-                        {isProfileLoading ? "Loading profile..." : "Loading authenticators..."}
-                    </p>
-                ) : !email ? (
-                    <p className="mfa-panel__empty">Reload the page or sign in again.</p>
-                ) : (
-                    <div className="mfa-panel__cards">
-                        <div className="mfa-panel__grid">
-                            {authenticators.map(renderAuthenticatorCard)}
-                        </div>
-
-                        <div className="carousel mfa-panel__carousel">
-                            <div className="mfa-panel__carousel-track" style={{ transform: `translateX(-${currentSlide * 100}%)` }}>
-                                {authenticatorSlides.map((slideAuthenticators, slideIndex) => (
-                                    <div key={slideIndex} className="carousel-item mfa-panel__carousel-slide">
-                                        <div className="mfa-panel__carousel-grid">
-                                            {slideAuthenticators.map(renderAuthenticatorCard)}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {hasCarouselControls && (
-                            <>
-                                <div className="mfa-panel__carousel-controls">
-                                    <button type="button" className="btn btn-circle mfa-panel__carousel-button" onClick={goToPreviousSlide} aria-label="Show previous authenticators">
-                                        &#10094;
-                                    </button>
-                                    <button type="button" className="btn btn-circle mfa-panel__carousel-button" onClick={goToNextSlide} aria-label="Show next authenticators">
-                                        &#10095;
-                                    </button>
+                    {isLoading ? (
+                        <p className="text-slate-500 dark:text-slate-400 text-center py-12">
+                            {isProfileLoading ? "Loading profile..." : "Loading authenticators..."}
+                        </p>
+                    ) : !email ? (
+                        <p className="text-slate-500 dark:text-slate-400 text-center py-12 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-slate-300 dark:border-slate-700">Reload the page or sign in again.</p>
+                    ) : (
+                        <div>
+                            {authenticators.length > 0 ? (
+                                <Carousel
+                                    opts={{
+                                        align: "start",
+                                    }}
+                                    className="w-full relative px-0 sm:px-12"
+                                >
+                                    <CarouselContent className="-ml-2">
+                                        {authenticators.map((authenticator, index) => (
+                                            <CarouselItem key={authenticator.id} className="sm:basis-1/2 lg:basis-1/3 pl-2">
+                                                <div className="p-1 h-[372px]">
+                                                    {renderAuthenticatorCard(authenticator)}
+                                                </div>
+                                            </CarouselItem>
+                                        ))}
+                                    </CarouselContent>
+                                    <CarouselPrevious className="left-0 bg-[#7b0d15] dark:bg-yellow-400 hover:bg-yellow-400 dark:hover:bg-[#7b0d15] text-white dark:text-[#7b0d15] hover:text-[#7b0d15] dark:hover:text-yellow-400 border-none" />
+                                    <CarouselNext className="right-0 bg-[#7b0d15] dark:bg-yellow-400 hover:bg-yellow-400 dark:hover:bg-[#7b0d15] text-white dark:text-[#7b0d15] hover:text-[#7b0d15] dark:hover:text-yellow-400 border-none" />
+                                </Carousel>
+                            ) : (
+                                <div className="flex items-center justify-center p-4">
+                                    <Empty className="py-12">
+                                        <EmptyHeader>
+                                            <EmptyMedia>
+                                                <AutomationIllustration />
+                                            </EmptyMedia>
+                                            <EmptyTitle>No authenticator yet</EmptyTitle>
+                                            <EmptyDescription>
+                                                Get started by setting up your authenticator.
+                                            </EmptyDescription>
+                                        </EmptyHeader>
+                                        <EmptyContent>
+                                            <Button onClick={() => setModalOpen(true)} className="bg-[#7b0d15] dark:bg-yellow-400 text-white dark:text-[#7b0d15] hover:bg-yellow-400 dark:hover:bg-[#7b0d15] hover:text-[#7b0d15] dark:hover:text-yellow-400 transition-all">
+                                                New connection
+                                            </Button>
+                                        </EmptyContent>
+                                    </Empty>
                                 </div>
-
-                                <div className="mfa-panel__carousel-pages" aria-label="Authenticator carousel pages">
-                                    {authenticatorSlides.map((_, slideIndex) => (
-                                        <button key={slideIndex} type="button" className={`mfa-panel__carousel-page ${slideIndex === currentSlide ? "is-active" : ""}`} onClick={() => setCurrentSlide(slideIndex)} aria-label={`Show authenticator page ${slideIndex + 1}`} aria-current={slideIndex === currentSlide ? "page" : undefined}/>
-                                    ))}
-                                </div>
-                            </>
-                        )}
-
-                        {!authenticators.length && (
-                            <p className="mfa-panel__empty">No authenticator apps connected yet.</p>
-                        )}
-                    </div>
-                )}
-            </section>
+                            )}
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
 
             <MfaSetupModal
                 isOpen={isModalOpen}
@@ -254,10 +287,6 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
                 onConfirm={handleConfirmDelete}
             />
 
-            <SuccessAlert
-                message={toastMessage}
-                onClose={() => setToastMessage("")}
-            />
         </>
     );
 }

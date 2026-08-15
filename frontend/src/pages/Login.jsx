@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { completeAuthorization, startAuthorization } from "../services/auth";
+import DotField from "../components/ui/DotField";
 
 export default function Login() {
     const navigate = useNavigate();
@@ -60,14 +61,28 @@ export default function Login() {
 
     return (
         <div className="relative min-h-screen overflow-hidden bg-[#250508] font-[Poppins] text-white">
-            <div className="absolute inset-0">
-                <div
-                    className="absolute inset-0 bg-cover bg-center"
-                    style={{ backgroundImage: "url(/assets/images/pup_bg.png)" }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-br from-[#2b0307]/90 via-[#7b0d15]/80 to-[#180204]/90" />
-                <div className="absolute left-[-10rem] top-[-8rem] h-72 w-72 rounded-full bg-[#f8d24e]/20 blur-3xl" />
-                <div className="absolute bottom-[-10rem] right-[-6rem] h-80 w-80 rounded-full bg-white/10 blur-3xl" />
+            <div 
+                className="fixed inset-0 z-0"
+                style={{ 
+                    background: 'radial-gradient(circle at 12% 14%, rgba(145, 31, 42, 0.5), transparent 30rem), radial-gradient(circle at 84% 20%, rgba(248, 210, 78, 0.08), transparent 26rem), linear-gradient(135deg, #1c0306 0%, #4f0d17 48%, #230407 100%)' 
+                }}
+            >
+                <div className="absolute inset-0 overflow-hidden">
+                    <DotField
+                        dotRadius={1.5}
+                        dotSpacing={14}
+                        bulgeStrength={67}
+                        glowRadius={160}
+                        sparkle={false}
+                        waveAmplitude={0}
+                        cursorRadius={500}
+                        cursorForce={0.1}
+                        bulgeOnly
+                        gradientFrom="rgba(255, 255, 255, 0.22)"
+                        gradientTo="rgba(255, 255, 255, 0.08)"
+                        glowColor="rgba(0, 0, 0, 0.2)"
+                    />
+                </div>
             </div>
 
             <div className="relative flex min-h-screen flex-col items-center justify-center gap-5 px-4 text-center">

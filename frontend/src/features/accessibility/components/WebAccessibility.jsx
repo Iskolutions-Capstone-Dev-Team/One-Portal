@@ -1,8 +1,5 @@
 import { useEffect, useState } from "react";
 import { usePortalTheme } from "../../../providers/PortalThemeProvider";
-import { AccessibilityIcon } from "./accessibilityIcons";
-import "../../../styles/WebAccessibility.css";
-
 const SIENNA_SCRIPT_ID = "portal-accessibility-script";
 const SIENNA_SCRIPT_SRC = "https://cdn.jsdelivr.net/npm/sienna-accessibility@latest/dist/sienna-accessibility.umd.js";
 const SIENNA_TRIGGER_SELECTOR = ".asw-menu-btn";
@@ -85,11 +82,7 @@ function closeAccessibilityMenu() {
   }
 }
 
-export default function WebAccessibility({
-  isMenuOpen = false,
-  isButtonVisible = false,
-  onActivate = () => {},
-}) {
+export default function WebAccessibility() {
   const { theme } = usePortalTheme();
   const [isAccessibilityMenuOpen, setIsAccessibilityMenuOpen] = useState(false);
 
@@ -101,62 +94,5 @@ export default function WebAccessibility({
     loadSiennaScript();
   }, []);
 
-  useEffect(() => {
-    const handleDocumentClick = (event) => {
-      if (!(event.target instanceof Element)) {
-        return;
-      }
-
-      if (
-        event.target.closest(SIENNA_CLOSE_SELECTOR) ||
-        event.target.closest(SIENNA_OVERLAY_SELECTOR)
-      ) {
-        setIsAccessibilityMenuOpen(false);
-      }
-    };
-
-    const handleEscape = (event) => {
-      if (event.key === "Escape") {
-        setIsAccessibilityMenuOpen(false);
-      }
-    };
-
-    document.addEventListener("click", handleDocumentClick, true);
-    document.addEventListener("keydown", handleEscape);
-
-    return () => {
-      document.removeEventListener("click", handleDocumentClick, true);
-      document.removeEventListener("keydown", handleEscape);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!isMenuOpen && isAccessibilityMenuOpen) {
-      closeAccessibilityMenu();
-      setIsAccessibilityMenuOpen(false);
-    }
-  }, [isMenuOpen, isAccessibilityMenuOpen]);
-
-  const handleButtonClick = () => {
-    onActivate();
-    setIsAccessibilityMenuOpen(true);
-    openAccessibilityMenu();
-  };
-
-  if (!isButtonVisible) {
-    return null;
-  }
-
-  return (
-    <div className={`portal-accessibility ${isMenuOpen ? "is-open" : "is-closing"}`}>
-      <div className="portal-floating-tooltip">
-        <button type="button" className="portal-accessibility__button" aria-label="Open accessibility menu" aria-haspopup="dialog" onClick={handleButtonClick}>
-          <AccessibilityIcon />
-        </button>
-        <span className="portal-floating-tooltip__bubble" aria-hidden="true">
-          Accessibility
-        </span>
-      </div>
-    </div>
-  );
+  return null;
 }
