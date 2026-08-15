@@ -164,7 +164,7 @@ export default function ChangePasswordModal({
     return (
         <>
             <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-                <DialogContent onPointerDownOutside={(e) => e.preventDefault()} onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()} className="font-[Poppins] sm:max-w-md bg-white dark:bg-slate-900 border-none ring-0 outline-none shadow-xl [&>button]:!text-white [&>button:hover]:!bg-white/20">
+                <DialogContent onPointerDownOutside={(e) => e.preventDefault()} onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()} className="font-[Poppins] sm:max-w-md bg-white dark:bg-[#0a0a0a] border border-transparent dark:border-white/10 ring-0 outline-none shadow-xl [&>button]:!text-white [&>button:hover]:!bg-white/20">
                     {step === 1 && (
                         <ChangePasswordStep
                             form={form}

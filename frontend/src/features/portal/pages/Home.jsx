@@ -112,7 +112,7 @@ export default function OnePortalHome() {
 
     return (
         <OnePortalLayout>
-            <div className="relative min-h-screen w-full !bg-slate-100 dark:!bg-slate-900 border-none shadow-none transition-colors duration-300">
+            <div className="relative min-h-screen w-full !bg-slate-100 dark:!bg-[#080808] border-none shadow-none">
                 <PortalHero />
                 <main className="relative z-10 px-4 md:px-8 py-12 md:py-20">
                     <div className="mx-auto max-w-7xl">

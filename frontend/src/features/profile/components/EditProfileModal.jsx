@@ -135,7 +135,7 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
 
     return (
         <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) close(); }}>
-            <DialogContent onPointerDownOutside={(e) => e.preventDefault()} onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()} className="font-[Poppins] sm:max-w-2xl bg-white dark:bg-slate-900 border-none ring-0 outline-none shadow-xl [&>button]:!text-white [&>button:hover]:!bg-white/20">
+            <DialogContent onPointerDownOutside={(e) => e.preventDefault()} onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()} className="font-[Poppins] sm:max-w-2xl bg-white dark:bg-[#0a0a0a] border border-transparent dark:border-white/10 ring-0 outline-none shadow-xl [&>button]:!text-white [&>button:hover]:!bg-white/20">
                 <DialogHeader className="-mx-4 -mt-4 mb-2 rounded-t-xl p-4 bg-[linear-gradient(180deg,rgba(123,13,21,0.97),rgba(43,3,7,0.98))]">
                     <DialogTitle className="font-heading text-base leading-none font-medium text-white text-left">Edit Profile</DialogTitle>
                     <DialogDescription className="sr-only">
@@ -155,7 +155,7 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
                                             {field.required && <span className="text-red-500">*</span>}
                                         </FieldLabel>
                                         {!field.required && field.name === 'nameSuffix' && (
-                                            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full border border-[#7b0d15]/30 text-[#7b0d15] bg-[#7b0d15]/5">
+                                            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full border border-[#7b0d15]/30 dark:border-yellow-400/30 text-[#7b0d15] dark:text-yellow-400 bg-[#7b0d15]/5 dark:bg-yellow-400/5">
                                                 Optional
                                             </span>
                                         )}
@@ -167,7 +167,7 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
                                         placeholder={field.placeholder} 
                                         value={profile[field.name]} 
                                         onChange={handleChange} 
-                                        className={`flex h-10 w-full rounded-md border ${errors[field.name] ? "border-red-500 focus-visible:ring-red-500" : "border-slate-300 dark:border-slate-700 focus-visible:ring-slate-300 dark:focus-visible:ring-slate-600"} bg-white dark:bg-slate-950 px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 text-slate-900 dark:text-slate-100 transition-colors duration-200`}
+                                        className={`flex h-10 w-full rounded-md border ${errors[field.name] ? "border-red-500 focus-visible:ring-red-500" : "border-slate-300 dark:border-white/10 focus-visible:ring-slate-300 dark:focus-visible:ring-white/20"} bg-white dark:bg-[#141414] px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 text-slate-900 dark:text-slate-100 transition-colors duration-200`}
                                         maxLength={50}
                                     />
                                     {errors[field.name] && (
@@ -190,7 +190,7 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
                                     placeholder="Enter email" 
                                     value={profile.email} 
                                     onChange={handleChange} 
-                                    className={`flex h-10 w-full rounded-md border ${errors.email ? "border-red-500 focus-visible:ring-red-500" : "border-slate-300 dark:border-slate-700 focus-visible:ring-slate-300 dark:focus-visible:ring-slate-600"} bg-white dark:bg-slate-950 px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 text-slate-900 dark:text-slate-100 transition-colors duration-200`}
+                                    className={`flex h-10 w-full rounded-md border ${errors.email ? "border-red-500 focus-visible:ring-red-500" : "border-slate-300 dark:border-white/10 focus-visible:ring-slate-300 dark:focus-visible:ring-white/20"} bg-white dark:bg-[#141414] px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 text-slate-900 dark:text-slate-100 transition-colors duration-200`}
                                 />
                                 {errors.email && (
                                     <p className="text-[0.8rem] font-medium text-red-500">{errors.email}</p>
@@ -200,13 +200,13 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
                     </form>
                 </div>
 
-                <DialogFooter className="border-t-0 bg-slate-50 dark:bg-slate-900/50 flex-row justify-end gap-2 rounded-b-xl p-4">
+                <DialogFooter className="border-t-0 bg-slate-50 dark:bg-transparent flex-row justify-end gap-2 rounded-b-xl p-4">
                     <DialogClose asChild>
-                        <Button variant="outline" className="rounded-lg h-8 px-2.5 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700 bg-white dark:bg-slate-900 font-bold text-sm">
+                        <Button variant="outline" className="rounded-lg h-8 px-2.5 border-slate-200 dark:border-white/20 text-slate-900 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-white/10 bg-white dark:bg-transparent font-bold text-sm">
                             Cancel
                         </Button>
                     </DialogClose>
-                    <Button onClick={handleSave} disabled={isSaving} className="rounded-lg h-8 px-2.5 bg-[#7b0d15] hover:bg-yellow-400 text-white hover:text-[#7b0d15] border-none font-bold text-sm transition-colors">
+                    <Button onClick={handleSave} disabled={isSaving} className="rounded-lg h-8 px-2.5 bg-[#6b1115] dark:bg-yellow-400 text-white dark:text-[#7b0d15] hover:bg-yellow-400 dark:hover:bg-[#7b0d15] hover:text-[#4f0d17] dark:hover:text-yellow-400 border-none font-bold text-sm transition-colors">
                         {isSaving ? "Saving..." : "Save Changes"}
                     </Button>
                 </DialogFooter>

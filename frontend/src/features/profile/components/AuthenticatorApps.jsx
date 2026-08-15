@@ -155,12 +155,12 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
     };
 
     const renderAuthenticatorCard = (authenticator) => (
-        <Card key={authenticator.id} className="w-full overflow-hidden p-0 relative group shadow-sm bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 transition-all duration-300 h-full flex flex-col">
+        <Card key={authenticator.id} className="w-full overflow-hidden p-0 relative group shadow-sm bg-white dark:bg-[#141414] border border-slate-200 dark:border-white/10 transition-all duration-300 h-full flex flex-col">
             <CardContent className="flex flex-col items-center p-0 h-full flex-1">
-                <div className="flex w-full flex-col items-center justify-center bg-gradient-to-b from-[#7b0d15]/10 dark:from-[#7b0d15]/30 to-transparent py-12 rounded-t-xl shrink-0">
+                <div className="flex w-full flex-col items-center justify-center bg-gradient-to-b from-[#7b0d15]/10 dark:from-yellow-400/20 to-transparent py-12 rounded-t-xl shrink-0">
                     <div className="relative mb-6">
-                        <div className="absolute inset-0 scale-150 rounded-full bg-[#7b0d15]/10 dark:bg-[#7b0d15]/30 blur-2xl" />
-                        <span className="relative block text-[#7b0d15] dark:text-[#f8d24e]">
+                        <div className="absolute inset-0 scale-150 rounded-full bg-[#7b0d15]/10 dark:bg-yellow-400/20 blur-2xl" />
+                        <span className="relative block text-[#7b0d15] dark:text-yellow-400">
                             {String(authenticator.type || "").toLowerCase() === "passkey" ? (
                                 <KeySquare className="size-16" strokeWidth={1.5} />
                             ) : (
@@ -175,13 +175,13 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
                         {formatAuthenticatorType(authenticator.type)}
                     </p>
 
-                    <button type="button" className="absolute top-4 right-4 w-8 h-8 inline-flex items-center justify-center text-[#7b0d15] hover:bg-[#7b0d15]/10 dark:text-red-400 dark:hover:bg-[#7b0d15]/30 rounded-full transition-colors disabled:opacity-50" onClick={() => handleDeleteClick(authenticator)} disabled={deletingId === authenticator.id} aria-label={`Delete ${authenticator.name || "authenticator"}`}>
+                    <button type="button" className="absolute top-4 right-4 w-8 h-8 inline-flex items-center justify-center text-[#7b0d15] hover:bg-[#7b0d15]/10 dark:text-yellow-400 dark:hover:bg-yellow-400/20 rounded-full transition-colors disabled:opacity-50" onClick={() => handleDeleteClick(authenticator)} disabled={deletingId === authenticator.id} aria-label={`Delete ${authenticator.name || "authenticator"}`}>
                         <Trash className="w-4 h-4" strokeWidth={1.5} />
                     </button>
                 </div>
 
                 <div className="w-full space-y-1 px-3 pb-6 mt-auto">
-                    <div className="rounded-lg flex items-center justify-between px-2 sm:px-3 py-2.5 gap-2 min-h-[52px] bg-slate-100/60 dark:bg-slate-800/60">
+                    <div className="rounded-lg flex items-center justify-between px-2 sm:px-3 py-2.5 gap-2 min-h-[52px] bg-slate-100/60 dark:bg-[#0a0a0a] border border-transparent dark:border-white/10">
                         <span className="flex items-center gap-2 text-foreground text-sm font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">
                             <span className="text-slate-400 dark:text-slate-500 w-4 h-4 block"><CalendarIcon /></span> Added
                         </span>
@@ -204,14 +204,14 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
 
     return (
         <>
-            <Card className="mt-6 py-0 bg-white dark:bg-slate-800 shadow-sm border-none rounded-3xl ring-0 ring-offset-0 transition-colors duration-300">
+            <Card className="mt-6 py-0 bg-white dark:bg-[#0a0a0a] shadow-sm border border-transparent dark:border-white/10 rounded-3xl ring-0 ring-offset-0 transition-colors duration-300">
                 <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-2 px-6 sm:px-10 pt-6 sm:pt-10 rounded-t-3xl bg-transparent">
                     <div>
                         <CardTitle className="text-2xl font-bold uppercase tracking-wide text-slate-900 dark:text-slate-100">AUTHENTICATOR APPS</CardTitle>
                         <CardDescription className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage the authenticator apps connected to your account.</CardDescription>
                     </div>
 
-                    <Button onClick={() => setModalOpen(true)} disabled={!email} className="bg-[#7b0d15] text-white hover:bg-yellow-400 hover:text-[#7b0d15] border border-[#7b0d15]/70 hover:border-yellow-400 min-h-[2.5rem] md:min-h-[2.65rem] px-3 py-2 md:px-4 md:py-2.5 rounded-lg md:rounded-xl font-extrabold text-xs md:text-[0.9rem] shadow-lg transition-all hover:-translate-y-[1px] h-auto cursor-pointer flex flex-row items-center justify-center gap-1.5 md:gap-2">
+                    <Button onClick={() => setModalOpen(true)} disabled={!email} className="bg-[#6b1115] dark:bg-yellow-400 text-white dark:text-[#7b0d15] hover:bg-yellow-400 dark:hover:bg-[#7b0d15] hover:text-[#4f0d17] dark:hover:text-yellow-400 border border-[#6b1115]/70 dark:border-yellow-400 dark:hover:border-[#7b0d15] min-h-[2.5rem] md:min-h-[2.65rem] px-3 py-2 md:px-4 md:py-2.5 rounded-lg md:rounded-xl font-extrabold text-xs md:text-[0.9rem] shadow-lg transition-all hover:-translate-y-[1px] h-auto cursor-pointer flex flex-row items-center justify-center gap-1.5 md:gap-2">
                         + New Connection
                     </Button>
                 </CardHeader>
@@ -245,8 +245,8 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
                                             </CarouselItem>
                                         ))}
                                     </CarouselContent>
-                                    <CarouselPrevious className="left-0 bg-[#7b0d15] hover:bg-yellow-400 text-white hover:text-[#7b0d15] border-none" />
-                                    <CarouselNext className="right-0 bg-[#7b0d15] hover:bg-yellow-400 text-white hover:text-[#7b0d15] border-none" />
+                                    <CarouselPrevious className="left-0 bg-[#7b0d15] dark:bg-yellow-400 hover:bg-yellow-400 dark:hover:bg-[#7b0d15] text-white dark:text-[#7b0d15] hover:text-[#7b0d15] dark:hover:text-yellow-400 border-none" />
+                                    <CarouselNext className="right-0 bg-[#7b0d15] dark:bg-yellow-400 hover:bg-yellow-400 dark:hover:bg-[#7b0d15] text-white dark:text-[#7b0d15] hover:text-[#7b0d15] dark:hover:text-yellow-400 border-none" />
                                 </Carousel>
                             ) : (
                                 <div className="flex items-center justify-center p-4">

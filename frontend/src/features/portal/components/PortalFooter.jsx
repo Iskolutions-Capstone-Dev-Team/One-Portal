@@ -28,8 +28,8 @@ const legalLinks = [
 
 export default function PortalFooter() {
   return (
-    <footer id="portal-footer" className="relative -mt-1 z-20 border-0 border-transparent shadow-none ring-0 outline-none pt-16 pb-8 px-4 md:px-8 !bg-slate-100 dark:!bg-slate-900 transition-colors duration-300">
-      <Card className="relative z-10 max-w-7xl mx-auto flex flex-col lg:flex-row gap-12 lg:gap-8 bg-white dark:bg-slate-800 rounded-3xl p-8 shadow-sm border border-slate-200 dark:border-slate-700 ring-0 ring-offset-0">
+    <footer id="portal-footer" className="relative -mt-1 z-20 border-0 border-transparent shadow-none ring-0 outline-none pt-16 pb-8 px-4 md:px-8 !bg-slate-100 dark:!bg-[#080808]">
+      <Card className="relative z-10 max-w-7xl mx-auto flex flex-col lg:flex-row gap-12 lg:gap-8 bg-white dark:bg-[#0a0a0a] rounded-3xl p-8 shadow-sm border border-slate-200 dark:border-white/10 ring-0 ring-offset-0">
         <aside className="lg:w-[65%]">
           <div className="mb-6">
             <Badge variant="outline" className="flex items-center w-fit gap-2 px-3 py-1.5 bg-[#7b0d15]/10 border-[#7b0d15]/20 text-[#7b0d15] hover:bg-[#7b0d15]/20 dark:bg-[#f8d24e]/10 dark:border-[#f8d24e]/20 dark:text-[#ffe28a] dark:hover:bg-[#f8d24e]/20 font-semibold rounded-md shadow-sm transition-colors">
@@ -55,10 +55,10 @@ export default function PortalFooter() {
           </p>
         </aside>
 
-        <Separator orientation="vertical" className="hidden lg:block w-px bg-slate-200 dark:bg-slate-700 self-stretch mx-4" />
+        <Separator orientation="vertical" className="hidden lg:block w-px bg-slate-200 dark:bg-white/10 self-stretch mx-4" />
 
         <nav className="lg:w-[35%] flex flex-col justify-center" aria-label="Stay Connected">
-          <p className="text-sm font-medium leading-none mb-2 tracking-widest uppercase text-[#7b0d15] dark:text-red-500">
+          <p className="text-sm font-medium leading-none mb-2 tracking-widest uppercase text-[#7b0d15] dark:text-yellow-400">
             Stay Connected
           </p>
           <h3 className="scroll-m-20 text-2xl font-semibold tracking-tight mb-1">
@@ -74,7 +74,7 @@ export default function PortalFooter() {
                 key={name}
                 render={<a href={href} target="_blank" rel="noopener noreferrer" aria-label={name} />}
                 variant="elevated"
-                className="bg-transparent text-[#7b0d15] dark:text-red-500 border-2 border-[#7b0d15] dark:border-red-500 hover:bg-[#7b0d15] dark:hover:bg-red-500 hover:text-white focus-visible:ring-ring focus-visible:ring-offset-background transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+                className="bg-transparent text-[#7b0d15] dark:text-yellow-400 border-2 border-[#7b0d15] dark:border-yellow-400 hover:bg-[#7b0d15] dark:hover:bg-yellow-400 hover:text-white dark:hover:text-[#0a0a0a] focus-visible:ring-ring focus-visible:ring-offset-background transition-all duration-300 outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
               >
                 {icon}
               </IconTile>
@@ -86,9 +86,9 @@ export default function PortalFooter() {
       <div className="relative z-10 max-w-7xl mx-auto mt-12 flex flex-wrap justify-center items-center text-slate-500 dark:text-slate-400">
         <PrivacyPolicySheet />
 
-        <Separator orientation="vertical" className="h-4 w-px bg-slate-300 dark:bg-slate-600 mx-2" />
+        <Separator orientation="vertical" className="h-4 w-px bg-slate-300 dark:bg-white/10 mx-2" />
 
-        <a href="https://www.pup.edu.ph/terms/" target="_blank" rel="noopener noreferrer" className="text-sm font-medium leading-none hover:text-red-700 dark:hover:text-red-400 transition-colors">
+        <a href="https://www.pup.edu.ph/terms/" target="_blank" rel="noopener noreferrer" className="text-sm font-medium leading-none hover:text-red-700 dark:hover:text-yellow-400 transition-colors">
           Terms of Service
         </a>
       </div>

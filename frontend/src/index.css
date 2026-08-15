@@ -23,6 +23,11 @@ body,
   background-color: #240406;
 }
 
+.dark body,
+.dark #root {
+  background-color: #080808;
+}
+
 @keyframes floatLogo {
   0%, 100% {
     transform: translateY(0px);

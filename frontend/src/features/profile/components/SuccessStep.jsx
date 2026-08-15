@@ -13,7 +13,7 @@ export default function SuccessStep({ onClose }) {
                 </DialogDescription>
             </DialogHeader>
 
-            <div className="-mx-4 px-4 bg-white dark:bg-slate-900 flex-1">
+            <div className="-mx-4 px-4 bg-white dark:bg-transparent flex-1">
                 <Card className="border-none shadow-none bg-transparent mx-auto w-full">
                     <CardHeader className="text-center pb-2 pt-6">
                         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-500">
@@ -27,8 +27,8 @@ export default function SuccessStep({ onClose }) {
                 </Card>
             </div>
 
-            <DialogFooter className="-mx-4 -mb-4 border-t-0 bg-slate-50 dark:bg-slate-900/50 flex-row justify-end gap-2 rounded-b-xl p-4">
-                <Button onClick={onClose} className="rounded-lg h-8 px-2.5 bg-[#7b0d15] hover:bg-yellow-400 text-white hover:text-[#7b0d15] border-none font-bold text-sm transition-colors">
+            <DialogFooter className="-mx-4 -mb-4 border-t-0 bg-slate-50 dark:bg-transparent flex-row justify-end gap-2 rounded-b-xl p-4">
+                <Button onClick={onClose} className="rounded-lg h-8 px-2.5 bg-[#6b1115] dark:bg-yellow-400 text-white dark:text-[#7b0d15] hover:bg-yellow-400 dark:hover:bg-[#7b0d15] hover:text-[#4f0d17] dark:hover:text-yellow-400 border-none font-bold text-sm transition-colors">
                     Close
                 </Button>
             </DialogFooter>

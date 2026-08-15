@@ -21,7 +21,7 @@ function readVisitedAnnouncements() {
 
 function renderStatusItem(message, tone = 'default') {
   return (
-    <div className={`px-4 py-8 mx-3 my-2 rounded-xl text-[0.9rem] font-medium text-center bg-slate-50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 border border-slate-100 dark:border-slate-700 ${tone === 'error' ? 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border-red-100 dark:border-red-900/50' : ''}`}>
+    <div className={`px-4 py-8 mx-3 my-2 rounded-xl text-[0.9rem] font-medium text-center bg-slate-50 dark:bg-[#141414] text-slate-500 dark:text-slate-400 border border-slate-100 dark:border-white/10 ${tone === 'error' ? 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border-red-100 dark:border-red-900/50' : ''}`}>
       {message}
     </div>
   );
@@ -75,8 +75,8 @@ export default function NotificationCenter() {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button size='icon' variant='outline' className='relative w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 border-white/20 text-white hover:text-white focus:text-white data-[state=open]:text-white transition-colors data-[state=open]:bg-white/20 data-[state=open]:ring-2 data-[state=open]:ring-white/50 data-[state=open]:ring-offset-0' aria-label={`Notifications (${unreadCount})`}>
-          <BellIcon className='w-5 h-5 !text-white' aria-hidden='true' />
+        <Button size='icon' variant='outline' className='relative w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 border-white/20 text-white hover:text-white focus:text-white dark:bg-[#f8d24e]/10 dark:hover:bg-[#f8d24e]/20 dark:border-[#f8d24e]/20 dark:text-[#ffe28a] dark:hover:text-[#ffe28a] dark:focus:text-[#ffe28a] data-[state=open]:text-white dark:data-[state=open]:text-[#ffe28a] transition-colors data-[state=open]:bg-white/20 dark:data-[state=open]:bg-[#f8d24e]/20 data-[state=open]:ring-2 data-[state=open]:ring-white/50 dark:data-[state=open]:ring-[#f8d24e]/50 data-[state=open]:ring-offset-0' aria-label={`Notifications (${unreadCount})`}>
+          <BellIcon className='w-5 h-5 !text-white dark:!text-[#ffe28a]' aria-hidden='true' />
           {unreadCount > 0 && (
             <Badge
               className='absolute -top-1 -right-1 rounded-full px-1 min-w-[1.2rem] h-[1.2rem] text-[0.65rem] font-bold bg-yellow-400 text-[#991b1b] hover:bg-yellow-500 border-none flex items-center justify-center shadow-sm'
@@ -88,8 +88,8 @@ export default function NotificationCenter() {
         </Button>
       </SheetTrigger>
 
-      <SheetContent side="left" showCloseButton={false} className='w-full sm:max-w-md flex flex-col gap-0 p-0 overflow-hidden bg-slate-50 dark:bg-slate-900 border-none shadow-xl'>
-        <SheetHeader className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 bg-[linear-gradient(180deg,rgba(123,13,21,0.97),rgba(43,3,7,0.98))] flex flex-row justify-between items-start text-left">
+      <SheetContent side="left" showCloseButton={false} className='w-full sm:max-w-md flex flex-col gap-0 p-0 overflow-hidden bg-slate-50 dark:bg-[#0a0a0a] border-none shadow-xl'>
+        <SheetHeader className="px-5 py-4 border-b border-slate-200 dark:border-white/10 bg-[linear-gradient(180deg,rgba(123,13,21,0.97),rgba(43,3,7,0.98))] flex flex-row justify-between items-start text-left">
           <div className="flex flex-col">
             <SheetTitle className="text-lg font-bold text-white">Campus updates</SheetTitle>
             <SheetDescription className="text-sm text-white/80">
@@ -103,7 +103,7 @@ export default function NotificationCenter() {
             </button>
           </SheetClose>
         </SheetHeader>
-        <div className='flex-1 overflow-y-auto p-4 custom-scrollbar bg-slate-50/50 dark:bg-slate-900/50'>
+        <div className='flex-1 overflow-y-auto p-4 custom-scrollbar bg-slate-50/50 dark:bg-transparent'>
           {isLoading ? (
             renderStatusItem('Loading announcements...')
           ) : errorMessage ? (
@@ -113,7 +113,7 @@ export default function NotificationCenter() {
           ) : (
             <Accordion type="single" collapsible className="space-y-2 border-0 w-full pb-8">
               {announcements.map((announcement) => (
-                <AccordionItem key={announcement.id} value={String(announcement.id)} className={`border-slate-200 dark:border-slate-800 rounded-lg border px-3 transition-colors ${visitedAnnouncementIds.includes(announcement.id) ? 'bg-slate-50 dark:bg-slate-800/50' : 'bg-white dark:bg-slate-800 shadow-sm'}`}>
+                <AccordionItem key={announcement.id} value={String(announcement.id)} className={`border-slate-200 dark:border-white/10 rounded-lg border px-3 transition-colors ${visitedAnnouncementIds.includes(announcement.id) ? 'bg-slate-50 dark:bg-transparent' : 'bg-white dark:bg-[#141414] shadow-sm'}`}>
                   <AccordionTrigger onClick={() => handleAnnouncementClick(announcement.id)} className="items-center py-4 font-medium hover:no-underline text-left">
                     <div className="flex w-full items-start justify-between pr-4">
                       <div className="flex items-start gap-3 min-w-0">

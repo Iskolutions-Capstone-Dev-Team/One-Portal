@@ -14,6 +14,12 @@ export function PortalThemeProvider({ children }) {
 
     useEffect(() => {
         window.localStorage.setItem(STORAGE_KEY, theme);
+        
+        if (theme === "dark") {
+            document.documentElement.classList.add("dark");
+        } else {
+            document.documentElement.classList.remove("dark");
+        }
     }, [theme]);
 
     const toggleTheme = () => {

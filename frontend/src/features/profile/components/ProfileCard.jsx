@@ -40,10 +40,10 @@ export default function ProfileCard({ profile, onProfileChange, addAuditLog, all
 
     return (
         <>
-            <Card className="bg-white dark:bg-slate-800 rounded-3xl p-6 sm:p-10 shadow-sm border border-slate-200 dark:border-slate-700 ring-0 ring-offset-0 transition-colors duration-300">
+            <Card className="bg-white dark:bg-[#0a0a0a] rounded-3xl p-6 sm:p-10 shadow-sm border border-slate-200 dark:border-white/10 ring-0 ring-offset-0 transition-colors duration-300">
                 <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-5 text-center sm:text-left">
-                        <Avatar className="w-16 h-16 sm:w-20 sm:h-20 bg-[#7b0d15] shrink-0 border-0 outline-none ring-0 overflow-hidden after:hidden">
-                            <AvatarFallback className="bg-transparent text-[#facc15] text-xl sm:text-2xl font-extrabold border-0 outline-none">
+                        <Avatar className="w-16 h-16 sm:w-20 sm:h-20 bg-[#7b0d15] dark:bg-yellow-400 shrink-0 border-0 outline-none ring-0 overflow-hidden after:hidden">
+                            <AvatarFallback className="bg-transparent text-[#facc15] dark:text-[#7b0d15] text-xl sm:text-2xl font-extrabold border-0 outline-none">
                                 {initials || "?"}
                             </AvatarFallback>
                         </Avatar>

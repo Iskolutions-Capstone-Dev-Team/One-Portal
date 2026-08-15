@@ -104,7 +104,7 @@ export default function ChangePasswordStep({
                 </DialogDescription>
             </DialogHeader>
 
-            <div className="-mx-4 no-scrollbar max-h-[60vh] overflow-y-auto px-4 bg-white dark:bg-slate-900 flex-1">
+            <div className="-mx-4 no-scrollbar max-h-[60vh] overflow-y-auto px-4 bg-white dark:bg-transparent flex-1">
                 <form className="space-y-6 px-2 pb-6" onSubmit={(event) => event.preventDefault()}>
                     {errorMessage && (
                         <ErrorAlert
@@ -130,7 +130,7 @@ export default function ChangePasswordStep({
                                     </FieldLabel>
                                 </div>
 
-                                <InputGroup className={`h-10 rounded-md bg-white dark:bg-slate-950 ${isFieldInvalid(field) ? "border-red-500 focus-within:border-red-500 focus-within:ring-red-500" : "border-slate-300 dark:border-slate-700"}`}>
+                                <InputGroup className={`h-10 rounded-md bg-white dark:bg-[#141414] ${isFieldInvalid(field) ? "border-red-500 focus-within:border-red-500 focus-within:ring-red-500" : "border-slate-300 dark:border-white/10"}`}>
                                     <InputGroupAddon>
                                         <LockIcon className="text-muted-foreground size-4" />
                                     </InputGroupAddon>
@@ -182,11 +182,11 @@ export default function ChangePasswordStep({
                 </form>
             </div>
 
-            <DialogFooter className="-mx-4 -mb-4 border-t-0 bg-slate-50 dark:bg-slate-900/50 flex flex-row items-center justify-end gap-2 rounded-b-xl p-4">
-                <Button variant="outline" onClick={onClose} className="rounded-lg h-8 px-2.5 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-slate-700 bg-white dark:bg-slate-900 font-bold text-sm">
+            <DialogFooter className="-mx-4 -mb-4 border-t-0 bg-slate-50 dark:bg-transparent flex flex-row items-center justify-end gap-2 rounded-b-xl p-4">
+                <Button variant="outline" onClick={onClose} className="rounded-lg h-8 px-2.5 border-slate-200 dark:border-white/20 text-slate-900 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-white/10 bg-white dark:bg-transparent font-bold text-sm">
                     Cancel
                 </Button>
-                <Button onClick={handleNext} disabled={isContinueDisabled} className="rounded-lg h-8 px-2.5 bg-[#7b0d15] hover:bg-yellow-400 text-white hover:text-[#7b0d15] border-none font-bold text-sm transition-colors">
+                <Button onClick={handleNext} disabled={isContinueDisabled} className="rounded-lg h-8 px-2.5 bg-[#6b1115] dark:bg-yellow-400 text-white dark:text-[#7b0d15] hover:bg-yellow-400 dark:hover:bg-[#7b0d15] hover:text-[#4f0d17] dark:hover:text-yellow-400 border-none font-bold text-sm transition-colors">
                     {isSubmitting ? "Sending OTP..." : "Continue"}
                 </Button>
             </DialogFooter>

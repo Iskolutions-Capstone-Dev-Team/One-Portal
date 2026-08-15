@@ -7,9 +7,9 @@ function DetailField({ id, label, value }) {
   const displayValue = normalizedValue || "—";
 
   return (
-    <Card className="shadow-none bg-slate-50 dark:bg-slate-800/50 border-none">
+    <Card className="shadow-none bg-slate-50 dark:bg-[#141414] border border-[#7b0d15] dark:border-yellow-400/30">
       <CardContent className="flex items-center gap-4 px-4 py-2.5">
-        <div className="bg-slate-200/50 dark:bg-slate-700/50 flex size-10 items-center justify-center rounded-md text-[#7b0d15] dark:text-[#f8d24e]">
+        <div className="bg-slate-200/50 dark:bg-[#0a0a0a] border border-[#7b0d15]/20 dark:border-yellow-400/20 flex size-10 items-center justify-center rounded-md text-[#7b0d15] dark:text-yellow-400">
           <UserRound className="size-5" />
         </div>
         <div className="flex flex-col min-w-0">

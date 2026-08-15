@@ -5,8 +5,10 @@ import AuthenticatorApps from "../components/AuthenticatorApps";
 import { clearSessionState, navigateToLandingPage } from "../../../services/auth";
 import { createEmptyProfile, getCurrentUserProfile } from "../../../services/userProfile";
 import GradientWaves from "../../../components/ui/GradientWaves";
+import { usePortalTheme } from "../../../providers/PortalThemeProvider";
 
 export default function Profile() {
+    const { isDarkMode } = usePortalTheme();
     const [profile, setProfile] = useState(createEmptyProfile());
     const [profileErrorStatus, setProfileErrorStatus] = useState(null);
     const [isProfileLoading, setIsProfileLoading] = useState(true);
@@ -74,9 +76,9 @@ export default function Profile() {
 
     return (
         <OnePortalLayout>
-            <main className="relative min-h-screen pt-32 pb-20 px-4 sm:px-6 md:px-8 !bg-slate-100 dark:!bg-slate-900 border-none shadow-none transition-colors duration-300 font-[Poppins]">
+            <main className="relative min-h-screen pt-32 pb-20 px-4 sm:px-6 md:px-8 !bg-slate-100 dark:!bg-[#080808] border-none shadow-none font-[Poppins]">
                 {/* Background Layer matching Dashboard */}
-                <div className="absolute inset-x-0 top-0 h-[45vh] md:h-[55vh] z-0 bg-gradient-to-b from-[#2a050a] from-50% to-transparent pointer-events-none">
+                <div className={`absolute inset-x-0 top-0 h-[45vh] md:h-[55vh] z-0 bg-gradient-to-b ${isDarkMode ? "from-[#4f0d17]" : "from-[#2a050a]"} from-50% to-transparent pointer-events-none`}>
                     <div 
                         className="absolute inset-0 pointer-events-none"
                         style={{ 
@@ -87,9 +89,9 @@ export default function Profile() {
                         <div className="absolute inset-0 scale-y-[-1] overflow-hidden">
                             <GradientWaves
                                 className={isDesktop ? "scale-x-[2.5]" : "scale-x-[1.5]"}
-                                horizonColor="#f1f5f9"
-                                waveColor="#4f0d17"
-                                crestColor="#230407"
+                                horizonColor={isDarkMode ? "#080808" : "#f1f5f9"}
+                                waveColor={isDarkMode ? "#8a0f18" : "#4f0d17"}
+                                crestColor={isDarkMode ? "#5c0a10" : "#230407"}
                                 speed={0.15}
                                 amplitude={2.5}
                                 waveScale={isDesktop ? 1.5 : 0.9}
