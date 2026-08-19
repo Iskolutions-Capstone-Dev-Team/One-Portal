@@ -1,4 +1,4 @@
-import { GridIcon, ShieldIcon, UserIcon } from "../components/LandingIcons";
+import { ShieldCheck, MonitorCog, User } from "lucide-react";
 
 export const navItems = [
     { label: "Home", href: "#home" },
@@ -10,17 +10,17 @@ export const featureItems = [
     {
         title: "Single Sign-On",
         copy: "Use one account to access connected PUPT services.",
-        icon: ShieldIcon,
+        icon: ShieldCheck,
     },
     {
         title: "Integrated Systems",
         copy: "Find academic, administrative, and campus tools in one organized portal.",
-        icon: GridIcon,
+        icon: MonitorCog,
     },
     {
         title: "User Friendly",
         copy: "A cleaner starting point for students, faculty, and staff.",
-        icon: UserIcon,
+        icon: User,
     },
 ];
 

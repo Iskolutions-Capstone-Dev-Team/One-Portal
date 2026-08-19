@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import PortalNavbar from "../components/navigation/PortalNavbar";
 import PortalFooter from "../features/portal/components/PortalFooter";
-import FloatingActionMenu from "../components/overlays/FloatingActionMenu";
+import WebAccessibility from "../features/accessibility/components/WebAccessibility";
 import { usePortalTheme } from "../providers/PortalThemeProvider";
 import { clearSessionRefreshTimestamp, getSessionRefreshDelay, refreshSession } from "../services/auth";
 
@@ -48,7 +48,7 @@ export default function OnePortalLayout({ children }) {
             <PortalNavbar />
             {children}
             <PortalFooter />
-            <FloatingActionMenu />
+            <WebAccessibility />
         </div>
     );
 }

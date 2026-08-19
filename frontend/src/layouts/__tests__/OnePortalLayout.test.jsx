@@ -10,10 +10,6 @@ vi.mock('../../features/portal/components/PortalFooter', () => ({
   default: () => <div data-testid="footer" />
 }));
 
-vi.mock('../../components/overlays/FloatingActionMenu', () => ({
-  default: () => <div data-testid="fam" />
-}));
-
 vi.mock('../../providers/PortalThemeProvider', () => ({
   usePortalTheme: () => ({ theme: 'light' })
 }));

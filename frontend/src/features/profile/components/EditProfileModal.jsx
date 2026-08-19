@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
-import ErrorAlert from "../../../components/feedback/ErrorAlert";
+import { toast } from "sonner";
 import { formatTimestamp } from "../../../utils/formatTimestamp";
 import { updateCurrentUserProfile } from "../../../services/userProfile";
-import { CloseIcon } from "./profileIcons";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Field, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 
 export default function EditProfileModal({ open, close, profileData, updateProfile, addAuditLog, allowEmailEdit = false }) {
     const [profile, setProfile] = useState({
@@ -15,7 +17,6 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
         email: "",
     });
     const [errors, setErrors] = useState({});
-    const [showErrorAlert, setShowErrorAlert] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
     const personalFields = [
@@ -57,7 +58,6 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
         }
 
         setErrors({});
-        setShowErrorAlert(false);
         setIsSaving(false);
 
         if (profileData) {
@@ -79,7 +79,7 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
             delete nextErrors[name];
 
             if (Object.keys(nextErrors).length === 0) {
-                setShowErrorAlert(false);
+                // all clear
             }
 
             return nextErrors;
@@ -103,12 +103,10 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
 
         if (Object.keys(nextErrors).length > 0) {
             setErrors(nextErrors);
-            setShowErrorAlert(true);
             return;
         }
 
         setErrors({});
-        setShowErrorAlert(false);
         setIsSaving(true);
 
         try {
@@ -129,95 +127,90 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
 
             close();
         } catch (error) {
-            setErrors({
-                form: error.message || "Failed to update profile.",
-            });
-            setShowErrorAlert(true);
+            toast.error(error.message || "Failed to update profile.");
         } finally {
             setIsSaving(false);
         }
     };
 
-    if (!open) return null;
-    if (typeof document === "undefined") return null;
+    return (
+        <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) close(); }}>
+            <DialogContent onPointerDownOutside={(e) => e.preventDefault()} onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()} className="font-[Poppins] sm:max-w-2xl bg-white dark:bg-[#0a0a0a] border border-transparent dark:border-white/10 ring-0 outline-none shadow-xl [&>button]:!text-white [&>button:hover]:!bg-white/20">
+                <DialogHeader className="-mx-4 -mt-4 mb-2 rounded-t-xl p-4 bg-[linear-gradient(180deg,rgba(123,13,21,0.97),rgba(43,3,7,0.98))]">
+                    <DialogTitle className="font-heading text-base leading-none font-medium text-white text-left">Edit Profile</DialogTitle>
+                    <DialogDescription className="sr-only">
+                        Update your personal information
+                    </DialogDescription>
+                </DialogHeader>
+                
+                <div className="-mx-4 no-scrollbar max-h-[60vh] overflow-y-auto px-4">
+                    <form id="edit-profile-form" className="space-y-6 px-2 pb-6" onSubmit={(event) => event.preventDefault()}>
 
-    return createPortal(
-        <dialog className="modal modal-open profile-modal">
-            <div className="modal-box profile-modal__box profile-modal__box--wide">
-                <div className="profile-modal__hero">
-                    <div>
-                        <h3 className="profile-modal__title">Edit Profile</h3>
-                        <p className="profile-modal__subtitle">Update your personal information</p>
-                    </div>
-
-                    <button type="button" className="profile-modal__close" onClick={close} aria-label="Close edit profile modal">
-                        <CloseIcon />
-                    </button>
-                </div>
-
-                <div className="profile-modal__body">
-                    <form className="profile-form" onSubmit={(event) => event.preventDefault()}>
-                        {showErrorAlert && errorMessage && (
-                            <ErrorAlert
-                                message={errorMessage}
-                                onClose={() => setShowErrorAlert(false)}
-                            />
-                        )}
-
-                        <div className="profile-form__grid">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {personalFields.map((field) => (
-                                <div key={field.name} className="profile-form__field">
-                                    <label className="profile-form__label" htmlFor={field.name}>
-                                        {field.label}
-                                        {field.required && <span className="profile-form__required">*</span>}
-                                    </label>
-
-                                    <input id={field.name} type="text" name={field.name} placeholder={field.placeholder} value={profile[field.name]} onChange={handleChange} className={`profile-form__input ${errors[field.name] ? "is-invalid" : ""}`} maxLength={50}/>
-
-                                    <p className={`profile-form__helper ${errors[field.name] ? "is-error" : ""}`}>
-                                        {errors[field.name] ?? field.helper}
-                                    </p>
-                                </div>
+                                <Field key={field.name} className="w-full text-left space-y-2 gap-0">
+                                    <div className="flex items-center justify-between gap-2">
+                                        <FieldLabel htmlFor={field.name}>
+                                            {field.label}
+                                            {field.required && <span className="text-red-500">*</span>}
+                                        </FieldLabel>
+                                        {!field.required && field.name === 'nameSuffix' && (
+                                            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full border border-[#7b0d15]/30 dark:border-yellow-400/30 text-[#7b0d15] dark:text-yellow-400 bg-[#7b0d15]/5 dark:bg-yellow-400/5">
+                                                Optional
+                                            </span>
+                                        )}
+                                    </div>
+                                    <Input 
+                                        id={field.name} 
+                                        type="text" 
+                                        name={field.name} 
+                                        placeholder={field.placeholder} 
+                                        value={profile[field.name]} 
+                                        onChange={handleChange} 
+                                        className={`flex h-10 w-full rounded-md border ${errors[field.name] ? "border-red-500 focus-visible:ring-red-500" : "border-slate-300 dark:border-white/10 focus-visible:ring-slate-300 dark:focus-visible:ring-white/20"} bg-white dark:bg-[#141414] px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 text-slate-900 dark:text-slate-100 transition-colors duration-200`}
+                                        maxLength={50}
+                                    />
+                                    {errors[field.name] && (
+                                        <p className="text-[0.8rem] font-medium text-red-500">{errors[field.name]}</p>
+                                    )}
+                                </Field>
                             ))}
                         </div>
 
                         {allowEmailEdit && (
-                            <div className="profile-form__field profile-form__field--full">
-                                <label className="profile-form__label" htmlFor="email">
+                            <Field className="w-full text-left space-y-2 gap-0">
+                                <FieldLabel htmlFor="email">
                                     Email Address
-                                    <span className="profile-form__required">*</span>
-                                </label>
-
-                                <input id="email" type="email" name="email" placeholder="Enter email" value={profile.email} onChange={handleChange} className={`profile-form__input ${errors.email ? "is-invalid" : ""}`}/>
-
-                                <p className={`profile-form__helper ${errors.email ? "is-error" : ""}`}>
-                                    {errors.email ?? "Must be an active email account"}
-                                </p>
-                            </div>
+                                    <span className="text-red-500">*</span>
+                                </FieldLabel>
+                                <Input 
+                                    id="email" 
+                                    type="email" 
+                                    name="email" 
+                                    placeholder="Enter email" 
+                                    value={profile.email} 
+                                    onChange={handleChange} 
+                                    className={`flex h-10 w-full rounded-md border ${errors.email ? "border-red-500 focus-visible:ring-red-500" : "border-slate-300 dark:border-white/10 focus-visible:ring-slate-300 dark:focus-visible:ring-white/20"} bg-white dark:bg-[#141414] px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 text-slate-900 dark:text-slate-100 transition-colors duration-200`}
+                                />
+                                {errors.email && (
+                                    <p className="text-[0.8rem] font-medium text-red-500">{errors.email}</p>
+                                )}
+                            </Field>
                         )}
                     </form>
                 </div>
 
-                <div className="profile-modal__footer">
-                    <p className="profile-modal__note">
-                        Fields marked with <span className="profile-form__required">*</span> are required
-                    </p>
-
-                    <div className="profile-modal__actions">
-                        <button type="button" className="profile-action profile-action--secondary" onClick={close}>
+                <DialogFooter className="border-t-0 bg-slate-50 dark:bg-transparent flex-row justify-end gap-2 rounded-b-xl p-4">
+                    <DialogClose asChild>
+                        <Button variant="outline" className="rounded-lg h-8 px-2.5 border-slate-200 dark:border-white/20 text-slate-900 dark:text-slate-100 hover:bg-slate-200 dark:hover:bg-white/10 bg-white dark:bg-transparent font-bold text-sm">
                             Cancel
-                        </button>
-                        <button type="button" className="profile-action profile-action--primary" onClick={handleSave} disabled={isSaving}>
-                            {isSaving ? "Saving..." : "Save Changes"}
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <form method="dialog" className="modal-backdrop">
-                <button onClick={close}>close</button>
-            </form>
-        </dialog>,
-        document.body
+                        </Button>
+                    </DialogClose>
+                    <Button onClick={handleSave} disabled={isSaving} className="rounded-lg h-8 px-2.5 bg-[#6b1115] dark:bg-yellow-400 text-white dark:text-[#7b0d15] hover:bg-yellow-400 dark:hover:bg-[#7b0d15] hover:text-[#4f0d17] dark:hover:text-yellow-400 border-none font-bold text-sm transition-colors">
+                        {isSaving ? "Saving..." : "Save Changes"}
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 }

@@ -5,12 +5,25 @@ import { ProtectedPortalRoute } from "../routes/guards/AppRouteGuards";
 import { landingRoutes } from "../routes/routeConfig";
 import { ROUTE_PATHS } from "../routes/routePaths";
 import { authPageBackground, authPagePatternStyle } from "../utils/authBackground";
+import { Toaster } from "@/components/ui/sonner";
 
 const Callback = lazy(() => import("../pages/Callback"));
 const Home = lazy(() => import("../features/portal/pages/Home"));
 const Login = lazy(() => import("../pages/Login"));
 const Logout = lazy(() => import("../pages/Logout"));
 const Profile = lazy(() => import("../features/profile/pages/Profile"));
+
+const NotFound = lazy(() => import("../pages/NotFound"));
+const PublicNotFound = lazy(() => import("../pages/PublicNotFound"));
+
+function hasStoredAuthTokens() {
+  return typeof window !== "undefined" && window.localStorage.getItem("one-portal:last-session-refresh-at") !== null;
+}
+
+function CatchAllRoute() {
+  const isAuth = hasStoredAuthTokens();
+  return isAuth ? <NotFound /> : <PublicNotFound />;
+}
 
 export default function App() {
   return (
@@ -33,8 +46,10 @@ export default function App() {
             <Route path={ROUTE_PATHS.LOGOUT} element={<Logout />} />
             <Route path={ROUTE_PATHS.PORTAL} element={<ProtectedPortalRoute><Home /></ProtectedPortalRoute>} />
             <Route path={ROUTE_PATHS.PROFILE} element={<ProtectedPortalRoute><Profile /></ProtectedPortalRoute>} />
+            <Route path="*" element={<CatchAllRoute />} />
           </Routes>
         </Suspense>
+        <Toaster position="top-right" />
       </BrowserRouter>
     </PortalThemeProvider>
   );

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
+import { toast } from "sonner";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import ChangePasswordStep from "./ChangePasswordStep";
 import OtpVerificationStep from "./OtpVerificationStep";
 import SuccessStep from "./SuccessStep";
-import SuccessAlert from "../../../components/feedback/SuccessAlert";
 import { changeCurrentUserPassword, sendProfileOtp, verifyProfileOtp } from "../../../services/userSecurity";
 import { formatTimestamp } from "../../../utils/formatTimestamp";
 
@@ -27,7 +27,6 @@ export default function ChangePasswordModal({
     const [otp, setOtp] = useState(["", "", "", "", "", ""]);
     const [timer, setTimer] = useState(OTP_TIMER_SECONDS);
     const [canResend, setCanResend] = useState(false);
-    const [successMessage, setSuccessMessage] = useState("");
     const [passwordError, setPasswordError] = useState("");
     const [otpError, setOtpError] = useState("");
     const [isSendingOtp, setIsSendingOtp] = useState(false);
@@ -62,7 +61,6 @@ export default function ChangePasswordModal({
                 confirmPassword: "",
             });
             setOtp(["", "", "", "", "", ""]);
-            setSuccessMessage("");
             setPasswordError("");
             setOtpError("");
             setIsSendingOtp(false);
@@ -76,23 +74,8 @@ export default function ChangePasswordModal({
     useEffect(() => {
         if (step !== 3) return;
 
-        const message = "Password changed successfully!";
-
-        if (enableSuccessAlert) {
-            setSuccessMessage(message);
-            return undefined;
-        }
-
-        if (setToastMessage) {
-            setToastMessage(message);
-
-            const hide = setTimeout(() => {
-                setToastMessage("");
-            }, 2500);
-
-            return () => clearTimeout(hide);
-        }
-    }, [step, setToastMessage, enableSuccessAlert]);
+        toast.success("Password changed successfully!");
+    }, [step]);
 
     const resetOtpTimer = () => {
         setTimer(OTP_TIMER_SECONDS);
@@ -115,7 +98,7 @@ export default function ChangePasswordModal({
             resetOtpTimer();
             setStep(2);
         } catch (error) {
-            setPasswordError(error.message || "Failed to send OTP.");
+            toast.error(error.message || "Failed to send OTP.");
         } finally {
             setIsSendingOtp(false);
         }
@@ -134,7 +117,7 @@ export default function ChangePasswordModal({
             setOtp(["", "", "", "", "", ""]);
             resetOtpTimer();
         } catch (error) {
-            setOtpError(error.message || "Failed to resend OTP.");
+            toast.error(error.message || "Failed to resend OTP.");
         } finally {
             setIsResendingOtp(false);
         }
@@ -169,7 +152,7 @@ export default function ChangePasswordModal({
 
             setStep(3);
         } catch (error) {
-            setOtpError(error.message || "Failed to verify OTP or change password.");
+            toast.error(error.message || "Failed to verify OTP or change password.");
         } finally {
             setIsVerifyingOtp(false);
         }
@@ -180,54 +163,43 @@ export default function ChangePasswordModal({
 
     return (
         <>
-            {createPortal(
-                <dialog className="modal modal-open profile-modal">
-                    <div className="modal-box profile-modal__box profile-modal__box--compact custom-scrollbar">
-                        {step === 1 && (
-                            <ChangePasswordStep
-                                form={form}
-                                setForm={setForm}
-                                onClose={onClose}
-                                onNext={handleRequestOtp}
-                                showCurrentPassword={showCurrentPassword}
-                                errorMessage={passwordError}
-                                isSubmitting={isSendingOtp}
-                                onClearError={() => setPasswordError("")}
-                            />
-                        )}
+            <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+                <DialogContent onPointerDownOutside={(e) => e.preventDefault()} onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()} className="font-[Poppins] sm:max-w-md bg-white dark:bg-[#0a0a0a] border border-transparent dark:border-white/10 ring-0 outline-none shadow-xl [&>button]:!text-white [&>button:hover]:!bg-white/20">
+                    {step === 1 && (
+                        <ChangePasswordStep
+                            form={form}
+                            setForm={setForm}
+                            onClose={onClose}
+                            onNext={handleRequestOtp}
+                            showCurrentPassword={showCurrentPassword}
+                            errorMessage={passwordError}
+                            isSubmitting={isSendingOtp}
+                            onClearError={() => setPasswordError("")}
+                        />
+                    )}
 
-                        {step === 2 && (
-                            <OtpVerificationStep
-                                otp={otp}
-                                setOtp={setOtp}
-                                timer={timer}
-                                canResend={canResend}
-                                onResend={handleResendOtp}
-                                onVerify={verifyOTP}
-                                onClose={onClose}
-                                errorMessage={otpError}
-                                onClearError={() => setOtpError("")}
-                                email={email}
-                                isResending={isResendingOtp}
-                                isVerifying={isVerifyingOtp}
-                            />
-                        )}
+                    {step === 2 && (
+                        <OtpVerificationStep
+                            otp={otp}
+                            setOtp={setOtp}
+                            timer={timer}
+                            canResend={canResend}
+                            onResend={handleResendOtp}
+                            onVerify={verifyOTP}
+                            onClose={onClose}
+                            errorMessage={otpError}
+                            onClearError={() => setOtpError("")}
+                            email={email}
+                            isResending={isResendingOtp}
+                            isVerifying={isVerifyingOtp}
+                        />
+                    )}
 
-                        {step === 3 && (
-                            <SuccessStep onClose={onClose} />
-                        )}
-                    </div>
-
-                    <form method="dialog" className="modal-backdrop">
-                        <button onClick={onClose}>close</button>
-                    </form>
-                </dialog>,
-                document.body
-            )}
-            <SuccessAlert
-                message={successMessage}
-                onClose={() => setSuccessMessage("")}
-            />
+                    {step === 3 && (
+                        <SuccessStep onClose={onClose} />
+                    )}
+                </DialogContent>
+            </Dialog>
         </>
     );
 }
