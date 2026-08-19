@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unknown-property */
 'use client';
 import { useEffect, useMemo, useRef, useState, Suspense } from 'react';
 import { Canvas, extend, useFrame } from '@react-three/fiber';
@@ -207,7 +206,7 @@ function Band({
     composite.anisotropy = 16;
     composite.needsUpdate = true;
     return composite;
-  }, [frontImage, backImage, imageFit, frontTex, backTex, materials.base.map]);
+  }, [frontImage, backImage, frontTex, backTex, materials.base.map]);
   
   // Dynamically generate a maroon lanyard texture with the PUP logo
   const customLanyardTexture = useMemo(() => {
@@ -238,7 +237,7 @@ function Band({
     composite.anisotropy = 16;
     composite.needsUpdate = true;
     return composite;
-  }, [frontTex, texture]);
+  }, [texture]);
   const [curve] = useState(() =>
     new THREE.CatmullRomCurve3(
       [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()]
