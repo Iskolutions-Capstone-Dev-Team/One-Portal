@@ -9,15 +9,15 @@ function StackedCardsIllustration() {
   return (
     <div className="relative h-24 w-52" aria-hidden="true">
       {/* Back card */}
-      <div className="bg-slate-200/60 dark:bg-slate-700/40 border-slate-300/50 dark:border-white/5 absolute inset-x-6 top-0 h-6 rounded-t-lg border" />
+      <div className="bg-red-50/80 dark:bg-yellow-400/5 border-[#991b1b]/30 dark:border-yellow-400/30 absolute inset-x-6 top-0 h-6 rounded-t-lg border backdrop-blur-sm" />
       {/* Middle card */}
-      <div className="bg-slate-200/80 dark:bg-slate-700/60 border-slate-300/60 dark:border-white/10 absolute inset-x-3 top-3 h-6 rounded-t-lg border" />
+      <div className="bg-red-50/90 dark:bg-yellow-400/10 border-[#991b1b]/50 dark:border-yellow-400/50 absolute inset-x-3 top-3 h-6 rounded-t-lg border backdrop-blur-sm" />
       {/* Front card */}
-      <div className="bg-white dark:bg-[#141414] border-slate-200 dark:border-white/10 absolute inset-x-0 top-6 flex h-16 items-center gap-3 rounded-lg border px-4 shadow-sm">
-        <div className="bg-[#991b1b] dark:bg-yellow-400 size-8 shrink-0 rounded" />
+      <div className="bg-white dark:bg-[#141414] border-[#991b1b] dark:border-yellow-400 absolute inset-x-0 top-6 flex h-16 items-center gap-3 rounded-lg border px-4 shadow-sm">
+        <div className="bg-[#991b1b]/10 dark:bg-yellow-400/10 border border-[#991b1b] dark:border-yellow-400 size-8 shrink-0 rounded" />
         <div className="flex flex-1 flex-col gap-1.5">
-          <div className="bg-slate-200 dark:bg-slate-600 h-2.5 w-3/4 rounded" />
-          <div className="bg-slate-200/60 dark:bg-slate-600/60 h-2 w-1/2 rounded" />
+          <div className="bg-[#991b1b]/40 dark:bg-yellow-400/40 h-2.5 w-3/4 rounded" />
+          <div className="bg-[#991b1b]/20 dark:bg-yellow-400/20 h-2 w-1/2 rounded" />
         </div>
       </div>
     </div>
