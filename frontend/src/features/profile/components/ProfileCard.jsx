@@ -4,13 +4,14 @@ import ChangePasswordModal from "./ChangePasswordModal";
 import ProfileDetails from "./ProfileDetails";
 import ActionButtons from "./ActionButtons";
 import { MailIcon } from "./profileIcons";
-import SuccessAlert from "../../../components/feedback/SuccessAlert";
+import { toast } from "sonner";
+import { Card } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export default function ProfileCard({ profile, onProfileChange, addAuditLog, allowEmailEdit = false }) {
     const [isEditOpen, setEditOpen] = useState(false);
     const [isPasswordOpen, setPasswordOpen] = useState(false);
     const [currentProfile, setCurrentProfile] = useState(profile);
-    const [toastMessage, setToastMessage] = useState("");
 
     useEffect(() => {
         setCurrentProfile(profile);
@@ -34,39 +35,37 @@ export default function ProfileCard({ profile, onProfileChange, addAuditLog, all
     const handleProfileUpdate = (updatedProfile) => {
         setCurrentProfile(updatedProfile);
         onProfileChange?.(updatedProfile);
-        setToastMessage("Profile updated successfully!");
+        toast.success("Profile updated successfully!");
     };
 
     return (
         <>
-            <section className="profile-card">
-                <div className="profile-card__hero">
-                    <div className="profile-card__identity">
-                        <div className="profile-card__avatar" aria-hidden="true">
-                            {initials || "?"}
-                        </div>
+            <Card className="bg-white dark:bg-[#0a0a0a] rounded-3xl p-6 sm:p-10 shadow-sm border border-slate-200 dark:border-white/10 ring-0 ring-offset-0 transition-colors duration-300">
+                <div className="flex flex-col sm:flex-row items-center sm:items-center gap-4 sm:gap-5 text-center sm:text-left">
+                        <Avatar className="w-16 h-16 sm:w-20 sm:h-20 bg-[#7b0d15] dark:bg-yellow-400 shrink-0 border-0 outline-none ring-0 overflow-hidden after:hidden">
+                            <AvatarFallback className="bg-transparent text-[#facc15] dark:text-[#7b0d15] text-xl sm:text-2xl font-extrabold border-0 outline-none">
+                                {initials || "?"}
+                            </AvatarFallback>
+                        </Avatar>
 
-                        <div className="profile-card__summary">
-                            <h2 className="profile-card__name">{fullName || "Profile Details"}</h2>
+                        <div className="flex-1 min-w-0 flex flex-col justify-center">
+                            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight truncate">{fullName || "Profile Details"}</h2>
 
-                            <div className="profile-card__chips">
-                                <span className="profile-card__chip">
-                                    <MailIcon />
+                            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-1">
+                                <span className="inline-flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
+                                    <span className="w-4 h-4"><MailIcon /></span>
                                     {currentProfile.email || "Email unavailable"}
                                 </span>
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <div className="profile-card__body">
+                    
                     <ProfileDetails profile={currentProfile} />
                     <ActionButtons
                         openEdit={() => setEditOpen(true)}
                         openPassword={() => setPasswordOpen(true)}
                     />
-                </div>
-            </section>
+            </Card>
 
             <EditProfileModal
                 open={isEditOpen}
@@ -86,10 +85,6 @@ export default function ProfileCard({ profile, onProfileChange, addAuditLog, all
                 enableSuccessAlert={true}
             />
 
-            <SuccessAlert
-                message={toastMessage}
-                onClose={() => setToastMessage("")}
-            />
         </>
     );
 }
