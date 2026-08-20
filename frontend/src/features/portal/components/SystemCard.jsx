@@ -132,20 +132,26 @@ export default function SystemCard({ system }) {
                             
                             {/* Action Button (Full Width) */}
                             <div className="pt-4 w-full flex justify-center mt-auto">
-                                <Button variant={isAccessDisabled ? "outline" : "default"} className={`group/sliding relative overflow-hidden w-full px-5 md:px-7 h-9 md:h-10 text-xs md:text-sm font-extrabold rounded-lg md:rounded-xl shadow-lg transition-all cursor-pointer ${!isAccessDisabled ? 'bg-transparent text-yellow-400 border-2 border-yellow-400 hover:bg-yellow-400 hover:text-[#4f0d17] hover:-translate-y-[1px]' : ''}`} asChild>
-                                    <a href={isAccessDisabled ? undefined : accessLink} target={isAccessDisabled ? undefined : "_blank"} rel={isAccessDisabled ? undefined : "noreferrer"} onClick={(e) => isAccessDisabled && e.preventDefault()} className="flex items-center justify-center">
-                                        <span className={!isAccessDisabled ? "inline-flex items-center transition-transform duration-300 lg:group-hover/sliding:-translate-x-2" : ""}>
-                                            {isAccessDisabled ? "Unavailable" : "Access"}
-                                        </span>
-                                        {!isAccessDisabled && (
-                                            <>
-                                                {/* Arrow that slides in on Desktop/Laptop (lg and above) */}
-                                                <ArrowRightIcon className="hidden lg:block absolute right-2.5 translate-x-8 opacity-0 transition-all duration-300 lg:group-hover/sliding:translate-x-0 lg:group-hover/sliding:opacity-100 w-4 h-4" aria-hidden="true" />
-                                                {/* Static arrow for Tablet (md only) */}
-                                                <ArrowRightIcon className="hidden md:block lg:hidden ml-1.5 w-3.5 h-3.5" aria-hidden="true" />
-                                            </>
-                                        )}
-                                    </a>
+                                <Button 
+                                    variant={isAccessDisabled ? "outline" : "default"} 
+                                    className={`group/sliding relative overflow-hidden w-full px-5 md:px-7 h-9 md:h-10 text-xs md:text-sm font-extrabold rounded-lg md:rounded-xl shadow-lg transition-all cursor-pointer ${!isAccessDisabled ? 'bg-transparent text-yellow-400 border-2 border-yellow-400 hover:bg-yellow-400 hover:text-[#4f0d17] hover:-translate-y-[1px]' : ''}`} 
+                                    onClick={() => {
+                                        if (!isAccessDisabled && accessLink) {
+                                            window.open(accessLink, "_blank", "noreferrer");
+                                        }
+                                    }}
+                                >
+                                    <span className={!isAccessDisabled ? "inline-flex items-center transition-transform duration-300 lg:group-hover/sliding:-translate-x-2" : ""}>
+                                        {isAccessDisabled ? "Unavailable" : "Access"}
+                                    </span>
+                                    {!isAccessDisabled && (
+                                        <>
+                                            {/* Arrow that slides in on Desktop/Laptop (lg and above) */}
+                                            <ArrowRightIcon className="hidden lg:block absolute right-2.5 translate-x-8 opacity-0 transition-all duration-300 lg:group-hover/sliding:translate-x-0 lg:group-hover/sliding:opacity-100 w-4 h-4" aria-hidden="true" />
+                                            {/* Static arrow for Tablet (md only) */}
+                                            <ArrowRightIcon className="hidden md:block lg:hidden ml-1.5 w-3.5 h-3.5" aria-hidden="true" />
+                                        </>
+                                    )}
                                 </Button>
                             </div>
                         </div>
@@ -185,11 +191,18 @@ export default function SystemCard({ system }) {
                     </div>
 
                     {/* Action Button */}
-                    <Button variant={isAccessDisabled ? "outline" : "default"} size="sm" className={`flex-shrink-0 h-8 px-4 text-xs font-extrabold rounded-lg md:rounded-xl shadow-lg transition-all cursor-pointer ${!isAccessDisabled ? 'bg-transparent text-yellow-400 border-2 border-yellow-400 hover:bg-yellow-400 hover:text-[#4f0d17] hover:-translate-y-[1px]' : ''}`} asChild>
-                        <a href={isAccessDisabled ? undefined : accessLink} target={isAccessDisabled ? undefined : "_blank"} rel={isAccessDisabled ? undefined : "noreferrer"} onClick={(e) => isAccessDisabled && e.preventDefault()} className="flex items-center">
-                            <span>{isAccessDisabled ? "Unavailable" : "Access"}</span>
-                            {!isAccessDisabled && <ArrowRightIcon className="ml-1 w-3 h-3" />}
-                        </a>
+                    <Button 
+                        variant={isAccessDisabled ? "outline" : "default"} 
+                        size="sm" 
+                        className={`flex-shrink-0 h-8 px-4 text-xs font-extrabold rounded-lg md:rounded-xl shadow-lg transition-all cursor-pointer ${!isAccessDisabled ? 'bg-transparent text-yellow-400 border-2 border-yellow-400 hover:bg-yellow-400 hover:text-[#4f0d17] hover:-translate-y-[1px]' : ''}`} 
+                        onClick={() => {
+                            if (!isAccessDisabled && accessLink) {
+                                window.open(accessLink, "_blank", "noreferrer");
+                            }
+                        }}
+                    >
+                        <span>{isAccessDisabled ? "Unavailable" : "Access"}</span>
+                        {!isAccessDisabled && <ArrowRightIcon className="ml-1 w-3 h-3" />}
                     </Button>
                 </div>
             </div>
