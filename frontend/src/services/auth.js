@@ -378,7 +378,9 @@ export async function logoutSession() {
         clearSessionState();
     }
 
-    await notifyBrowserLogout(logoutUrl);
+    if (logoutUrl && !isLogoutApiUrl(logoutUrl)) {
+        return logoutUrl;
+    }
 
     return getLogoutFallbackUrl();
 }
