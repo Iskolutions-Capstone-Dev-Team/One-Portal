@@ -1,12 +1,9 @@
-import { useCallback, useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { cn } from "@/lib/utils";
-import { deleteAuthenticator, getAuthenticators } from "../../../services/userMfa";
-import { formatTimestamp } from "../../../utils/formatTimestamp";
-import { toast } from "sonner";
-import MfaDeleteConfirmModal from "./MfaDeleteConfirmModal";
 import MfaSetupModal from "./MfaSetupModal";
+import { useAuthenticatorApps } from "../hooks/useAuthenticatorApps";
+import { formatTimestamp } from "../../../utils/formatTimestamp";
+import MfaDeleteConfirmModal from "./MfaDeleteConfirmModal";
 
 import { Button } from "@/components/ui/button";
 import { KeySquare, Smartphone, Trash, CalendarDays, Clock } from "lucide-react";
@@ -16,21 +13,21 @@ function AutomationIllustration() {
     return (
         <svg width="200" height="120" viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             {/* Left connection line with arrow */}
-            <path d="M30 60 L68 60" className="stroke-[#7b0d15]/30 dark:stroke-yellow-400/30" strokeWidth="2" strokeLinecap="round" markerEnd="url(#arrowhead)"/>
-            <polygon points="66,56 74,60 66,64" className="fill-[#7b0d15]/30 dark:fill-yellow-400/30"/>
+            <path d="M30 60 L68 60" className="stroke-[#7b0d15]/30 dark:stroke-yellow-400/30" strokeWidth="2" strokeLinecap="round" markerEnd="url(#arrowhead)" />
+            <polygon points="66,56 74,60 66,64" className="fill-[#7b0d15]/30 dark:fill-yellow-400/30" />
 
             {/* Toggle body */}
-            <rect x="76" y="42" width="56" height="36" rx="18" className="stroke-[#7b0d15]/60 fill-[#7b0d15]/5 dark:stroke-yellow-400/60 dark:fill-yellow-400/10" strokeWidth="2"/>
+            <rect x="76" y="42" width="56" height="36" rx="18" className="stroke-[#7b0d15]/60 fill-[#7b0d15]/5 dark:stroke-yellow-400/60 dark:fill-yellow-400/10" strokeWidth="2" />
             {/* Toggle circle */}
             <circle cx="94" cy="60" r="12" className="fill-[#7b0d15]/40 dark:fill-yellow-400/40" />
             <circle cx="94" cy="60" r="6" className="fill-[#7b0d15] dark:fill-yellow-400" />
 
             {/* Right connection line */}
-            <path d="M134 60 Q150 60 158 48" className="stroke-[#7b0d15]/30 dark:stroke-yellow-400/30" strokeWidth="2" fill="none" strokeLinecap="round"/>
+            <path d="M134 60 Q150 60 158 48" className="stroke-[#7b0d15]/30 dark:stroke-yellow-400/30" strokeWidth="2" fill="none" strokeLinecap="round" />
             <circle cx="162" cy="44" r="3" className="fill-[#7b0d15]/20 dark:fill-yellow-400/20" />
 
             {/* Bottom right connection */}
-            <path d="M134 60 Q150 60 158 72" className="stroke-[#7b0d15]/30 dark:stroke-yellow-400/30" strokeWidth="2" fill="none" strokeLinecap="round"/>
+            <path d="M134 60 Q150 60 158 72" className="stroke-[#7b0d15]/30 dark:stroke-yellow-400/30" strokeWidth="2" fill="none" strokeLinecap="round" />
             <circle cx="162" cy="76" r="3" className="fill-[#7b0d15]/20 dark:fill-yellow-400/20" />
 
             {/* Decorative dots */}
@@ -74,85 +71,20 @@ function formatAuthenticatorType(value) {
 }
 
 export default function AuthenticatorApps({ email, isProfileLoading = false }) {
-    const [authenticators, setAuthenticators] = useState([]);
-    const [isModalOpen, setModalOpen] = useState(false);
-    const [currentSlide, setCurrentSlide] = useState(0);
-    const [isLoading, setIsLoading] = useState(false);
-    const [deletingId, setDeletingId] = useState("");
-    const [pendingDeleteAuthenticator, setPendingDeleteAuthenticator] = useState(null);
-    const [errorMessage, setErrorMessage] = useState("");
-
-    const loadAuthenticators = useCallback(async () => {
-        if (isProfileLoading) {
-            setAuthenticators([]);
-            setIsLoading(true);
-            setErrorMessage("");
-            return;
-        }
-
-        if (!email) {
-            setAuthenticators([]);
-            setIsLoading(false);
-            return;
-        }
-
-        setIsLoading(true);
-        setErrorMessage("");
-
-        try {
-            const authenticatorList = await getAuthenticators(email);
-            setAuthenticators(authenticatorList);
-        } catch (error) {
-            setErrorMessage(error.message || "Failed to load authenticators.");
-        } finally {
-            setIsLoading(false);
-        }
-    }, [email, isProfileLoading]);
-
-    useEffect(() => {
-        void loadAuthenticators();
-    }, [loadAuthenticators]);
-
-    useEffect(() => {
-        setCurrentSlide(0);
-    }, [authenticators.length]);
-
-    const handleDeleteClick = (authenticator) => {
-        setPendingDeleteAuthenticator(authenticator);
-        setErrorMessage("");
-    };
-
-    const handleCancelDelete = () => {
-        if (deletingId) {
-            return;
-        }
-
-        setPendingDeleteAuthenticator(null);
-    };
-
-    const handleConfirmDelete = async () => {
-        if (!pendingDeleteAuthenticator) {
-            return;
-        }
-
-        setDeletingId(pendingDeleteAuthenticator.id);
-        setErrorMessage("");
-
-        try {
-            await deleteAuthenticator({ email, id: pendingDeleteAuthenticator.id });
-            await loadAuthenticators();
-            toast.success("Authenticator removed successfully!");
-            setPendingDeleteAuthenticator(null);
-        } catch (error) {
-            setErrorMessage(error.message || "Failed to remove authenticator.");
-        } finally {
-            setDeletingId("");
-        }
-    };
-
-    const handleSaved = async () => {
-        await loadAuthenticators();
-    };
+    const {
+        authenticators,
+        isModalOpen,
+        setModalOpen,
+        currentSlide,
+        isLoading,
+        deletingId,
+        pendingDeleteAuthenticator,
+        errorMessage,
+        handleDeleteClick,
+        handleCancelDelete,
+        handleConfirmDelete,
+        handleSaved
+    } = useAuthenticatorApps({ email, isProfileLoading });
 
     const renderAuthenticatorCard = (authenticator) => (
         <Card key={authenticator.id} className="w-full overflow-hidden p-0 relative group shadow-sm bg-white dark:bg-[#141414] border border-slate-200 dark:border-white/10 transition-all duration-300 h-full flex flex-col">
