@@ -7,9 +7,9 @@ import { formatTimestamp } from "../../../utils/formatTimestamp";
 import { toast } from "sonner";
 import MfaDeleteConfirmModal from "./MfaDeleteConfirmModal";
 import MfaSetupModal from "./MfaSetupModal";
-import { CalendarIcon, ClockIcon } from "./profileIcons";
+
 import { Button } from "@/components/ui/button";
-import { KeySquare, Smartphone, Trash } from "lucide-react";
+import { KeySquare, Smartphone, Trash, CalendarDays, Clock } from "lucide-react";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 
 function AutomationIllustration() {
@@ -183,7 +183,7 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
                 <div className="w-full space-y-1 px-3 pb-6 mt-auto">
                     <div className="rounded-lg flex items-center justify-between px-2 sm:px-3 py-2.5 gap-2 min-h-[52px] bg-slate-100/60 dark:bg-[#0a0a0a] border border-transparent dark:border-white/10">
                         <span className="flex items-center gap-2 text-foreground text-sm font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">
-                            <span className="text-slate-400 dark:text-slate-500 w-4 h-4 block"><CalendarIcon /></span> Added
+                            <CalendarDays className="text-slate-400 dark:text-slate-500 w-4 h-4" /> Added
                         </span>
                         <span className="text-muted-foreground text-xs text-slate-500 dark:text-slate-400 text-right leading-tight whitespace-pre-wrap">
                             {formatAuthenticatorDate(authenticator.createdAt)}
@@ -191,7 +191,7 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
                     </div>
                     <div className="rounded-lg flex items-center justify-between px-2 sm:px-3 py-2.5 gap-2 min-h-[52px]">
                         <span className="flex items-center gap-2 text-foreground text-sm font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">
-                            <span className="text-slate-400 dark:text-slate-500 w-4 h-4 block"><ClockIcon /></span> Last used
+                            <Clock className="text-slate-400 dark:text-slate-500 w-4 h-4" /> Last used
                         </span>
                         <span className="text-muted-foreground text-xs text-slate-500 dark:text-slate-400 text-right leading-tight whitespace-pre-wrap">
                             {formatAuthenticatorDate(authenticator.lastUsedAt)}

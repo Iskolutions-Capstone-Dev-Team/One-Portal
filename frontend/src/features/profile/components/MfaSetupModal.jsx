@@ -3,7 +3,6 @@ import QRCode from "qrcode";
 import ErrorAlert from "../../../components/feedback/ErrorAlert";
 import { beginPasskeyRegistration, finishPasskeyRegistration, getMfaSetup, saveAuthenticator } from "../../../services/userMfa";
 import { createPasskeyCredential } from "../../../utils/webAuthn";
-import { AuthenticatorAppIcon, CopiedCodesIcon, CopyCodesIcon, PasskeyIcon, CloseIcon, InfoCircleIcon, ArrowLeftIcon } from "./profileIcons";
 import { Alert, AlertDescription } from "@/components/reui/alert";
 import { CircleAlertIcon, CircleHelp, Copy, CopyCheck } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
