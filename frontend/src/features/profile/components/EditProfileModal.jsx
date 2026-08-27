@@ -6,6 +6,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+import { SUFFIX_OPTIONS } from "../../../utils/suffixOptions";
 
 export default function EditProfileModal({ open, close, profileData, updateProfile, addAuditLog, allowEmailEdit = false }) {
     const [profile, setProfile] = useState({
@@ -160,16 +163,35 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
                                             </span>
                                         )}
                                     </div>
-                                    <Input 
-                                        id={field.name} 
-                                        type="text" 
-                                        name={field.name} 
-                                        placeholder={field.placeholder} 
-                                        value={profile[field.name]} 
-                                        onChange={handleChange} 
-                                        className={`flex h-10 w-full rounded-md border ${errors[field.name] ? "border-red-500 focus-visible:ring-red-500" : "border-slate-300 dark:border-white/10 focus-visible:ring-slate-300 dark:focus-visible:ring-white/20"} bg-white dark:bg-[#141414] px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 text-slate-900 dark:text-slate-100 transition-colors duration-200`}
-                                        maxLength={50}
-                                    />
+                                    {field.name === 'nameSuffix' ? (
+                                        <Select value={profile[field.name]} onValueChange={(val) => handleChange({ target: { name: field.name, value: val === "N/A" ? "" : val } })}>
+                                            <SelectTrigger id={field.name} className={`flex !h-10 w-full rounded-md border ${errors[field.name] ? "border-red-500 focus-visible:ring-red-500" : "border-slate-300 dark:border-white/10 focus-visible:ring-slate-300 dark:focus-visible:ring-white/20"} bg-white dark:bg-[#141414] px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 text-slate-900 dark:text-slate-100 transition-colors duration-200`}>
+                                                <span className={`truncate text-sm ${profile[field.name] ? "text-slate-900 dark:text-slate-100" : "text-slate-400"}`}>
+                                                    <SelectValue placeholder={field.placeholder} />
+                                                </span>
+                                            </SelectTrigger>
+                                            <SelectContent alignItemWithTrigger={false} className="max-h-[300px]">
+                                                <SelectGroup>
+                                                    {SUFFIX_OPTIONS.map((item) => (
+                                                        <SelectItem key={item.value} value={item.value}>
+                                                            {item.label}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectGroup>
+                                            </SelectContent>
+                                        </Select>
+                                    ) : (
+                                        <Input 
+                                            id={field.name} 
+                                            type="text" 
+                                            name={field.name} 
+                                            placeholder={field.placeholder} 
+                                            value={profile[field.name]} 
+                                            onChange={handleChange} 
+                                            className={`flex h-10 w-full rounded-md border ${errors[field.name] ? "border-red-500 focus-visible:ring-red-500" : "border-slate-300 dark:border-white/10 focus-visible:ring-slate-300 dark:focus-visible:ring-white/20"} bg-white dark:bg-[#141414] px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 text-slate-900 dark:text-slate-100 transition-colors duration-200`}
+                                            maxLength={50}
+                                        />
+                                    )}
                                     {errors[field.name] && (
                                         <p className="text-[0.8rem] font-medium text-red-500">{errors[field.name]}</p>
                                     )}
