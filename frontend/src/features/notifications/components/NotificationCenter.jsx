@@ -132,7 +132,7 @@ export default function NotificationCenter() {
                       </div>
                     </div>
                   </AccordionTrigger>
-                  <AccordionContent className="text-slate-600 dark:text-slate-400 pt-0 pb-4 pl-8 text-[0.85rem] leading-relaxed break-words">
+                  <AccordionContent className="text-slate-600 dark:text-slate-400 pt-0 pb-4 pl-8 text-[0.85rem] leading-relaxed break-words text-justify">
                     {announcement.content}
                     {announcement.link && announcement.link !== '#' && (
                       <div className="mt-3">

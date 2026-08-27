@@ -3,7 +3,7 @@ import EditProfileModal from "./EditProfileModal";
 import ChangePasswordModal from "./ChangePasswordModal";
 import ProfileDetails from "./ProfileDetails";
 import ActionButtons from "./ActionButtons";
-import { MailIcon } from "./profileIcons";
+import { Mail } from "lucide-react";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -53,7 +53,7 @@ export default function ProfileCard({ profile, onProfileChange, addAuditLog, all
 
                             <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-1">
                                 <span className="inline-flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
-                                    <span className="w-4 h-4"><MailIcon /></span>
+                                    <Mail className="w-4 h-4" />
                                     {currentProfile.email || "Email unavailable"}
                                 </span>
                             </div>

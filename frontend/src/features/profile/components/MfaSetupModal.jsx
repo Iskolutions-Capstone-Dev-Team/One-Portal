@@ -1,9 +1,4 @@
-import { useEffect, useRef, useState } from "react";
-import QRCode from "qrcode";
 import ErrorAlert from "../../../components/feedback/ErrorAlert";
-import { beginPasskeyRegistration, finishPasskeyRegistration, getMfaSetup, saveAuthenticator } from "../../../services/userMfa";
-import { createPasskeyCredential } from "../../../utils/webAuthn";
-import { AuthenticatorAppIcon, CopiedCodesIcon, CopyCodesIcon, PasskeyIcon, CloseIcon, InfoCircleIcon, ArrowLeftIcon } from "./profileIcons";
 import { Alert, AlertDescription } from "@/components/reui/alert";
 import { CircleAlertIcon, CircleHelp, Copy, CopyCheck } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -15,8 +10,7 @@ import { Popover, PopoverContent, PopoverDescription, PopoverHeader, PopoverTitl
 import { InputOTP, InputOTPGroup, InputOTPSeparator, InputOTPSlot } from "@/components/ui/input-otp";
 import { Badge } from "@/components/reui/badge";
 import { toast } from "sonner";
-
-const EMPTY_CODE = ["", "", "", "", "", ""];
+import { useMfaSetupModal } from "../hooks/useMfaSetupModal";
 
 function ConnectionOptionButton({ title, description, icon, onClick, disabled = false }) {
     return (
@@ -35,208 +29,32 @@ function ConnectionOptionButton({ title, description, icon, onClick, disabled = 
 }
 
 export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
-    const codeInputsRef = useRef([]);
-    const [step, setStep] = useState("choice");
-    const [setup, setSetup] = useState({ secret: "", otpauthUri: "" });
-    const [qrCodeUrl, setQrCodeUrl] = useState("");
-    const [authenticatorName, setAuthenticatorName] = useState("");
-    const [code, setCode] = useState(EMPTY_CODE);
-    const [backupCodes, setBackupCodes] = useState([]);
-    const [hasCopiedBackupCodes, setHasCopiedBackupCodes] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
-    const [isLoadingSetup, setIsLoadingSetup] = useState(false);
-    const [isSaving, setIsSaving] = useState(false);
-    const [isRegisteringPasskey, setIsRegisteringPasskey] = useState(false);
-
-    useEffect(() => {
-        if (!isOpen) {
-            setStep("choice");
-            setSetup({ secret: "", otpauthUri: "" });
-            setQrCodeUrl("");
-            setAuthenticatorName("");
-            setCode(EMPTY_CODE);
-            setBackupCodes([]);
-            setHasCopiedBackupCodes(false);
-            setErrorMessage("");
-            setIsLoadingSetup(false);
-            setIsSaving(false);
-            setIsRegisteringPasskey(false);
-            return;
-        }
-
-        if (step !== "scan") {
-            return;
-        }
-
-        const loadSetup = async () => {
-            if (!email) {
-                setErrorMessage("Email is unavailable for MFA setup.");
-                return;
-            }
-
-            setErrorMessage("");
-            setIsLoadingSetup(true);
-
-            try {
-                const setupData = await getMfaSetup(email);
-                const qrUrl = await QRCode.toDataURL(setupData.otpauthUri, {
-                    width: 320,
-                    margin: 1,
-                    color: {
-                        dark: "#000000",
-                        light: "#ffffff",
-                    },
-                });
-
-                setSetup(setupData);
-                setQrCodeUrl(qrUrl);
-            } catch (error) {
-                setErrorMessage(error.message || "Failed to prepare MFA setup.");
-            } finally {
-                setIsLoadingSetup(false);
-            }
-        };
-
-        void loadSetup();
-    }, [email, isOpen, step]);
-
-    useEffect(() => {
-        if (step === "verify") {
-            codeInputsRef.current[0]?.focus();
-        }
-    }, [step]);
-
-    const updateCode = (index, value) => {
-        if (!/^\d?$/.test(value)) {
-            return;
-        }
-
-        const nextCode = [...code];
-        nextCode[index] = value;
-        setCode(nextCode);
-        setErrorMessage("");
-
-        if (value && index < code.length - 1) {
-            codeInputsRef.current[index + 1]?.focus();
-        }
-    };
-
-    const handleCodeKeyDown = (index, event) => {
-        if (event.key === "Backspace" && !code[index] && index > 0) {
-            codeInputsRef.current[index - 1]?.focus();
-        }
-    };
-
-    const handleSave = async () => {
-        const submittedCode = code.join("");
-        const name = authenticatorName.trim();
-
-        if (!name) {
-            setErrorMessage("Enter an authenticator name.");
-            return;
-        }
-
-        if (submittedCode.length !== 6) {
-            setErrorMessage("Enter the complete 6-digit authenticator code.");
-            return;
-        }
-
-        setErrorMessage("");
-        setIsSaving(true);
-
-        try {
-            const result = await saveAuthenticator({
-                email,
-                secret: setup.secret,
-                code: submittedCode,
-                name,
-            });
-
-            setBackupCodes(result.backupCodes);
-            setHasCopiedBackupCodes(false);
-            setStep("backupCodes");
-
-            if (!result.backupCodes.length) {
-                await onSaved?.();
-                onClose();
-            }
-        } catch (error) {
-            setErrorMessage(error.message || "Failed to save authenticator.");
-        } finally {
-            setIsSaving(false);
-        }
-    };
-
-    const handleCopyBackupCodes = async () => {
-        const backupCodesText = backupCodes.join("\n");
-
-        if (!backupCodesText) {
-            return;
-        }
-
-        try {
-            if (navigator.clipboard?.writeText) {
-                await navigator.clipboard.writeText(backupCodesText);
-            } else {
-                const textArea = document.createElement("textarea");
-                textArea.value = backupCodesText;
-                textArea.setAttribute("readonly", "");
-                textArea.style.position = "fixed";
-                textArea.style.opacity = "0";
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand("copy");
-                document.body.removeChild(textArea);
-            }
-
-            setHasCopiedBackupCodes(true);
-            setErrorMessage("");
-            toast.success("Backup codes copied to clipboard");
-        } catch (error) {
-            setErrorMessage(error.message || "Unable to copy backup codes.");
-        }
-    };
-
-    const handleFinish = async () => {
-        await onSaved?.();
-        toast.success("Authenticator App connected successfully!");
-        onClose();
-    };
-
-    const handleClose = async () => {
-        if (step === "backupCodes") {
-            await onSaved?.();
-        }
-
-        onClose();
-    };
-
-    const handleSelectAuthenticatorApp = () => {
-        setErrorMessage("");
-        setStep("scan");
-    };
-
-    const handleSelectPasskey = async () => {
-        setErrorMessage("");
-        setIsRegisteringPasskey(true);
-
-        try {
-            const options = await beginPasskeyRegistration(email);
-            const credential = await createPasskeyCredential(options);
-
-            await finishPasskeyRegistration(email, credential);
-            await onSaved?.();
-            toast.success("Passkey connected successfully!");
-            onClose();
-        } catch (error) {
-            setErrorMessage(error.message || "Failed to register passkey.");
-        } finally {
-            setIsRegisteringPasskey(false);
-        }
-    };
+    const {
+        step,
+        setStep,
+        setup,
+        qrCodeUrl,
+        authenticatorName,
+        setAuthenticatorName,
+        code,
+        setCode,
+        backupCodes,
+        hasCopiedBackupCodes,
+        errorMessage,
+        setErrorMessage,
+        isLoadingSetup,
+        isSaving,
+        isRegisteringPasskey,
+        handleSave,
+        handleCopyBackupCodes,
+        handleFinish,
+        handleClose,
+        handleSelectAuthenticatorApp,
+        handleSelectPasskey
+    } = useMfaSetupModal({ isOpen, email, onClose, onSaved });
 
     return (
-        <Dialog open={isOpen} onOpenChange={() => {}}>
+        <Dialog open={isOpen} onOpenChange={() => { }}>
             <DialogContent onPointerDownOutside={(e) => e.preventDefault()} onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()} className="p-4 sm:max-w-[425px] gap-0 bg-white dark:bg-[#0a0a0a] border border-transparent dark:border-white/10 ring-0 outline-none shadow-xl [&>button]:hidden">
                 <div className="flex flex-col gap-2 -mx-4 -mt-4 mb-2 rounded-t-xl border-b p-4 bg-[linear-gradient(180deg,rgba(123,13,21,0.97),rgba(43,3,7,0.98))] text-white relative">
                     <DialogTitle className="font-heading text-base leading-none font-medium text-white text-left">
@@ -277,7 +95,7 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
                     {step === "scan" && (
                         <div>
                             <h2 className="text-xl font-bold text-center mb-4 text-slate-900 dark:text-slate-100">Scan the QR code</h2>
-                            
+
                             <Alert variant="info" className="mb-6 bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-900/50 [&>svg]:!text-blue-600 dark:[&>svg]:!text-blue-400">
                                 <CircleAlertIcon className="w-4 h-4" />
                                 <AlertDescription className="text-sm font-medium text-blue-700 dark:text-blue-300">
@@ -333,12 +151,12 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
 
                             <div className="mb-6 flex flex-col items-center">
                                 <label className="block w-full text-left text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Verification Code</label>
-                                <InputOTP 
-                                    maxLength={6} 
-                                    value={code.join("")} 
+                                <InputOTP
+                                    maxLength={6}
+                                    value={code.join("")}
                                     onChange={(val) => {
                                         const arr = ["", "", "", "", "", ""];
-                                        for(let i=0; i<val.length; i++) arr[i] = val[i];
+                                        for (let i = 0; i < val.length; i++) arr[i] = val[i];
                                         setCode(arr);
                                     }}
                                     disabled={isSaving}
@@ -398,7 +216,7 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
                             Cancel
                         </Button>
                     )}
-                    
+
                     {step === "scan" && (
                         <Button onClick={() => setStep("verify")} disabled={isLoadingSetup || !setup.secret} className="rounded-lg h-8 px-4 bg-[#6b1115] hover:bg-yellow-400 text-white dark:text-[#7b0d15] dark:bg-yellow-400 dark:hover:bg-[#7b0d15] hover:text-[#4f0d17] dark:hover:text-yellow-400 border-none font-bold text-sm transition-colors">
                             Next
