@@ -51,7 +51,7 @@ function IconTile({ children, className, style, "aria-hidden": ariaHidden }) {
     );
 }
 
-export default function HeroSection({ pendingAction, onRegisterClick }) {
+export default function HeroSection({ pendingAction, cooldown = 0, onRegisterClick }) {
     return (
         <section id="home" className="relative grid grid-cols-1 justify-items-center gap-10 md:gap-14 min-h-[calc(100vh-4.6rem)] py-12 md:py-20 px-5 md:px-16 text-center scroll-mt-20">
             <FloatingIcon className="top-[5.6rem] left-[15%]" style={{ animationDelay: '0s' }} rotate="-12deg">
@@ -88,7 +88,7 @@ export default function HeroSection({ pendingAction, onRegisterClick }) {
                 </p>
 
                 <div className="mt-8 flex justify-center pointer-events-auto">
-                    <Button size="lg" onClick={onRegisterClick} disabled={pendingAction === "register"} className="bg-yellow-400 text-[#4f0d17] hover:bg-[#6b1115] hover:text-yellow-400 border border-yellow-400/70 hover:border-yellow-400/90 rounded-xl font-extrabold px-8 shadow-lg transition-all hover:-translate-y-[1px] min-h-[3rem]">
+                    <Button size="lg" onClick={onRegisterClick} disabled={pendingAction === "register" || cooldown > 0} className="bg-yellow-400 text-[#4f0d17] hover:bg-[#6b1115] hover:text-yellow-400 border border-yellow-400/70 hover:border-yellow-400/90 rounded-xl font-extrabold px-8 shadow-lg transition-all hover:-translate-y-[1px] min-h-[3rem]">
                         <UserPlus className="w-5 h-5 mr-2" />
                         {pendingAction === "register" ? "Redirecting..." : "Register"}
                     </Button>
