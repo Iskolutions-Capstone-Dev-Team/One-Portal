@@ -47,6 +47,23 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
     const [isLoadingSetup, setIsLoadingSetup] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [isRegisteringPasskey, setIsRegisteringPasskey] = useState(false);
+    const [cooldown, setCooldown] = useState(0);
+
+    useEffect(() => {
+        let intervalId;
+        if (cooldown > 0) {
+            intervalId = setInterval(() => {
+                setCooldown((prev) => prev - 1);
+            }, 1000);
+        }
+        return () => clearInterval(intervalId);
+    }, [cooldown]);
+
+    useEffect(() => {
+        if (cooldown === 0) {
+            setErrorMessage((prev) => prev.startsWith("Too many attempts") ? "" : prev);
+        }
+    }, [cooldown]);
 
     useEffect(() => {
         if (!isOpen) {
@@ -91,7 +108,13 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
                 setSetup(setupData);
                 setQrCodeUrl(qrUrl);
             } catch (error) {
-                setErrorMessage(error.message || "Failed to prepare MFA setup.");
+                if (error?.status === 429 || error?.response?.status === 429) {
+                    setCooldown(20);
+                    setErrorMessage(`Too many attempts. Please wait.`);
+                    setStep("choice");
+                } else {
+                    setErrorMessage(error.message || "Failed to prepare MFA setup.");
+                }
             } finally {
                 setIsLoadingSetup(false);
             }
@@ -229,7 +252,12 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
             toast.success("Passkey connected successfully!");
             onClose();
         } catch (error) {
-            setErrorMessage(error.message || "Failed to register passkey.");
+            if (error?.status === 429 || error?.response?.status === 429) {
+                setCooldown(20);
+                setErrorMessage(`Too many attempts. Please wait.`);
+            } else {
+                setErrorMessage(error.message || "Failed to register passkey.");
+            }
         } finally {
             setIsRegisteringPasskey(false);
         }
@@ -248,7 +276,7 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
                     {errorMessage && (
                         <div className="mb-6">
                             <ErrorAlert
-                                message={errorMessage}
+                                message={cooldown > 0 && errorMessage === "Too many attempts. Please wait." ? `Too many attempts. Please wait ${cooldown}s.` : errorMessage}
                                 onClose={() => setErrorMessage("")}
                                 autoCloseMs={5000}
                             />
@@ -259,17 +287,17 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
                         <div>
                             <ConnectionOptionButton
                                 title="Authenticator App"
-                                description="Scan a QR code and verify a 6-digit code."
+                                description={cooldown > 0 ? `Please wait ${cooldown}s` : "Scan a QR code and verify a 6-digit code."}
                                 icon={<Smartphone aria-hidden="true" className="size-5" />}
                                 onClick={handleSelectAuthenticatorApp}
-                                disabled={isRegisteringPasskey}
+                                disabled={isRegisteringPasskey || cooldown > 0}
                             />
                             <ConnectionOptionButton
                                 title="Passkey"
-                                description={isRegisteringPasskey ? "Creating passkey..." : "Use your device, browser, or security key."}
+                                description={cooldown > 0 ? `Please wait ${cooldown}s` : (isRegisteringPasskey ? "Creating passkey..." : "Use your device, browser, or security key.")}
                                 icon={<KeySquare aria-hidden="true" className="size-5" />}
                                 onClick={handleSelectPasskey}
-                                disabled={isRegisteringPasskey}
+                                disabled={isRegisteringPasskey || cooldown > 0}
                             />
                         </div>
                     )}
