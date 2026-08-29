@@ -107,7 +107,7 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
                         {formatAuthenticatorType(authenticator.type)}
                     </p>
 
-                    <button type="button" className="absolute top-4 right-4 w-8 h-8 inline-flex items-center justify-center text-[#7b0d15] hover:bg-[#7b0d15]/10 dark:text-yellow-400 dark:hover:bg-yellow-400/20 rounded-full transition-colors disabled:opacity-50" onClick={() => handleDeleteClick(authenticator)} disabled={deletingId === authenticator.id} aria-label={`Delete ${authenticator.name || "authenticator"}`}>
+                    <button type="button" className="absolute top-4 right-4 w-8 h-8 inline-flex items-center justify-center text-[#7b0d15] hover:bg-[#7b0d15]/10 dark:text-yellow-400 dark:hover:bg-yellow-400/20 rounded-full transition-colors disabled:opacity-50" onClick={() => handleDeleteClick(authenticator)} disabled={deletingId === authenticator.id || cooldown > 0} aria-label={`Delete ${authenticator.name || "authenticator"}`}>
                         <Trash className="w-4 h-4" strokeWidth={1.5} />
                     </button>
                 </div>
@@ -143,14 +143,18 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
                         <CardDescription className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage the authenticator apps connected to your account.</CardDescription>
                     </div>
 
-                    <Button onClick={() => setModalOpen(true)} disabled={!email} className="bg-[#6b1115] dark:bg-yellow-400 text-white dark:text-[#7b0d15] hover:bg-yellow-400 dark:hover:bg-[#7b0d15] hover:text-[#4f0d17] dark:hover:text-yellow-400 border border-[#6b1115]/70 dark:border-yellow-400 dark:hover:border-[#7b0d15] min-h-[2.5rem] md:min-h-[2.65rem] px-3 py-2 md:px-4 md:py-2.5 rounded-lg md:rounded-xl font-extrabold text-xs md:text-[0.9rem] shadow-lg transition-all hover:-translate-y-[1px] h-auto cursor-pointer flex flex-row items-center justify-center gap-1.5 md:gap-2">
+                    <Button onClick={() => setModalOpen(true)} disabled={!email || cooldown > 0} className="bg-[#6b1115] dark:bg-yellow-400 text-white dark:text-[#7b0d15] hover:bg-yellow-400 dark:hover:bg-[#7b0d15] hover:text-[#4f0d17] dark:hover:text-yellow-400 border border-[#6b1115]/70 dark:border-yellow-400 dark:hover:border-[#7b0d15] min-h-[2.5rem] md:min-h-[2.65rem] px-3 py-2 md:px-4 md:py-2.5 rounded-lg md:rounded-xl font-extrabold text-xs md:text-[0.9rem] shadow-lg transition-all hover:-translate-y-[1px] h-auto cursor-pointer flex flex-row items-center justify-center gap-1.5 md:gap-2">
                         + New Connection
                     </Button>
                 </CardHeader>
                 <CardContent className="p-4 sm:p-6 lg:p-8">
 
                     {errorMessage && (
-                        <p className="text-red-600 dark:text-red-400 text-sm font-medium mb-6 px-4 py-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-900/50">{errorMessage}</p>
+                        <p className="text-red-600 dark:text-red-400 text-sm font-medium mb-6 px-4 py-3 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-900/50">
+                            {cooldown > 0 && errorMessage === "Too many attempts. Please wait." 
+                                ? `Too many attempts. Please wait ${cooldown}s.` 
+                                : errorMessage}
+                        </p>
                     )}
 
                     {isLoading ? (
@@ -181,24 +185,26 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
                                     <CarouselNext className="right-0 bg-[#7b0d15] dark:bg-yellow-400 hover:bg-yellow-400 dark:hover:bg-[#7b0d15] text-white dark:text-[#7b0d15] hover:text-[#7b0d15] dark:hover:text-yellow-400 border-none" />
                                 </Carousel>
                             ) : (
-                                <div className="flex items-center justify-center p-4">
-                                    <Empty className="py-12">
-                                        <EmptyHeader>
-                                            <EmptyMedia>
-                                                <AutomationIllustration />
-                                            </EmptyMedia>
-                                            <EmptyTitle>No authenticator yet</EmptyTitle>
-                                            <EmptyDescription>
-                                                Get started by setting up your authenticator.
-                                            </EmptyDescription>
-                                        </EmptyHeader>
-                                        <EmptyContent>
-                                            <Button onClick={() => setModalOpen(true)} className="bg-[#7b0d15] dark:bg-yellow-400 text-white dark:text-[#7b0d15] hover:bg-yellow-400 dark:hover:bg-[#7b0d15] hover:text-[#7b0d15] dark:hover:text-yellow-400 transition-all">
-                                                New connection
-                                            </Button>
-                                        </EmptyContent>
-                                    </Empty>
-                                </div>
+                                !errorMessage && (
+                                    <div className="flex items-center justify-center p-4">
+                                        <Empty className="py-12">
+                                            <EmptyHeader>
+                                                <EmptyMedia>
+                                                    <AutomationIllustration />
+                                                </EmptyMedia>
+                                                <EmptyTitle>No authenticator yet</EmptyTitle>
+                                                <EmptyDescription>
+                                                    Get started by setting up your authenticator.
+                                                </EmptyDescription>
+                                            </EmptyHeader>
+                                            <EmptyContent>
+                                                <Button onClick={() => setModalOpen(true)} disabled={cooldown > 0} className="bg-[#7b0d15] dark:bg-yellow-400 text-white dark:text-[#7b0d15] hover:bg-yellow-400 dark:hover:bg-[#7b0d15] hover:text-[#7b0d15] dark:hover:text-yellow-400 transition-all">
+                                                    New connection
+                                                </Button>
+                                            </EmptyContent>
+                                        </Empty>
+                                    </div>
+                                )
                             )}
                         </div>
                     )}

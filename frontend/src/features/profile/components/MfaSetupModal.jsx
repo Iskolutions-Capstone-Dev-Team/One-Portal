@@ -66,7 +66,7 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
                     {errorMessage && (
                         <div className="mb-6">
                             <ErrorAlert
-                                message={errorMessage}
+                                message={cooldown > 0 && errorMessage === "Too many attempts. Please wait." ? `Too many attempts. Please wait ${cooldown}s.` : errorMessage}
                                 onClose={() => setErrorMessage("")}
                                 autoCloseMs={5000}
                             />
@@ -77,17 +77,17 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
                         <div>
                             <ConnectionOptionButton
                                 title="Authenticator App"
-                                description="Scan a QR code and verify a 6-digit code."
+                                description={cooldown > 0 ? `Please wait ${cooldown}s` : "Scan a QR code and verify a 6-digit code."}
                                 icon={<Smartphone aria-hidden="true" className="size-5" />}
                                 onClick={handleSelectAuthenticatorApp}
-                                disabled={isRegisteringPasskey}
+                                disabled={isRegisteringPasskey || cooldown > 0}
                             />
                             <ConnectionOptionButton
                                 title="Passkey"
-                                description={isRegisteringPasskey ? "Creating passkey..." : "Use your device, browser, or security key."}
+                                description={cooldown > 0 ? `Please wait ${cooldown}s` : (isRegisteringPasskey ? "Creating passkey..." : "Use your device, browser, or security key.")}
                                 icon={<KeySquare aria-hidden="true" className="size-5" />}
                                 onClick={handleSelectPasskey}
-                                disabled={isRegisteringPasskey}
+                                disabled={isRegisteringPasskey || cooldown > 0}
                             />
                         </div>
                     )}
