@@ -80,6 +80,7 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
         deletingId,
         pendingDeleteAuthenticator,
         errorMessage,
+        cooldown,
         handleDeleteClick,
         handleCancelDelete,
         handleConfirmDelete,

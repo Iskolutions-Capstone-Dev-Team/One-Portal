@@ -10,6 +10,23 @@ export function useAuthenticatorApps({ email, isProfileLoading }) {
     const [deletingId, setDeletingId] = useState("");
     const [pendingDeleteAuthenticator, setPendingDeleteAuthenticator] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
+    const [cooldown, setCooldown] = useState(0);
+
+    useEffect(() => {
+        let intervalId;
+        if (cooldown > 0) {
+            intervalId = setInterval(() => {
+                setCooldown((prev) => prev - 1);
+            }, 1000);
+        }
+        return () => clearInterval(intervalId);
+    }, [cooldown]);
+
+    useEffect(() => {
+        if (cooldown === 0) {
+            setErrorMessage((prev) => prev.startsWith("Too many attempts") ? "" : prev);
+        }
+    }, [cooldown]);
 
     const loadAuthenticators = useCallback(async () => {
         if (isProfileLoading) {
@@ -32,7 +49,12 @@ export function useAuthenticatorApps({ email, isProfileLoading }) {
             const authenticatorList = await getAuthenticators(email);
             setAuthenticators(authenticatorList);
         } catch (error) {
-            setErrorMessage(error.message || "Failed to load authenticators.");
+            if (error?.status === 429 || error?.response?.status === 429) {
+                setCooldown(20);
+                setErrorMessage(`Too many attempts. Please wait.`);
+            } else {
+                setErrorMessage(error.message || "Failed to load authenticators.");
+            }
         } finally {
             setIsLoading(false);
         }
@@ -73,7 +95,12 @@ export function useAuthenticatorApps({ email, isProfileLoading }) {
             toast.success("Authenticator removed successfully!");
             setPendingDeleteAuthenticator(null);
         } catch (error) {
-            setErrorMessage(error.message || "Failed to remove authenticator.");
+            if (error?.status === 429 || error?.response?.status === 429) {
+                setCooldown(20);
+                setErrorMessage(`Too many attempts. Please wait.`);
+            } else {
+                setErrorMessage(error.message || "Failed to remove authenticator.");
+            }
         } finally {
             setDeletingId("");
         }
@@ -92,6 +119,7 @@ export function useAuthenticatorApps({ email, isProfileLoading }) {
         deletingId,
         pendingDeleteAuthenticator,
         errorMessage,
+        cooldown,
         handleDeleteClick,
         handleCancelDelete,
         handleConfirmDelete,

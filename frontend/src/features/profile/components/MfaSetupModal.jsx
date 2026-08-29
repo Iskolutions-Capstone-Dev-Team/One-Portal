@@ -45,6 +45,7 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
         isLoadingSetup,
         isSaving,
         isRegisteringPasskey,
+        cooldown,
         handleSave,
         handleCopyBackupCodes,
         handleFinish,

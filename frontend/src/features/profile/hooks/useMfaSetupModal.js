@@ -18,6 +18,23 @@ export function useMfaSetupModal({ isOpen, email, onClose, onSaved }) {
     const [isLoadingSetup, setIsLoadingSetup] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [isRegisteringPasskey, setIsRegisteringPasskey] = useState(false);
+    const [cooldown, setCooldown] = useState(0);
+
+    useEffect(() => {
+        let intervalId;
+        if (cooldown > 0) {
+            intervalId = setInterval(() => {
+                setCooldown((prev) => prev - 1);
+            }, 1000);
+        }
+        return () => clearInterval(intervalId);
+    }, [cooldown]);
+
+    useEffect(() => {
+        if (cooldown === 0) {
+            setErrorMessage((prev) => prev.startsWith("Too many attempts") ? "" : prev);
+        }
+    }, [cooldown]);
 
     useEffect(() => {
         if (!isOpen) {
@@ -62,7 +79,13 @@ export function useMfaSetupModal({ isOpen, email, onClose, onSaved }) {
                 setSetup(setupData);
                 setQrCodeUrl(qrUrl);
             } catch (error) {
-                setErrorMessage(error.message || "Failed to prepare MFA setup.");
+                if (error?.status === 429 || error?.response?.status === 429) {
+                    setCooldown(20);
+                    setErrorMessage(`Too many attempts. Please wait.`);
+                    setStep("choice");
+                } else {
+                    setErrorMessage(error.message || "Failed to prepare MFA setup.");
+                }
             } finally {
                 setIsLoadingSetup(false);
             }
@@ -173,7 +196,12 @@ export function useMfaSetupModal({ isOpen, email, onClose, onSaved }) {
             toast.success("Passkey connected successfully!");
             onClose();
         } catch (error) {
-            setErrorMessage(error.message || "Failed to register passkey.");
+            if (error?.status === 429 || error?.response?.status === 429) {
+                setCooldown(20);
+                setErrorMessage(`Too many attempts. Please wait.`);
+            } else {
+                setErrorMessage(error.message || "Failed to register passkey.");
+            }
         } finally {
             setIsRegisteringPasskey(false);
         }
@@ -195,6 +223,7 @@ export function useMfaSetupModal({ isOpen, email, onClose, onSaved }) {
         isLoadingSetup,
         isSaving,
         isRegisteringPasskey,
+        cooldown,
         handleSave,
         handleCopyBackupCodes,
         handleFinish,
