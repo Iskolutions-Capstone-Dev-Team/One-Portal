@@ -152,6 +152,13 @@ func (r *Routes) Register(router *gin.Engine) {
 			middleware.JWTAuthMiddleware,
 			r.UserHandler.PatchChangePassword,
 		)
+
+		// Delete user records (called internally by IDP)
+		userGroup.DELETE(
+			"/:id",
+			middleware.APIKeyAuthMiddleware,
+			r.UserHandler.DeleteUser,
+		)
 	}
 
 	// --- API Key-protected endpoints (internal admin operations) ---
