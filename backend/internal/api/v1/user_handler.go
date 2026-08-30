@@ -323,3 +323,28 @@ func (h *UserHandler) PatchChangePassword(c *gin.Context) {
 
 	c.JSON(http.StatusOK, dto.SuccessResponse{Message: "Password changed successfully"})
 }
+
+// DeleteUser deletes a user and all associated records from the database.
+func (h *UserHandler) DeleteUser(c *gin.Context) {
+	id := c.Param("id")
+	userID, err := uuid.Parse(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Invalid user ID format",
+		})
+		return
+	}
+
+	err = h.userService.DeleteUser(c.Request.Context(), userID)
+	if err != nil {
+		log.Printf("[DeleteUser] %v", err)
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to delete user records",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, dto.SuccessResponse{
+		Message: "User records deleted successfully",
+	})
+}
