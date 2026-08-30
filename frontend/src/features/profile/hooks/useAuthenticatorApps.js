@@ -1,16 +1,17 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import useSWR from "swr";
 import { deleteAuthenticator, getAuthenticators } from "../../../services/userMfa";
 import { toast } from "sonner";
 
 export function useAuthenticatorApps({ email, isProfileLoading }) {
-    const [authenticators, setAuthenticators] = useState([]);
     const [isModalOpen, setModalOpen] = useState(false);
     const [currentSlide, setCurrentSlide] = useState(0);
-    const [isLoading, setIsLoading] = useState(false);
     const [deletingId, setDeletingId] = useState("");
     const [pendingDeleteAuthenticator, setPendingDeleteAuthenticator] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
     const [cooldown, setCooldown] = useState(0);
+
+
 
     useEffect(() => {
         let intervalId;
@@ -28,41 +29,32 @@ export function useAuthenticatorApps({ email, isProfileLoading }) {
         }
     }, [cooldown]);
 
-    const loadAuthenticators = useCallback(async () => {
-        if (isProfileLoading) {
-            setAuthenticators([]);
-            setIsLoading(true);
-            setErrorMessage("");
-            return;
+    const fetcher = async (key) => {
+        const [, userEmail] = key;
+        await new Promise((resolve) => setTimeout(resolve, 1500));
+        return getAuthenticators(userEmail);
+    };
+
+    const { data: authenticators = [], error, isLoading, mutate } = useSWR(
+        !isProfileLoading && email ? ["authenticators", email] : null,
+        fetcher,
+        {
+            revalidateOnFocus: false,
+            shouldRetryOnError: false,
+            revalidateIfStale: false
         }
+    );
 
-        if (!email) {
-            setAuthenticators([]);
-            setIsLoading(false);
-            return;
-        }
-
-        setIsLoading(true);
-        setErrorMessage("");
-
-        try {
-            const authenticatorList = await getAuthenticators(email);
-            setAuthenticators(authenticatorList);
-        } catch (error) {
+    useEffect(() => {
+        if (error) {
             if (error?.status === 429 || error?.response?.status === 429) {
                 setCooldown(20);
-                setErrorMessage(`Too many attempts. Please wait.`);
+                setErrorMessage("Too many attempts. Please wait.");
             } else {
                 setErrorMessage(error.message || "Failed to load authenticators.");
             }
-        } finally {
-            setIsLoading(false);
         }
-    }, [email, isProfileLoading]);
-
-    useEffect(() => {
-        void loadAuthenticators();
-    }, [loadAuthenticators]);
+    }, [error]);
 
     useEffect(() => {
         setCurrentSlide(0);
@@ -91,7 +83,7 @@ export function useAuthenticatorApps({ email, isProfileLoading }) {
 
         try {
             await deleteAuthenticator({ email, id: pendingDeleteAuthenticator.id });
-            await loadAuthenticators();
+            await mutate();
             toast.success("Authenticator removed successfully!");
             setPendingDeleteAuthenticator(null);
         } catch (error) {
@@ -107,7 +99,7 @@ export function useAuthenticatorApps({ email, isProfileLoading }) {
     };
 
     const handleSaved = async () => {
-        await loadAuthenticators();
+        await mutate();
     };
 
     return {
