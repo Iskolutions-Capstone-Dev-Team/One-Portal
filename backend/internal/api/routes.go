@@ -140,6 +140,11 @@ func (r *Routes) Register(router *gin.Engine) {
 			middleware.JWTAuthMiddleware,
 			r.UserHandler.PatchUserName,
 		)
+		userGroup.PATCH(
+			"/:id/email",
+			middleware.JWTAuthMiddleware,
+			r.UserHandler.PatchUserEmail,
+		)
 		// Password forgot: user is locked out — rate-limited only.
 		// Intentionally unauthenticated; no token available.
 		forgotRL := middleware.RateLimitMiddleware(middleware.OTPRateLimiter)
