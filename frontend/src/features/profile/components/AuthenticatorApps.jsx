@@ -6,7 +6,8 @@ import { formatTimestamp } from "../../../utils/formatTimestamp";
 import MfaDeleteConfirmModal from "./MfaDeleteConfirmModal";
 
 import { Button } from "@/components/ui/button";
-import { KeySquare, Smartphone, Trash, CalendarDays, Clock } from "lucide-react";
+import { Smartphone, KeySquare, Trash, CalendarDays, Clock, Edit2 } from 'lucide-react';
+import { Skeleton } from "@/components/ui/skeleton";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 
 function AutomationIllustration() {
@@ -137,7 +138,7 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
 
     return (
         <>
-            <Card className="mt-6 py-0 bg-white dark:bg-[#0a0a0a] shadow-sm border border-transparent dark:border-white/10 rounded-3xl ring-0 ring-offset-0 transition-colors duration-300">
+            <Card className="py-0 bg-white dark:bg-[#0a0a0a] shadow-sm border border-transparent dark:border-white/10 rounded-3xl ring-0 ring-offset-0 transition-colors duration-300">
                 <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-2 px-6 sm:px-10 pt-6 sm:pt-10 rounded-t-3xl bg-transparent">
                     <div>
                         <CardTitle className="text-2xl font-bold uppercase tracking-wide text-slate-900 dark:text-slate-100">AUTHENTICATOR APPS</CardTitle>
@@ -159,9 +160,29 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
                     )}
 
                     {isLoading ? (
-                        <p className="text-slate-500 dark:text-slate-400 text-center py-12">
-                            {isProfileLoading ? "Loading profile..." : "Loading authenticators..."}
-                        </p>
+                        <div className="w-full min-w-0 relative px-0 sm:px-12">
+                            <div className="flex -ml-2 overflow-hidden">
+                                {[1, 2, 3].map((i) => (
+                                    <div key={i} className="min-w-0 shrink-0 grow-0 basis-full sm:basis-1/2 lg:basis-1/3 pl-2">
+                                        <div className="p-1 h-[372px]">
+                                            <Card className="w-full overflow-hidden p-0 relative group shadow-sm bg-white dark:bg-[#141414] border border-slate-200 dark:border-white/10 transition-all duration-300 h-full flex flex-col">
+                                                <CardContent className="flex flex-col items-center p-0 h-full flex-1">
+                                                    <div className="flex w-full flex-col items-center justify-center py-12 rounded-t-xl shrink-0">
+                                                        <Skeleton className="h-16 w-16 rounded-full mb-6" />
+                                                        <Skeleton className="h-6 w-3/4 rounded-md mb-2" />
+                                                        <Skeleton className="h-4 w-1/2 rounded-md" />
+                                                    </div>
+                                                    <div className="w-full space-y-2 px-3 pb-6 mt-auto">
+                                                        <Skeleton className="h-[44px] w-full rounded-lg" />
+                                                        <Skeleton className="h-[44px] w-full rounded-lg" />
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     ) : !email ? (
                         <p className="text-slate-500 dark:text-slate-400 text-center py-12 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-slate-300 dark:border-slate-700">Reload the page or sign in again.</p>
                     ) : (
@@ -171,7 +192,7 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
                                     opts={{
                                         align: "start",
                                     }}
-                                    className="w-full relative px-0 sm:px-12"
+                                    className="w-full min-w-0 relative px-0 sm:px-12"
                                 >
                                     <CarouselContent className="-ml-2">
                                         {authenticators.map((authenticator, index) => (
@@ -182,8 +203,8 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
                                             </CarouselItem>
                                         ))}
                                     </CarouselContent>
-                                    <CarouselPrevious className="left-0 bg-[#7b0d15] dark:bg-yellow-400 hover:bg-yellow-400 dark:hover:bg-[#7b0d15] text-white dark:text-[#7b0d15] hover:text-[#7b0d15] dark:hover:text-yellow-400 border-none" />
-                                    <CarouselNext className="right-0 bg-[#7b0d15] dark:bg-yellow-400 hover:bg-yellow-400 dark:hover:bg-[#7b0d15] text-white dark:text-[#7b0d15] hover:text-[#7b0d15] dark:hover:text-yellow-400 border-none" />
+                                    <CarouselPrevious className="hidden sm:inline-flex left-0 bg-[#7b0d15] dark:bg-yellow-400 hover:bg-yellow-400 dark:hover:bg-[#7b0d15] text-white dark:text-[#7b0d15] hover:text-[#7b0d15] dark:hover:text-yellow-400 border-none" />
+                                    <CarouselNext className="hidden sm:inline-flex right-0 bg-[#7b0d15] dark:bg-yellow-400 hover:bg-yellow-400 dark:hover:bg-[#7b0d15] text-white dark:text-[#7b0d15] hover:text-[#7b0d15] dark:hover:text-yellow-400 border-none" />
                                 </Carousel>
                             ) : (
                                 !errorMessage && (
