@@ -14,6 +14,7 @@ type UserService interface {
 	CreateUserFromMe(ctx context.Context, me dto.MeResponse) error
 	GetUserByID(ctx context.Context, id uuid.UUID) (models.User, error)
 	UpdateUserName(ctx context.Context, id uuid.UUID, req dto.UpdateUserNameRequest) error
+	UpdateUserEmail(ctx context.Context, id uuid.UUID, email string) error
 }
 
 type userService struct {
@@ -63,4 +64,12 @@ func (s *userService) UpdateUserName(
 		NameSuffix: req.NameSuffix,
 	}
 	return s.repo.UpdateUser(ctx, id, user)
+}
+
+func (s *userService) UpdateUserEmail(
+	ctx context.Context,
+	id uuid.UUID,
+	email string,
+) error {
+	return s.repo.UpdateUserEmail(ctx, id, email)
 }
