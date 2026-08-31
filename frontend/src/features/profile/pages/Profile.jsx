@@ -122,7 +122,7 @@ export default function Profile() {
                     <ProfileCard
                         profile={profile}
                         onProfileChange={setProfile}
-                        allowEmailEdit={false}
+                        allowEmailEdit={true}
                     />
                     
                     <div className="flex w-full min-w-0 flex-col gap-6 mt-2">

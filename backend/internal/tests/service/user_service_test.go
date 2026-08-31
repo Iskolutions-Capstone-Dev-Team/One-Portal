@@ -81,4 +81,17 @@ func TestUserService(t *testing.T) {
 			t.Errorf("expected no error, got %v", err)
 		}
 	})
+
+	t.Run("UpdateUserEmail", func(t *testing.T) {
+		email := "updated@example.com"
+		mockRepo.EXPECT().
+			UpdateUserEmail(ctx, userID, email).
+			Return(nil).
+			Times(1)
+
+		err := svc.UpdateUserEmail(ctx, userID, email)
+		if err != nil {
+			t.Errorf("expected no error, got %v", err)
+		}
+	})
 }

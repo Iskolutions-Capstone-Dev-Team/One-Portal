@@ -15,6 +15,7 @@ type UserService interface {
 	GetUserByID(ctx context.Context, id uuid.UUID) (models.User, error)
 	UpdateUserName(ctx context.Context, id uuid.UUID, req dto.UpdateUserNameRequest) error
 	DeleteUser(ctx context.Context, id uuid.UUID) error
+	UpdateUserEmail(ctx context.Context, id uuid.UUID, email string) error
 }
 
 type userService struct {
@@ -68,4 +69,12 @@ func (s *userService) UpdateUserName(
 
 func (s *userService) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	return s.repo.DeleteUser(ctx, id)
+}
+
+func (s *userService) UpdateUserEmail(
+	ctx context.Context,
+	id uuid.UUID,
+	email string,
+) error {
+	return s.repo.UpdateUserEmail(ctx, id, email)
 }
