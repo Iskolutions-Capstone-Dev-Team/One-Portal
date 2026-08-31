@@ -2,10 +2,14 @@ import { useEffect, useState } from "react";
 import OnePortalLayout from "../../../layouts/OnePortalLayout";
 import ProfileCard from "../components/ProfileCard";
 import AuthenticatorApps from "../components/AuthenticatorApps";
+import RememberedDevices from "../components/RememberedDevices";
 import { clearSessionState, navigateToLandingPage } from "../../../services/auth";
 import { createEmptyProfile, getCurrentUserProfile } from "../../../services/userProfile";
 import GradientWaves from "../../../components/ui/GradientWaves";
 import { usePortalTheme } from "../../../providers/PortalThemeProvider";
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Smartphone, Monitor } from "lucide-react";
 
 export default function Profile() {
     const { isDarkMode } = usePortalTheme();
@@ -78,7 +82,7 @@ export default function Profile() {
         <OnePortalLayout>
             <main className="relative min-h-screen pt-32 pb-20 px-4 sm:px-6 md:px-8 !bg-slate-100 dark:!bg-[#080808] border-none shadow-none font-[Poppins]">
                 {/* Background Layer matching Dashboard */}
-                <div className={`absolute inset-x-0 top-0 h-[45vh] md:h-[55vh] z-0 bg-gradient-to-b ${isDarkMode ? "from-[#4f0d17]" : "from-[#2a050a]"} from-50% to-transparent pointer-events-none`}>
+                <div className="absolute inset-x-0 top-0 h-[45vh] md:h-[55vh] z-0 bg-gradient-to-b from-[#4f0d17] from-50% to-transparent pointer-events-none">
                     <div 
                         className="absolute inset-0 pointer-events-none"
                         style={{ 
@@ -90,8 +94,8 @@ export default function Profile() {
                             <GradientWaves
                                 className={isDesktop ? "scale-x-[2.5]" : "scale-x-[1.5]"}
                                 horizonColor={isDarkMode ? "#080808" : "#f1f5f9"}
-                                waveColor={isDarkMode ? "#8a0f18" : "#4f0d17"}
-                                crestColor={isDarkMode ? "#5c0a10" : "#230407"}
+                                waveColor="#8a0f18"
+                                crestColor="#5c0a10"
                                 speed={0.15}
                                 amplitude={2.5}
                                 waveScale={isDesktop ? 1.5 : 0.9}
@@ -120,11 +124,36 @@ export default function Profile() {
                         onProfileChange={setProfile}
                         allowEmailEdit={false}
                     />
-                    <AuthenticatorApps
-                        key={profile.email || "profile-loading"}
-                        email={profile.email}
-                        isProfileLoading={isProfileLoading}
-                    />
+                    
+                    <div className="flex w-full min-w-0 flex-col gap-6 mt-2">
+                        <Tabs defaultValue="authenticators">
+                            <TabsList variant="line" className="mb-3.5 justify-start flex-nowrap max-w-full overflow-x-auto overflow-y-hidden">
+                                <TabsTrigger value="authenticators" className="gap-2 whitespace-nowrap">
+                                    <Smartphone className="size-4 shrink-0" />
+                                    Authenticators
+                                </TabsTrigger>
+                                <TabsTrigger value="devices" className="gap-2 whitespace-nowrap">
+                                    <Monitor className="size-4 shrink-0" />
+                                    Remembered Devices
+                                </TabsTrigger>
+                            </TabsList>
+                            <div className="w-full min-w-0">
+                                <TabsContent value="authenticators" className="mt-0 outline-none">
+                                    <AuthenticatorApps
+                                        key={profile.email || "profile-loading"}
+                                        email={profile.email}
+                                        isProfileLoading={isProfileLoading}
+                                    />
+                                </TabsContent>
+                                <TabsContent value="devices" className="mt-0 outline-none">
+                                    <RememberedDevices 
+                                        key={`devices-${profile.email || "loading"}`}
+                                        isProfileLoading={isProfileLoading}
+                                    />
+                                </TabsContent>
+                            </div>
+                        </Tabs>
+                    </div>
                 </div>
             </main>
         </OnePortalLayout>

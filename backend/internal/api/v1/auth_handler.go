@@ -30,6 +30,9 @@ type AuthHandler struct {
 
 var Client = &http.Client{
 	Timeout: TimeoutDuration,
+	CheckRedirect: func(req *http.Request, via []*http.Request) error {
+		return http.ErrUseLastResponse
+	},
 }
 
 // isSecureCookie returns false when running in debug/dev mode so
@@ -613,8 +616,13 @@ func (h *AuthHandler) notifyIDPLogout(c *gin.Context) string {
 	resp, err := Client.Do(req)
 	if err != nil {
 		log.Printf("[notifyIDPLogout] Send POST: %v", err)
-	} else {
-		resp.Body.Close()
+		return logoutURL
+	}
+	defer resp.Body.Close()
+
+	loc := resp.Header.Get("Location")
+	if loc != "" {
+		return loc
 	}
 
 	return logoutURL

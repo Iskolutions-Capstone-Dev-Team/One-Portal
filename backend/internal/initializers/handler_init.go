@@ -14,6 +14,7 @@ type Handlers struct {
 	OTP          *v1.OTPHandler
 	MFA          *v1.MFAHandler
 	Announcement *v1.AnnouncementHandler
+	Device       *v1.DeviceHandler
 }
 
 // InitHandlers creates and returns all handler instances based on services.
@@ -32,5 +33,6 @@ func InitHandlers(services *Services, c cache.Cache) *Handlers {
 		OTP:          v1.NewOTPHandler(),
 		MFA:          v1.NewMFAHandler(),
 		Announcement: v1.NewAnnouncementHandler(c),
+		Device:       v1.NewDeviceHandler(),
 	}
 }
