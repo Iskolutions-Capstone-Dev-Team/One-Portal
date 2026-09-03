@@ -273,3 +273,37 @@ func TestUserHandler_HandleUserInfo(t *testing.T) {
 		}
 	})
 }
+
+func TestUserHandler_DeleteUser(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	gin.SetMode(gin.TestMode)
+
+	svc := mocks.NewMockUserService(ctrl)
+	h := v1.NewUserHandler(svc)
+
+	userID := uuid.New()
+
+	svc.EXPECT().
+		DeleteUser(gomock.Any(), userID).
+		Return(nil).
+		Times(1)
+
+	r := gin.New()
+	r.DELETE("/api/v1/user/:id", h.DeleteUser)
+
+	req := httptest.NewRequest(
+		http.MethodDelete,
+		"/api/v1/user/"+userID.String(),
+		nil,
+	)
+	w := httptest.NewRecorder()
+
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d", w.Code)
+		t.Logf("Response body: %s", w.Body.String())
+	}
+}

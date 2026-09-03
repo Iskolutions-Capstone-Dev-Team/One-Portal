@@ -71,6 +71,20 @@ func (mr *MockUserServiceMockRecorder) CreateUserFromMe(ctx, me any) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUserFromMe", reflect.TypeOf((*MockUserService)(nil).CreateUserFromMe), ctx, me)
 }
 
+// DeleteUser mocks base method.
+func (m *MockUserService) DeleteUser(ctx context.Context, id uuid.UUID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteUser", ctx, id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteUser indicates an expected call of DeleteUser.
+func (mr *MockUserServiceMockRecorder) DeleteUser(ctx, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUser", reflect.TypeOf((*MockUserService)(nil).DeleteUser), ctx, id)
+}
+
 // GetUserByID mocks base method.
 func (m *MockUserService) GetUserByID(ctx context.Context, id uuid.UUID) (models.User, error) {
 	m.ctrl.T.Helper()
@@ -98,4 +112,29 @@ func (m *MockUserService) UpdateUserName(ctx context.Context, id uuid.UUID, req 
 func (mr *MockUserServiceMockRecorder) UpdateUserName(ctx, id, req any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUserName", reflect.TypeOf((*MockUserService)(nil).UpdateUserName), ctx, id, req)
+}
+
+// UpdateUserEmail mocks base method.
+func (m *MockUserService) UpdateUserEmail(
+	ctx context.Context, id uuid.UUID, email string,
+) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateUserEmail", ctx, id, email)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// UpdateUserEmail indicates an expected call of UpdateUserEmail.
+func (mr *MockUserServiceMockRecorder) UpdateUserEmail(
+	ctx, id, email any,
+) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(
+		mr.mock,
+		"UpdateUserEmail",
+		reflect.TypeOf((*MockUserService)(nil).UpdateUserEmail),
+		ctx,
+		id,
+		email,
+	)
 }

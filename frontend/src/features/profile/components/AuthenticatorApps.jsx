@@ -1,36 +1,34 @@
-import { useCallback, useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { cn } from "@/lib/utils";
-import { deleteAuthenticator, getAuthenticators } from "../../../services/userMfa";
-import { formatTimestamp } from "../../../utils/formatTimestamp";
-import { toast } from "sonner";
-import MfaDeleteConfirmModal from "./MfaDeleteConfirmModal";
 import MfaSetupModal from "./MfaSetupModal";
-import { CalendarIcon, ClockIcon } from "./profileIcons";
+import { useAuthenticatorApps } from "../hooks/useAuthenticatorApps";
+import { formatTimestamp } from "../../../utils/formatTimestamp";
+import MfaDeleteConfirmModal from "./MfaDeleteConfirmModal";
+
 import { Button } from "@/components/ui/button";
-import { KeySquare, Smartphone, Trash } from "lucide-react";
+import { Smartphone, KeySquare, Trash, CalendarDays, Clock, Edit2 } from 'lucide-react';
+import { Skeleton } from "@/components/ui/skeleton";
 import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 
 function AutomationIllustration() {
     return (
         <svg width="200" height="120" viewBox="0 0 200 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
             {/* Left connection line with arrow */}
-            <path d="M30 60 L68 60" className="stroke-[#7b0d15]/30 dark:stroke-yellow-400/30" strokeWidth="2" strokeLinecap="round" markerEnd="url(#arrowhead)"/>
-            <polygon points="66,56 74,60 66,64" className="fill-[#7b0d15]/30 dark:fill-yellow-400/30"/>
+            <path d="M30 60 L68 60" className="stroke-[#7b0d15]/30 dark:stroke-yellow-400/30" strokeWidth="2" strokeLinecap="round" markerEnd="url(#arrowhead)" />
+            <polygon points="66,56 74,60 66,64" className="fill-[#7b0d15]/30 dark:fill-yellow-400/30" />
 
             {/* Toggle body */}
-            <rect x="76" y="42" width="56" height="36" rx="18" className="stroke-[#7b0d15]/60 fill-[#7b0d15]/5 dark:stroke-yellow-400/60 dark:fill-yellow-400/10" strokeWidth="2"/>
+            <rect x="76" y="42" width="56" height="36" rx="18" className="stroke-[#7b0d15]/60 fill-[#7b0d15]/5 dark:stroke-yellow-400/60 dark:fill-yellow-400/10" strokeWidth="2" />
             {/* Toggle circle */}
             <circle cx="94" cy="60" r="12" className="fill-[#7b0d15]/40 dark:fill-yellow-400/40" />
             <circle cx="94" cy="60" r="6" className="fill-[#7b0d15] dark:fill-yellow-400" />
 
             {/* Right connection line */}
-            <path d="M134 60 Q150 60 158 48" className="stroke-[#7b0d15]/30 dark:stroke-yellow-400/30" strokeWidth="2" fill="none" strokeLinecap="round"/>
+            <path d="M134 60 Q150 60 158 48" className="stroke-[#7b0d15]/30 dark:stroke-yellow-400/30" strokeWidth="2" fill="none" strokeLinecap="round" />
             <circle cx="162" cy="44" r="3" className="fill-[#7b0d15]/20 dark:fill-yellow-400/20" />
 
             {/* Bottom right connection */}
-            <path d="M134 60 Q150 60 158 72" className="stroke-[#7b0d15]/30 dark:stroke-yellow-400/30" strokeWidth="2" fill="none" strokeLinecap="round"/>
+            <path d="M134 60 Q150 60 158 72" className="stroke-[#7b0d15]/30 dark:stroke-yellow-400/30" strokeWidth="2" fill="none" strokeLinecap="round" />
             <circle cx="162" cy="76" r="3" className="fill-[#7b0d15]/20 dark:fill-yellow-400/20" />
 
             {/* Decorative dots */}
@@ -74,112 +72,21 @@ function formatAuthenticatorType(value) {
 }
 
 export default function AuthenticatorApps({ email, isProfileLoading = false }) {
-    const [authenticators, setAuthenticators] = useState([]);
-    const [isModalOpen, setModalOpen] = useState(false);
-    const [currentSlide, setCurrentSlide] = useState(0);
-    const [isLoading, setIsLoading] = useState(false);
-    const [deletingId, setDeletingId] = useState("");
-    const [pendingDeleteAuthenticator, setPendingDeleteAuthenticator] = useState(null);
-    const [errorMessage, setErrorMessage] = useState("");
-    const [cooldown, setCooldown] = useState(0);
-
-    useEffect(() => {
-        let intervalId;
-        if (cooldown > 0) {
-            intervalId = setInterval(() => {
-                setCooldown((prev) => prev - 1);
-            }, 1000);
-        }
-        return () => clearInterval(intervalId);
-    }, [cooldown]);
-
-    useEffect(() => {
-        if (cooldown === 0) {
-            setErrorMessage((prev) => prev.startsWith("Too many attempts") ? "" : prev);
-        }
-    }, [cooldown]);
-
-    const loadAuthenticators = useCallback(async () => {
-        if (isProfileLoading) {
-            setAuthenticators([]);
-            setIsLoading(true);
-            setErrorMessage("");
-            return;
-        }
-
-        if (!email) {
-            setAuthenticators([]);
-            setIsLoading(false);
-            return;
-        }
-
-        setIsLoading(true);
-        setErrorMessage("");
-
-        try {
-            const authenticatorList = await getAuthenticators(email);
-            setAuthenticators(authenticatorList);
-        } catch (error) {
-            if (error?.status === 429 || error?.response?.status === 429) {
-                setCooldown(20);
-                setErrorMessage(`Too many attempts. Please wait.`);
-            } else {
-                setErrorMessage(error.message || "Failed to load authenticators.");
-            }
-        } finally {
-            setIsLoading(false);
-        }
-    }, [email, isProfileLoading]);
-
-    useEffect(() => {
-        void loadAuthenticators();
-    }, [loadAuthenticators]);
-
-    useEffect(() => {
-        setCurrentSlide(0);
-    }, [authenticators.length]);
-
-    const handleDeleteClick = (authenticator) => {
-        setPendingDeleteAuthenticator(authenticator);
-        setErrorMessage("");
-    };
-
-    const handleCancelDelete = () => {
-        if (deletingId) {
-            return;
-        }
-
-        setPendingDeleteAuthenticator(null);
-    };
-
-    const handleConfirmDelete = async () => {
-        if (!pendingDeleteAuthenticator) {
-            return;
-        }
-
-        setDeletingId(pendingDeleteAuthenticator.id);
-        setErrorMessage("");
-
-        try {
-            await deleteAuthenticator({ email, id: pendingDeleteAuthenticator.id });
-            await loadAuthenticators();
-            toast.success("Authenticator removed successfully!");
-            setPendingDeleteAuthenticator(null);
-        } catch (error) {
-            if (error?.status === 429 || error?.response?.status === 429) {
-                setCooldown(20);
-                setErrorMessage(`Too many attempts. Please wait.`);
-            } else {
-                setErrorMessage(error.message || "Failed to remove authenticator.");
-            }
-        } finally {
-            setDeletingId("");
-        }
-    };
-
-    const handleSaved = async () => {
-        await loadAuthenticators();
-    };
+    const {
+        authenticators,
+        isModalOpen,
+        setModalOpen,
+        currentSlide,
+        isLoading,
+        deletingId,
+        pendingDeleteAuthenticator,
+        errorMessage,
+        cooldown,
+        handleDeleteClick,
+        handleCancelDelete,
+        handleConfirmDelete,
+        handleSaved
+    } = useAuthenticatorApps({ email, isProfileLoading });
 
     const renderAuthenticatorCard = (authenticator) => (
         <Card key={authenticator.id} className="w-full overflow-hidden p-0 relative group shadow-sm bg-white dark:bg-[#141414] border border-slate-200 dark:border-white/10 transition-all duration-300 h-full flex flex-col">
@@ -210,7 +117,7 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
                 <div className="w-full space-y-1 px-3 pb-6 mt-auto">
                     <div className="rounded-lg flex items-center justify-between px-2 sm:px-3 py-2.5 gap-2 min-h-[52px] bg-slate-100/60 dark:bg-[#0a0a0a] border border-transparent dark:border-white/10">
                         <span className="flex items-center gap-2 text-foreground text-sm font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">
-                            <span className="text-slate-400 dark:text-slate-500 w-4 h-4 block"><CalendarIcon /></span> Added
+                            <CalendarDays className="text-slate-400 dark:text-slate-500 w-4 h-4" /> Added
                         </span>
                         <span className="text-muted-foreground text-xs text-slate-500 dark:text-slate-400 text-right leading-tight whitespace-pre-wrap">
                             {formatAuthenticatorDate(authenticator.createdAt)}
@@ -218,7 +125,7 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
                     </div>
                     <div className="rounded-lg flex items-center justify-between px-2 sm:px-3 py-2.5 gap-2 min-h-[52px]">
                         <span className="flex items-center gap-2 text-foreground text-sm font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">
-                            <span className="text-slate-400 dark:text-slate-500 w-4 h-4 block"><ClockIcon /></span> Last used
+                            <Clock className="text-slate-400 dark:text-slate-500 w-4 h-4" /> Last used
                         </span>
                         <span className="text-muted-foreground text-xs text-slate-500 dark:text-slate-400 text-right leading-tight whitespace-pre-wrap">
                             {formatAuthenticatorDate(authenticator.lastUsedAt)}
@@ -231,7 +138,7 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
 
     return (
         <>
-            <Card className="mt-6 py-0 bg-white dark:bg-[#0a0a0a] shadow-sm border border-transparent dark:border-white/10 rounded-3xl ring-0 ring-offset-0 transition-colors duration-300">
+            <Card className="py-0 bg-white dark:bg-[#0a0a0a] shadow-sm border border-transparent dark:border-white/10 rounded-3xl ring-0 ring-offset-0 transition-colors duration-300">
                 <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-2 px-6 sm:px-10 pt-6 sm:pt-10 rounded-t-3xl bg-transparent">
                     <div>
                         <CardTitle className="text-2xl font-bold uppercase tracking-wide text-slate-900 dark:text-slate-100">AUTHENTICATOR APPS</CardTitle>
@@ -253,9 +160,29 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
                     )}
 
                     {isLoading ? (
-                        <p className="text-slate-500 dark:text-slate-400 text-center py-12">
-                            {isProfileLoading ? "Loading profile..." : "Loading authenticators..."}
-                        </p>
+                        <div className="w-full min-w-0 relative px-0 sm:px-12">
+                            <div className="flex -ml-2 overflow-hidden">
+                                {[1, 2, 3].map((i) => (
+                                    <div key={i} className="min-w-0 shrink-0 grow-0 basis-full sm:basis-1/2 lg:basis-1/3 pl-2">
+                                        <div className="p-1 h-[372px]">
+                                            <Card className="w-full overflow-hidden p-0 relative group shadow-sm bg-white dark:bg-[#141414] border border-slate-200 dark:border-white/10 transition-all duration-300 h-full flex flex-col">
+                                                <CardContent className="flex flex-col items-center p-0 h-full flex-1">
+                                                    <div className="flex w-full flex-col items-center justify-center py-12 rounded-t-xl shrink-0">
+                                                        <Skeleton className="h-16 w-16 rounded-full mb-6" />
+                                                        <Skeleton className="h-6 w-3/4 rounded-md mb-2" />
+                                                        <Skeleton className="h-4 w-1/2 rounded-md" />
+                                                    </div>
+                                                    <div className="w-full space-y-2 px-3 pb-6 mt-auto">
+                                                        <Skeleton className="h-[44px] w-full rounded-lg" />
+                                                        <Skeleton className="h-[44px] w-full rounded-lg" />
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     ) : !email ? (
                         <p className="text-slate-500 dark:text-slate-400 text-center py-12 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-slate-300 dark:border-slate-700">Reload the page or sign in again.</p>
                     ) : (
@@ -265,7 +192,7 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
                                     opts={{
                                         align: "start",
                                     }}
-                                    className="w-full relative px-0 sm:px-12"
+                                    className="w-full min-w-0 relative px-0 sm:px-12"
                                 >
                                     <CarouselContent className="-ml-2">
                                         {authenticators.map((authenticator, index) => (
@@ -276,8 +203,8 @@ export default function AuthenticatorApps({ email, isProfileLoading = false }) {
                                             </CarouselItem>
                                         ))}
                                     </CarouselContent>
-                                    <CarouselPrevious className="left-0 bg-[#7b0d15] dark:bg-yellow-400 hover:bg-yellow-400 dark:hover:bg-[#7b0d15] text-white dark:text-[#7b0d15] hover:text-[#7b0d15] dark:hover:text-yellow-400 border-none" />
-                                    <CarouselNext className="right-0 bg-[#7b0d15] dark:bg-yellow-400 hover:bg-yellow-400 dark:hover:bg-[#7b0d15] text-white dark:text-[#7b0d15] hover:text-[#7b0d15] dark:hover:text-yellow-400 border-none" />
+                                    <CarouselPrevious className="hidden sm:inline-flex left-0 bg-[#7b0d15] dark:bg-yellow-400 hover:bg-yellow-400 dark:hover:bg-[#7b0d15] text-white dark:text-[#7b0d15] hover:text-[#7b0d15] dark:hover:text-yellow-400 border-none" />
+                                    <CarouselNext className="hidden sm:inline-flex right-0 bg-[#7b0d15] dark:bg-yellow-400 hover:bg-yellow-400 dark:hover:bg-[#7b0d15] text-white dark:text-[#7b0d15] hover:text-[#7b0d15] dark:hover:text-yellow-400 border-none" />
                                 </Carousel>
                             ) : (
                                 !errorMessage && (

@@ -23,7 +23,7 @@ export default function PortalHero({ children }) {
     return (
         <section className="relative z-20 flex items-center justify-center min-h-[45vh] md:min-h-[55vh] overflow-hidden pt-16 md:pt-20 pb-12 md:pb-20 -mb-12 md:-mb-20 pointer-events-none">
             {/* Background Layer */}
-            <div className={`absolute inset-0 z-0 bg-gradient-to-b ${isDarkMode ? "from-[#4f0d17]" : "from-[#2a050a]"} from-50% to-transparent`}>
+            <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#4f0d17] from-50% to-transparent">
                 <div 
                     className="absolute inset-0 pointer-events-none"
                     style={{ 
@@ -35,8 +35,8 @@ export default function PortalHero({ children }) {
                         <GradientWaves
                             className={isDesktop ? "scale-x-[2.5]" : "scale-x-[1.5]"}
                             horizonColor={isDarkMode ? "#080808" : "#f1f5f9"}
-                            waveColor={isDarkMode ? "#8a0f18" : "#4f0d17"}
-                            crestColor={isDarkMode ? "#5c0a10" : "#230407"}
+                            waveColor="#8a0f18"
+                            crestColor="#5c0a10"
                             speed={0.15}
                             amplitude={2.5}
                             waveScale={isDesktop ? 1.5 : 0.9}
