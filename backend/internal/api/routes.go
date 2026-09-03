@@ -19,6 +19,7 @@ type Routes struct {
 	OTP               *v1.OTPHandler
 	MFA               *v1.MFAHandler
 	Announcement      *v1.AnnouncementHandler
+	Device            *v1.DeviceHandler
 }
 
 // NewRoutes creates a route container with all handlers.
@@ -32,6 +33,7 @@ func NewRoutes(handlers *initializers.Handlers) *Routes {
 		OTP:               handlers.OTP,
 		MFA:               handlers.MFA,
 		Announcement:      handlers.Announcement,
+		Device:            handlers.Device,
 	}
 }
 
@@ -140,6 +142,11 @@ func (r *Routes) Register(router *gin.Engine) {
 			middleware.JWTAuthMiddleware,
 			r.UserHandler.PatchUserName,
 		)
+		userGroup.PATCH(
+			"/:id/email",
+			middleware.JWTAuthMiddleware,
+			r.UserHandler.PatchUserEmail,
+		)
 		// Password forgot: user is locked out — rate-limited only.
 		// Intentionally unauthenticated; no token available.
 		forgotRL := middleware.RateLimitMiddleware(middleware.OTPRateLimiter)
@@ -151,6 +158,37 @@ func (r *Routes) Register(router *gin.Engine) {
 			"/password/change",
 			middleware.JWTAuthMiddleware,
 			r.UserHandler.PatchChangePassword,
+		)
+
+		// Delete user records (called internally by IDP)
+		userGroup.DELETE(
+			"/:id",
+			middleware.APIKeyAuthMiddleware,
+			r.UserHandler.DeleteUser,
+		)
+	}
+
+	// Devices: list, rename, delete trusted devices
+	devicesGroup := v1Group.Group("/devices")
+	devicesRL := middleware.RateLimitMiddleware(middleware.OTPRateLimiter)
+	{
+		devicesGroup.GET(
+			"",
+			middleware.JWTAuthMiddleware,
+			devicesRL,
+			r.Device.ListDevices,
+		)
+		devicesGroup.PATCH(
+			"/:id",
+			middleware.JWTAuthMiddleware,
+			devicesRL,
+			r.Device.UpdateDevice,
+		)
+		devicesGroup.DELETE(
+			"/:id",
+			middleware.JWTAuthMiddleware,
+			devicesRL,
+			r.Device.DeleteDevice,
 		)
 	}
 

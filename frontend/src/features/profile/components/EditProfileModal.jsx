@@ -6,6 +6,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+import { SUFFIX_OPTIONS } from "../../../utils/suffixOptions";
 
 export default function EditProfileModal({ open, close, profileData, updateProfile, addAuditLog, allowEmailEdit = false }) {
     const [profile, setProfile] = useState({
@@ -97,8 +100,12 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
             nextErrors.lastName = "Last name is required.";
         }
 
-        if (allowEmailEdit && !profile.email.trim()) {
-            nextErrors.email = "Email is required.";
+        if (allowEmailEdit) {
+            if (!profile.email.trim()) {
+                nextErrors.email = "Email is required.";
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profile.email.trim())) {
+                nextErrors.email = "Please enter a valid email address.";
+            }
         }
 
         if (Object.keys(nextErrors).length > 0) {
@@ -127,7 +134,11 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
 
             close();
         } catch (error) {
-            toast.error(error.message || "Failed to update profile.");
+            let errorMsg = error.message || "Failed to update profile.";
+            if (errorMsg === "Failed to update email in IDP") {
+                errorMsg = "Failed to update email. It may already be in use.";
+            }
+            toast.error(errorMsg);
         } finally {
             setIsSaving(false);
         }
@@ -146,6 +157,31 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
                 <div className="-mx-4 no-scrollbar max-h-[60vh] overflow-y-auto px-4">
                     <form id="edit-profile-form" className="space-y-6 px-2 pb-6" onSubmit={(event) => event.preventDefault()}>
 
+                        {allowEmailEdit && (
+                            <Field className="w-full text-left mb-6 gap-0 space-y-1.5">
+                                <FieldLabel htmlFor="email">
+                                    Email Address
+                                    <span className="text-red-500">*</span>
+                                </FieldLabel>
+                                <Input 
+                                    id="email" 
+                                    type="email" 
+                                    name="email" 
+                                    placeholder="Enter email" 
+                                    value={profile.email} 
+                                    onChange={handleChange} 
+                                    className={`flex h-10 w-full rounded-md border ${errors.email ? "border-red-500 focus-visible:ring-red-500" : "border-slate-300 dark:border-white/10 focus-visible:ring-slate-300 dark:focus-visible:ring-white/20"} bg-white dark:bg-[#141414] px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 text-slate-900 dark:text-slate-100 transition-colors duration-200`}
+                                />
+                                {errors.email ? (
+                                    <p className="text-[0.8rem] font-medium text-red-500">{errors.email}</p>
+                                ) : (
+                                    <p className="text-[0.8rem] text-slate-500 dark:text-slate-400">
+                                        Must be an active email account
+                                    </p>
+                                )}
+                            </Field>
+                        )}
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {personalFields.map((field) => (
                                 <Field key={field.name} className="w-full text-left space-y-2 gap-0">
@@ -160,16 +196,35 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
                                             </span>
                                         )}
                                     </div>
-                                    <Input 
-                                        id={field.name} 
-                                        type="text" 
-                                        name={field.name} 
-                                        placeholder={field.placeholder} 
-                                        value={profile[field.name]} 
-                                        onChange={handleChange} 
-                                        className={`flex h-10 w-full rounded-md border ${errors[field.name] ? "border-red-500 focus-visible:ring-red-500" : "border-slate-300 dark:border-white/10 focus-visible:ring-slate-300 dark:focus-visible:ring-white/20"} bg-white dark:bg-[#141414] px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 text-slate-900 dark:text-slate-100 transition-colors duration-200`}
-                                        maxLength={50}
-                                    />
+                                    {field.name === 'nameSuffix' ? (
+                                        <Select value={profile[field.name]} onValueChange={(val) => handleChange({ target: { name: field.name, value: val === "N/A" ? "" : val } })}>
+                                            <SelectTrigger id={field.name} className={`flex !h-10 w-full rounded-md border ${errors[field.name] ? "border-red-500 focus-visible:ring-red-500" : "border-slate-300 dark:border-white/10 focus-visible:ring-slate-300 dark:focus-visible:ring-white/20"} bg-white dark:bg-[#141414] px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 text-slate-900 dark:text-slate-100 transition-colors duration-200`}>
+                                                <span className={`truncate text-sm ${profile[field.name] ? "text-slate-900 dark:text-slate-100" : "text-slate-400"}`}>
+                                                    <SelectValue placeholder={field.placeholder} />
+                                                </span>
+                                            </SelectTrigger>
+                                            <SelectContent alignItemWithTrigger={false} className="max-h-[300px]">
+                                                <SelectGroup>
+                                                    {SUFFIX_OPTIONS.map((item) => (
+                                                        <SelectItem key={item.value} value={item.value}>
+                                                            {item.label}
+                                                        </SelectItem>
+                                                    ))}
+                                                </SelectGroup>
+                                            </SelectContent>
+                                        </Select>
+                                    ) : (
+                                        <Input 
+                                            id={field.name} 
+                                            type="text" 
+                                            name={field.name} 
+                                            placeholder={field.placeholder} 
+                                            value={profile[field.name]} 
+                                            onChange={handleChange} 
+                                            className={`flex h-10 w-full rounded-md border ${errors[field.name] ? "border-red-500 focus-visible:ring-red-500" : "border-slate-300 dark:border-white/10 focus-visible:ring-slate-300 dark:focus-visible:ring-white/20"} bg-white dark:bg-[#141414] px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 text-slate-900 dark:text-slate-100 transition-colors duration-200`}
+                                            maxLength={50}
+                                        />
+                                    )}
                                     {errors[field.name] && (
                                         <p className="text-[0.8rem] font-medium text-red-500">{errors[field.name]}</p>
                                     )}
@@ -177,26 +232,6 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
                             ))}
                         </div>
 
-                        {allowEmailEdit && (
-                            <Field className="w-full text-left space-y-2 gap-0">
-                                <FieldLabel htmlFor="email">
-                                    Email Address
-                                    <span className="text-red-500">*</span>
-                                </FieldLabel>
-                                <Input 
-                                    id="email" 
-                                    type="email" 
-                                    name="email" 
-                                    placeholder="Enter email" 
-                                    value={profile.email} 
-                                    onChange={handleChange} 
-                                    className={`flex h-10 w-full rounded-md border ${errors.email ? "border-red-500 focus-visible:ring-red-500" : "border-slate-300 dark:border-white/10 focus-visible:ring-slate-300 dark:focus-visible:ring-white/20"} bg-white dark:bg-[#141414] px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 text-slate-900 dark:text-slate-100 transition-colors duration-200`}
-                                />
-                                {errors.email && (
-                                    <p className="text-[0.8rem] font-medium text-red-500">{errors.email}</p>
-                                )}
-                            </Field>
-                        )}
                     </form>
                 </div>
 

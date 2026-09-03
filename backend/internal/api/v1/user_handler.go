@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/dto"
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/service"
@@ -322,4 +323,144 @@ func (h *UserHandler) PatchChangePassword(c *gin.Context) {
 	defer resp.Body.Close()
 
 	c.JSON(http.StatusOK, dto.SuccessResponse{Message: "Password changed successfully"})
+}
+
+// DeleteUser deletes a user and all associated records from the database.
+func (h *UserHandler) DeleteUser(c *gin.Context) {
+	id := c.Param("id")
+	userID, err := uuid.Parse(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, dto.ErrorResponse{
+			Error: "Invalid user ID format",
+		})
+		return
+	}
+
+	err = h.userService.DeleteUser(c.Request.Context(), userID)
+	if err != nil {
+		log.Printf("[DeleteUser] %v", err)
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to delete user records",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, dto.SuccessResponse{
+		Message: "User records deleted successfully",
+	})
+}
+
+// PatchUserEmail updates the user's email via IDP proxy and local DB sync.
+func (h *UserHandler) PatchUserEmail(c *gin.Context) {
+	id := c.Param("id")
+	userID, err := uuid.Parse(id)
+	if err != nil {
+		c.JSON(
+			http.StatusBadRequest,
+			dto.ErrorResponse{Error: "Invalid ID"},
+		)
+		return
+	}
+
+	claimsVal, exists := c.Get("claims")
+	if !exists {
+		c.JSON(
+			http.StatusUnauthorized,
+			dto.ErrorResponse{Error: "Unauthorized"},
+		)
+		return
+	}
+	claims, ok := claimsVal.(jwt.MapClaims)
+	if !ok {
+		c.JSON(
+			http.StatusUnauthorized,
+			dto.ErrorResponse{Error: "Unauthorized"},
+		)
+		return
+	}
+	tokenUserIDStr, _ := claims["userId"].(string)
+	tokenUserID, err := uuid.Parse(tokenUserIDStr)
+	if err != nil {
+		c.JSON(
+			http.StatusUnauthorized,
+			dto.ErrorResponse{Error: "Invalid session identity"},
+		)
+		return
+	}
+	if tokenUserID != userID {
+		c.JSON(
+			http.StatusForbidden,
+			dto.ErrorResponse{
+				Error: "Forbidden: You can only update your own profile",
+			},
+		)
+		return
+	}
+
+	var req dto.UpdateUserEmailRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(
+			http.StatusBadRequest,
+			dto.ErrorResponse{Error: "Invalid request"},
+		)
+		return
+	}
+
+	// 1. Proxy to IDP
+	token, _ := c.Cookie(dto.AccessCookieName)
+	meURL := os.Getenv("IDP_ME_URL")
+	if meURL == "" {
+		meURL = strings.Replace(
+			os.Getenv("IDP_USER_URL"),
+			"/user",
+			"/me",
+			1,
+		)
+	}
+	idpURL := fmt.Sprintf("%s/email", meURL)
+
+	body, _ := json.Marshal(req)
+	proxyReq, err := http.NewRequest(
+		http.MethodPatch,
+		idpURL,
+		bytes.NewBuffer(body),
+	)
+	if err != nil {
+		log.Printf("[PatchUserEmail] Build Request: %v", err)
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to build IDP request",
+		})
+		return
+	}
+	proxyReq.Header.Set("Content-Type", "application/json")
+	proxyReq.Header.Set("X-API-Key", os.Getenv("BACKEND_API_KEY"))
+	if token != "" {
+		proxyReq.Header.Set("Authorization", "Bearer "+token)
+	}
+
+	resp, err := Client.Do(proxyReq)
+	if err != nil || resp.StatusCode != http.StatusOK {
+		log.Printf("[PatchUserEmail] IDP Error: %v", err)
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to update email in IDP",
+		})
+		return
+	}
+	defer resp.Body.Close()
+
+	// 2. Sync to local DB
+	ctx := c.Request.Context()
+	if err := h.userService.UpdateUserEmail(
+		ctx, userID, req.Email,
+	); err != nil {
+		log.Printf("[PatchUserEmail] DB Sync Error: %v", err)
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to sync email update locally",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, dto.SuccessResponse{
+		Message: "Email updated successfully",
+	})
 }
