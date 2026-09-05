@@ -25,18 +25,17 @@ describe('SystemGrid', () => {
     expect(screen.getByText('No systems here')).toBeInTheDocument();
   });
 
-  it('renders paginated systems', () => {
+  it('renders all systems', () => {
     const systems = [
       { id: '1', name: 'System 1' },
       { id: '2', name: 'System 2' },
       { id: '3', name: 'System 3' },
     ];
     
-    // page 1, 2 items per page
-    render(<SystemGrid systems={systems} currentPage={1} cardsPerPage={2} />);
+    render(<SystemGrid systems={systems} />);
     
     expect(screen.getByTestId('system-card-1')).toBeInTheDocument();
     expect(screen.getByTestId('system-card-2')).toBeInTheDocument();
-    expect(screen.queryByTestId('system-card-3')).not.toBeInTheDocument();
+    expect(screen.getByTestId('system-card-3')).toBeInTheDocument();
   });
 });
