@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/dto"
@@ -353,6 +354,43 @@ func (h *AuthHandler) Logout(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"url": url})
 }
 
+// LogoutAll handles user logout from all devices by clearing cookies,
+// deleting the user's refresh token/session in DB, and notifying the IDP.
+// @Summary      Logout User From All Devices
+// @Description  Clears access cookie, session, and notifies IDP logout-all.
+// @Tags         Auth
+// @Produce      json
+// @Success      200 {object} map[string]string "Status logged out"
+// @Router       /auth/logout-all [post]
+func (h *AuthHandler) LogoutAll(c *gin.Context) {
+	// Attempt to delete refresh token if cookie exists
+	tokenStr, _ := c.Cookie(dto.AccessCookieName)
+	if tokenStr != "" {
+		h.processTokenDeletion(c, tokenStr)
+	}
+
+	// Delete database session if session cookie exists
+	sessionID, _ := c.Cookie(dto.SessionCookieName)
+	if sessionID != "" {
+		_ = h.authService.DeleteSession(c.Request.Context(), sessionID)
+	}
+
+	// Always clear the access token cookie
+	c.SetCookie(
+		dto.AccessCookieName, "", -1, "/", "",
+		isSecureCookie(), true,
+	)
+	c.SetCookie(
+		dto.SessionCookieName, "", -1, "/", "",
+		isSecureCookie(), true,
+	)
+
+	// Notify the Identity Provider about the logout-all
+	url := h.notifyIDPLogoutAll(c)
+
+	c.JSON(http.StatusOK, gin.H{"url": url})
+}
+
 // HandleRefresh handles requesting new access and refresh tokens from the IDP.
 // It uses the current access token's user ID to fetch the refresh token
 // from our database and sends it to the IDP's refresh endpoint.
@@ -616,6 +654,59 @@ func (h *AuthHandler) notifyIDPLogout(c *gin.Context) string {
 	resp, err := Client.Do(req)
 	if err != nil {
 		log.Printf("[notifyIDPLogout] Send POST: %v", err)
+		return logoutURL
+	}
+	defer resp.Body.Close()
+
+	loc := resp.Header.Get("Location")
+	if loc != "" {
+		return loc
+	}
+
+	return logoutURL
+}
+
+// notifyIDPLogoutAll sends a logout-all notification to the IDP.
+func (h *AuthHandler) notifyIDPLogoutAll(c *gin.Context) string {
+	logoutURL := os.Getenv("IDP_LOGOUT_ALL_URL")
+	if logoutURL == "" {
+		baseLogout := os.Getenv("IDP_LOGOUT_URL")
+		if baseLogout != "" {
+			logoutURL = strings.Replace(
+				baseLogout, "/auth/logout", "/auth/logout-all", 1,
+			)
+		}
+	}
+	clientID := os.Getenv("CLIENT_ID")
+	if logoutURL == "" || clientID == "" {
+		return ""
+	}
+
+	accessToken, _ := c.Cookie(dto.AccessCookieName)
+	if accessToken == "" {
+		return logoutURL
+	}
+
+	// Create and send a POST request to IDP logout-all
+	reqBody, _ := json.Marshal(map[string]string{
+		"client_id": clientID,
+	})
+	req, err := http.NewRequest(
+		"POST",
+		logoutURL,
+		bytes.NewBuffer(reqBody),
+	)
+	if err != nil {
+		log.Printf("[notifyIDPLogoutAll] Create Request: %v", err)
+		return logoutURL
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+accessToken)
+
+	resp, err := Client.Do(req)
+	if err != nil {
+		log.Printf("[notifyIDPLogoutAll] Send POST: %v", err)
 		return logoutURL
 	}
 	defer resp.Body.Close()
