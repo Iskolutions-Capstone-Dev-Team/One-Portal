@@ -392,6 +392,26 @@ export async function logoutSession() {
     return getLogoutFallbackUrl();
 }
 
+export async function logoutAllSession() {
+    let logoutUrl = "";
+
+    try {
+        const data = await apiRequest("/auth/logout-all", {
+            method: "POST",
+        });
+
+        logoutUrl = getLogoutResponseUrl(data);
+    } finally {
+        clearSessionState();
+    }
+
+    if (logoutUrl && !isLogoutApiUrl(logoutUrl)) {
+        return logoutUrl;
+    }
+
+    return getLogoutFallbackUrl();
+}
+
 export async function refreshSession() {
     const data = await apiRequest("/auth/refresh", {
         method: "POST",
