@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import useSWR from "swr";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { deleteAuthenticator, getAuthenticators } from "../../../services/userMfa";
 import { toast } from "sonner";
 
@@ -29,21 +29,18 @@ export function useAuthenticatorApps({ email, isProfileLoading }) {
         }
     }, [cooldown]);
 
-    const fetcher = async (key) => {
-        const [, userEmail] = key;
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-        return getAuthenticators(userEmail);
-    };
+    const queryClient = useQueryClient();
 
-    const { data: authenticators = [], error, isLoading, mutate } = useSWR(
-        !isProfileLoading && email ? ["authenticators", email] : null,
-        fetcher,
-        {
-            revalidateOnFocus: false,
-            shouldRetryOnError: false,
-            revalidateIfStale: false
-        }
-    );
+    const { data: authenticators = [], error, isLoading } = useQuery({
+        queryKey: ["authenticators", email],
+        queryFn: async () => {
+            await new Promise((resolve) => setTimeout(resolve, 1500));
+            return getAuthenticators(email);
+        },
+        enabled: !isProfileLoading && !!email,
+        retry: false,
+        refetchOnWindowFocus: false,
+    });
 
     useEffect(() => {
         if (error) {
@@ -73,33 +70,31 @@ export function useAuthenticatorApps({ email, isProfileLoading }) {
         setPendingDeleteAuthenticator(null);
     };
 
-    const handleConfirmDelete = async () => {
-        if (!pendingDeleteAuthenticator) {
-            return;
-        }
-
-        setDeletingId(pendingDeleteAuthenticator.id);
-        setErrorMessage("");
-
-        try {
-            await deleteAuthenticator({ email, id: pendingDeleteAuthenticator.id });
-            await mutate();
+    const deleteMutation = useMutation({
+        mutationFn: (id) => deleteAuthenticator({ email, id }),
+        onSuccess: () => {
             toast.success("Authenticator removed successfully!");
             setPendingDeleteAuthenticator(null);
-        } catch (error) {
+            queryClient.invalidateQueries({ queryKey: ["authenticators", email] });
+        },
+        onError: (error) => {
             if (error?.status === 429 || error?.response?.status === 429) {
                 setCooldown(20);
                 setErrorMessage(`Too many attempts. Please wait.`);
             } else {
                 setErrorMessage(error.message || "Failed to remove authenticator.");
             }
-        } finally {
-            setDeletingId("");
         }
+    });
+
+    const handleConfirmDelete = () => {
+        if (!pendingDeleteAuthenticator) return;
+        setErrorMessage("");
+        deleteMutation.mutate(pendingDeleteAuthenticator.id);
     };
 
-    const handleSaved = async () => {
-        await mutate();
+    const handleSaved = () => {
+        queryClient.invalidateQueries({ queryKey: ["authenticators", email] });
     };
 
     return {
@@ -108,7 +103,7 @@ export function useAuthenticatorApps({ email, isProfileLoading }) {
         setModalOpen,
         currentSlide,
         isLoading,
-        deletingId,
+        deletingId: deleteMutation.isPending ? pendingDeleteAuthenticator?.id : null,
         pendingDeleteAuthenticator,
         errorMessage,
         cooldown,
