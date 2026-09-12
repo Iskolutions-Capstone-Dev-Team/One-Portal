@@ -607,7 +607,15 @@ func (h *AuthHandler) processTokenDeletion(c *gin.Context, tokenStr string) {
 		return
 	}
 
-	sub, _ := claims["sub"].(string)
+	sub, _ := claims["userId"].(string)
+	if sub == "" {
+		sub, _ = claims["sub"].(string)
+	}
+	if sub == "" {
+		log.Printf("[Logout] Identity Extraction: missing user id claim")
+		return
+	}
+
 	id, err := uuid.Parse(sub)
 	if err != nil {
 		log.Printf("[Logout] Identity Extraction: %v", err)
