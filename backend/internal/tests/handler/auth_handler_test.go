@@ -134,6 +134,98 @@ func TestAuthHandlerLogout(t *testing.T) {
 	}
 }
 
+func TestAuthHandlerLogout_WithUserIdClaim(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	router, key, authSvc, _, _ := setupTestRouter(ctrl)
+
+	os.Setenv("IDP_LOGOUT_URL", "http://idp/logout")
+	os.Setenv("CLIENT_ID", "test-client")
+	defer os.Unsetenv("IDP_LOGOUT_URL")
+	defer os.Setenv("CLIENT_ID", "")
+
+	origTransport := v1.Client.Transport
+	fTripper := &fakeRoundTripper{}
+	v1.Client.Transport = fTripper
+	defer func() { v1.Client.Transport = origTransport }()
+
+	uid := uuid.New()
+	pld := `{"userId":"` + uid.String() + `"}`
+	b64Pld := base64.RawURLEncoding.EncodeToString([]byte(pld))
+	token := "eyJhbGciOiJub25lIn0." + b64Pld + ".sig"
+
+	req := httptest.NewRequest(
+		http.MethodPost,
+		"/api/v1/auth/logout",
+		nil,
+	)
+	req.Header.Set(middleware.APIHeaderKey, key)
+	req.AddCookie(&http.Cookie{
+		Name:  "access_token",
+		Value: token,
+	})
+
+	w := httptest.NewRecorder()
+
+	authSvc.EXPECT().
+		DeleteTokensByUserID(gomock.Any(), uid[:]).
+		Return(nil).
+		Times(1)
+
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("expected status 200, got %d", w.Code)
+	}
+}
+
+func TestAuthHandlerLogoutAll_WithUserIdClaim(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	router, key, authSvc, _, _ := setupTestRouter(ctrl)
+
+	os.Setenv("IDP_LOGOUT_URL", "http://idp/logout")
+	os.Setenv("CLIENT_ID", "test-client")
+	defer os.Unsetenv("IDP_LOGOUT_URL")
+	defer os.Setenv("CLIENT_ID", "")
+
+	origTransport := v1.Client.Transport
+	fTripper := &fakeRoundTripper{}
+	v1.Client.Transport = fTripper
+	defer func() { v1.Client.Transport = origTransport }()
+
+	uid := uuid.New()
+	pld := `{"userId":"` + uid.String() + `"}`
+	b64Pld := base64.RawURLEncoding.EncodeToString([]byte(pld))
+	token := "eyJhbGciOiJub25lIn0." + b64Pld + ".sig"
+
+	req := httptest.NewRequest(
+		http.MethodPost,
+		"/api/v1/auth/logout-all",
+		nil,
+	)
+	req.Header.Set(middleware.APIHeaderKey, key)
+	req.AddCookie(&http.Cookie{
+		Name:  "access_token",
+		Value: token,
+	})
+
+	w := httptest.NewRecorder()
+
+	authSvc.EXPECT().
+		DeleteTokensByUserID(gomock.Any(), uid[:]).
+		Return(nil).
+		Times(1)
+
+	router.ServeHTTP(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("expected status 200, got %d", w.Code)
+	}
+}
+
 func TestAuthHandlerHandleAuthorization(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()

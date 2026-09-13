@@ -7,10 +7,14 @@ import { Mail } from "lucide-react";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { logoutAllSession } from "../../../services/auth";
+import LogoutAllConfirmModal from "./LogoutAllConfirmModal";
 
 export default function ProfileCard({ profile, onProfileChange, addAuditLog, allowEmailEdit = false }) {
     const [isEditOpen, setEditOpen] = useState(false);
     const [isPasswordOpen, setPasswordOpen] = useState(false);
+    const [isLogoutAllOpen, setLogoutAllOpen] = useState(false);
+    const [isLoggingOutAll, setIsLoggingOutAll] = useState(false);
     const [currentProfile, setCurrentProfile] = useState(profile);
 
     useEffect(() => {
@@ -36,6 +40,21 @@ export default function ProfileCard({ profile, onProfileChange, addAuditLog, all
         setCurrentProfile(updatedProfile);
         onProfileChange?.(updatedProfile);
         toast.success("Profile updated successfully!");
+    };
+
+    const handleLogoutAll = async () => {
+        try {
+            setIsLoggingOutAll(true);
+            const logoutUrl = await logoutAllSession();
+            if (logoutUrl) {
+                window.location.assign(logoutUrl);
+            }
+        } catch (err) {
+            console.error("Logout All failed", err);
+            toast.error("Failed to sign out of all devices");
+            setIsLoggingOutAll(false);
+            setLogoutAllOpen(false);
+        }
     };
 
     return (
@@ -64,6 +83,7 @@ export default function ProfileCard({ profile, onProfileChange, addAuditLog, all
                     <ActionButtons
                         openEdit={() => setEditOpen(true)}
                         openPassword={() => setPasswordOpen(true)}
+                        onLogoutAll={() => setLogoutAllOpen(true)}
                     />
             </Card>
 
@@ -85,6 +105,12 @@ export default function ProfileCard({ profile, onProfileChange, addAuditLog, all
                 enableSuccessAlert={true}
             />
 
+            <LogoutAllConfirmModal
+                isOpen={isLogoutAllOpen}
+                isLoggingOut={isLoggingOutAll}
+                onCancel={() => setLogoutAllOpen(false)}
+                onConfirm={handleLogoutAll}
+            />
         </>
     );
 }

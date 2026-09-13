@@ -59,6 +59,7 @@ func (r *Routes) Register(router *gin.Engine) {
 	authGroup.POST("/callback", r.AuthHandler.HandleCallback)
 	authGroup.GET("/authorize", r.AuthHandler.HandleAuthorization)
 	authGroup.POST("/logout", r.AuthHandler.Logout)
+	authGroup.POST("/logout-all", r.AuthHandler.LogoutAll)
 	authGroup.POST("/refresh", r.AuthHandler.HandleRefresh)
 	authGroup.GET("/session", r.AuthHandler.HandleCheckSession)
 
