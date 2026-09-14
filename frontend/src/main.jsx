@@ -6,6 +6,12 @@ import App from "./App.jsx";
 import "./index.css";
 import "./styles/style.css";
 
+// Automatically reload the page if a dynamically imported chunk fails to load 
+// (e.g., when a new build is deployed and the old chunk hashes no longer exist)
+window.addEventListener('vite:preloadError', () => {
+  window.location.reload();
+});
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
