@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { changeCurrentUserPassword, sendProfileOtp, verifyProfileOtp } from "../../../services/userSecurity";
 import { formatTimestamp } from "../../../utils/formatTimestamp";
@@ -70,65 +71,54 @@ export function useChangePasswordModal({ isOpen, email, addAuditLog }) {
         setCanResend(false);
     };
 
-    const handleRequestOtp = async () => {
+    const sendOtpMutation = useMutation({
+        mutationFn: (email) => sendProfileOtp(email),
+        onSuccess: () => {
+            setOtp(["", "", "", "", "", ""]);
+            resetOtpTimer();
+            setStep(2);
+        },
+        onError: (error) => {
+            toast.error(error.message || "Failed to send OTP.");
+        }
+    });
+
+    const resendOtpMutation = useMutation({
+        mutationFn: (email) => sendProfileOtp(email),
+        onSuccess: () => {
+            setOtp(["", "", "", "", "", ""]);
+            resetOtpTimer();
+        },
+        onError: (error) => {
+            toast.error(error.message || "Failed to resend OTP.");
+        }
+    });
+
+    const handleRequestOtp = () => {
         if (!email) {
             setPasswordError("Email is unavailable for OTP verification.");
             return;
         }
-
         setPasswordError("");
         setOtpError("");
-        setIsSendingOtp(true);
-
-        try {
-            await sendProfileOtp(email);
-            setOtp(["", "", "", "", "", ""]);
-            resetOtpTimer();
-            setStep(2);
-        } catch (error) {
-            toast.error(error.message || "Failed to send OTP.");
-        } finally {
-            setIsSendingOtp(false);
-        }
+        sendOtpMutation.mutate(email);
     };
 
-    const handleResendOtp = async () => {
-        if (!canResend || !email) {
-            return;
-        }
-
+    const handleResendOtp = () => {
+        if (!canResend || !email) return;
         setOtpError("");
-        setIsResendingOtp(true);
-
-        try {
-            await sendProfileOtp(email);
-            setOtp(["", "", "", "", "", ""]);
-            resetOtpTimer();
-        } catch (error) {
-            toast.error(error.message || "Failed to resend OTP.");
-        } finally {
-            setIsResendingOtp(false);
-        }
+        resendOtpMutation.mutate(email);
     };
 
-    const verifyOTP = async (submittedCode = otp.join("")) => {
-        const code = Array.isArray(submittedCode) ? submittedCode.join("") : submittedCode;
-
-        if (code.length !== 6 || !/^\d+$/.test(code)) {
-            setOtpError("Enter the complete 6-digit verification code.");
-            return;
-        }
-
-        setOtpError("");
-        setIsVerifyingOtp(true);
-
-        try {
+    const verifyOtpMutation = useMutation({
+        mutationFn: async (code) => {
             await verifyProfileOtp(email, code);
             await changeCurrentUserPassword({
                 currentPassword: form.currentPassword,
                 newPassword: form.newPassword,
             });
-
+        },
+        onSuccess: () => {
             if (addAuditLog) {
                 addAuditLog({
                     timestamp: formatTimestamp(new Date().toISOString()),
@@ -137,13 +127,23 @@ export function useChangePasswordModal({ isOpen, email, addAuditLog }) {
                     color: "yellow",
                 });
             }
-
             setStep(3);
-        } catch (error) {
+        },
+        onError: (error) => {
             toast.error(error.message || "Failed to verify OTP or change password.");
-        } finally {
-            setIsVerifyingOtp(false);
         }
+    });
+
+    const verifyOTP = (submittedCode = otp.join("")) => {
+        const code = Array.isArray(submittedCode) ? submittedCode.join("") : submittedCode;
+
+        if (code.length !== 6 || !/^\d+$/.test(code)) {
+            setOtpError("Enter the complete 6-digit verification code.");
+            return;
+        }
+
+        setOtpError("");
+        verifyOtpMutation.mutate(code);
     };
 
     return {
@@ -158,9 +158,9 @@ export function useChangePasswordModal({ isOpen, email, addAuditLog }) {
         setPasswordError,
         otpError,
         setOtpError,
-        isSendingOtp,
-        isResendingOtp,
-        isVerifyingOtp,
+        isSendingOtp: sendOtpMutation.isPending,
+        isResendingOtp: resendOtpMutation.isPending,
+        isVerifyingOtp: verifyOtpMutation.isPending,
         handleRequestOtp,
         handleResendOtp,
         verifyOTP

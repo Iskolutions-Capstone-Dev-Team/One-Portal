@@ -1,11 +1,9 @@
-import { useEffect, useState } from "react";
-import useSWR from "swr";
+import { useState } from "react";
 import OnePortalLayout from "../../../layouts/OnePortalLayout";
 import PortalHero from "../components/PortalHero";
 import PortalToolbar from "../components/PortalToolbar";
 import SystemGrid from "../components/SystemGrid";
-import { clearSessionState, navigateToLandingPage } from "../../../services/auth";
-import { getUserAccessSystems } from "../../../services/userAccess";
+import { usePortalSystems } from "../hooks/usePortalSystems";
 
 
 function getEmptyStateMessage({ isLoadingSystems, systemsError, searchQuery, hasSystems }) {
@@ -30,26 +28,12 @@ function getEmptyStateMessage({ isLoadingSystems, systemsError, searchQuery, has
 
 export default function OnePortalHome() {
     const [searchQuery, setSearchQuery] = useState("");
-    const { data: availableSystems = [], error, isLoading: isLoadingSystems } = useSWR(
-        "user_access_systems",
-        getUserAccessSystems,
-        {
-            revalidateOnFocus: true,
-            shouldRetryOnError: false,
-        }
-    );
-
-    const systemsError = error ? (error.message || "We couldn't load your systems right now.") : "";
-    const systemsErrorStatus = error ? (error.status ?? error.response?.status ?? null) : null;
-
-    useEffect(() => {
-        if (systemsErrorStatus !== 401) {
-            return;
-        }
-
-        clearSessionState();
-        navigateToLandingPage();
-    }, [systemsErrorStatus]);
+    const {
+        availableSystems,
+        isLoadingSystems,
+        systemsError,
+        systemsErrorStatus
+    } = usePortalSystems();
 
     const normalizedQuery = searchQuery.toLowerCase();
     const filteredSystems = availableSystems.filter((system) =>
