@@ -145,6 +145,7 @@ export default function MfaSetupModal({ isOpen, email, onClose, onSaved }) {
                                             value={authenticatorName}
                                             onChange={(event) => setAuthenticatorName(event.target.value)}
                                             placeholder="Enter the App Name (e.g. Google Auth)"
+                                            maxLength={255}
                                         />
                                     </InputGroup>
                                 </Field>

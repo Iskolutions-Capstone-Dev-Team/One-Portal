@@ -112,6 +112,11 @@ export function useMfaSetupModal({ isOpen, email, onClose, onSaved }) {
             return;
         }
 
+        if (name.length > 255) {
+            setErrorMessage("Authenticator name cannot exceed 255 characters.");
+            return;
+        }
+
         if (submittedCode.length !== 6) {
             setErrorMessage("Enter the complete 6-digit authenticator code.");
             return;
