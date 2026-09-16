@@ -125,15 +125,25 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
 
         if (!profile.firstName.trim()) {
             nextErrors.firstName = "First name is required.";
+        } else if (profile.firstName.trim().length > 50) {
+            nextErrors.firstName = "First name cannot exceed 50 characters.";
+        }
+
+        if (profile.middleName && profile.middleName.trim().length > 50) {
+            nextErrors.middleName = "Middle name cannot exceed 50 characters.";
         }
 
         if (!profile.lastName.trim()) {
             nextErrors.lastName = "Last name is required.";
+        } else if (profile.lastName.trim().length > 50) {
+            nextErrors.lastName = "Last name cannot exceed 50 characters.";
         }
 
         if (allowEmailEdit) {
             if (!profile.email.trim()) {
                 nextErrors.email = "Email is required.";
+            } else if (profile.email.trim().length > 100) {
+                nextErrors.email = "Email cannot exceed 100 characters.";
             } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profile.email.trim())) {
                 nextErrors.email = "Please enter a valid email address.";
             }
@@ -174,6 +184,7 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
                                     placeholder="Enter email" 
                                     value={profile.email} 
                                     onChange={handleChange} 
+                                    maxLength={100}
                                     className={`flex h-10 w-full rounded-md border ${errors.email ? "border-red-500 focus-visible:ring-red-500" : "border-slate-300 dark:border-white/10 focus-visible:ring-slate-300 dark:focus-visible:ring-white/20"} bg-white dark:bg-[#141414] px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 text-slate-900 dark:text-slate-100 transition-colors duration-200`}
                                 />
                                 {errors.email ? (
