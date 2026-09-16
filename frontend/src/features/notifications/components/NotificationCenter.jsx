@@ -1,23 +1,9 @@
-import { useEffect, useState } from 'react';
 import { BellIcon, CircleCheckIcon, XIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger, SheetClose } from "@/components/ui/sheet";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { getAnnouncements } from '../../../services/announcements';
-
-const VISITED_ANNOUNCEMENTS_STORAGE_KEY = 'portal-visited-announcements';
-
-function readVisitedAnnouncements() {
-  if (typeof window === 'undefined') return [];
-  try {
-    const storedValue = window.localStorage.getItem(VISITED_ANNOUNCEMENTS_STORAGE_KEY);
-    const parsedValue = storedValue ? JSON.parse(storedValue) : [];
-    return Array.isArray(parsedValue) ? parsedValue : [];
-  } catch {
-    return [];
-  }
-}
+import { useNotifications } from '../hooks/useNotifications';
 
 function renderStatusItem(message, tone = 'default') {
   return (
@@ -28,49 +14,14 @@ function renderStatusItem(message, tone = 'default') {
 }
 
 export default function NotificationCenter() {
-  const [announcements, setAnnouncements] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [visitedAnnouncementIds, setVisitedAnnouncementIds] = useState(readVisitedAnnouncements);
-
-  const unreadCount = announcements.filter(
-    (announcement) => !visitedAnnouncementIds.includes(announcement.id)
-  ).length;
-
-  useEffect(() => {
-    let isMounted = true;
-    const loadAnnouncements = async () => {
-      setIsLoading(true);
-      try {
-        const announcementItems = await getAnnouncements();
-        if (!isMounted) return;
-        setAnnouncements(announcementItems);
-        setErrorMessage('');
-      } catch (error) {
-        if (!isMounted) return;
-        setAnnouncements([]);
-        setErrorMessage(error.message || 'Unable to load announcements.');
-      } finally {
-        if (isMounted) setIsLoading(false);
-      }
-    };
-    void loadAnnouncements();
-    return () => { isMounted = false; };
-  }, []);
-
-  useEffect(() => {
-    window.localStorage.setItem(
-      VISITED_ANNOUNCEMENTS_STORAGE_KEY,
-      JSON.stringify(visitedAnnouncementIds)
-    );
-  }, [visitedAnnouncementIds]);
-
-  const handleAnnouncementClick = (announcementId) => {
-    setVisitedAnnouncementIds((currentIds) => {
-      if (currentIds.includes(announcementId)) return currentIds;
-      return [...currentIds, announcementId];
-    });
-  };
+  const {
+    announcements,
+    isLoading,
+    errorMessage,
+    visitedAnnouncementIds,
+    unreadCount,
+    handleAnnouncementClick
+  } = useNotifications();
 
   return (
     <Sheet>

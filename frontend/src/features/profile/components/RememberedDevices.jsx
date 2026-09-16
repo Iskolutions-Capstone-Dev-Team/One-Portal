@@ -8,25 +8,23 @@ import { useRememberedDevices } from "../hooks/useRememberedDevices";
 import DeviceRenameModal from "./DeviceRenameModal";
 import DeviceDeleteConfirmModal from "./DeviceDeleteConfirmModal";
 import { formatTimestamp } from "../../../utils/formatTimestamp";
-import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 function IpLocationDisplay({ ipAddress }) {
-    const [location, setLocation] = useState(ipAddress);
-    
-    useEffect(() => {
-        if (!ipAddress || ipAddress.startsWith("127.") || ipAddress.startsWith("192.168.") || ipAddress.startsWith("10.") || ipAddress.startsWith("172.")) {
-            return;
-        }
-        
-        fetch(`http://ip-api.com/json/${ipAddress}`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === "success" && data.city && data.country) {
-                    setLocation(`${data.city}, ${data.country}`);
-                }
-            })
-            .catch(() => {});
-    }, [ipAddress]);
+    const { data: location = ipAddress } = useQuery({
+        queryKey: ["ipLocation", ipAddress],
+        queryFn: async () => {
+            const res = await fetch(`http://ip-api.com/json/${ipAddress}`);
+            const data = await res.json();
+            if (data.status === "success" && data.city && data.country) {
+                return `${data.city}, ${data.country}`;
+            }
+            return ipAddress;
+        },
+        enabled: !!ipAddress && !ipAddress.startsWith("127.") && !ipAddress.startsWith("192.168.") && !ipAddress.startsWith("10.") && !ipAddress.startsWith("172."),
+        staleTime: Infinity,
+        retry: false,
+    });
 
     return (
         <span className="text-muted-foreground text-xs text-slate-500 dark:text-slate-400 text-right leading-tight break-all">

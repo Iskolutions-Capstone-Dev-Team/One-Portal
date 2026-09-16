@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { formatTimestamp } from "../../../utils/formatTimestamp";
 import { updateCurrentUserProfile } from "../../../services/userProfile";
@@ -89,7 +90,37 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
         });
     };
 
-    const handleSave = async () => {
+    const queryClient = useQueryClient();
+
+    const updateProfileMutation = useMutation({
+        mutationFn: (profileData) => updateCurrentUserProfile(profileData),
+        onSuccess: (savedProfile) => {
+            if (updateProfile) {
+                updateProfile(savedProfile);
+            }
+
+            if (addAuditLog) {
+                addAuditLog({
+                    timestamp: formatTimestamp(new Date().toISOString()),
+                    action: "PROFILE_UPDATE",
+                    details: "Updated profile information",
+                    color: "blue",
+                });
+            }
+
+            // queryClient.invalidateQueries({ queryKey: ["currentUser"] }); // if globally queried
+            close();
+        },
+        onError: (error) => {
+            let errorMsg = error.message || "Failed to update profile.";
+            if (errorMsg === "Failed to update email in IDP") {
+                errorMsg = "Failed to update email. It may already be in use.";
+            }
+            toast.error(errorMsg);
+        }
+    });
+
+    const handleSave = () => {
         const nextErrors = {};
 
         if (!profile.firstName.trim()) {
@@ -114,34 +145,7 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
         }
 
         setErrors({});
-        setIsSaving(true);
-
-        try {
-            const savedProfile = await updateCurrentUserProfile(profile);
-
-            if (updateProfile) {
-                updateProfile(savedProfile);
-            }
-
-            if (addAuditLog) {
-                addAuditLog({
-                    timestamp: formatTimestamp(new Date().toISOString()),
-                    action: "PROFILE_UPDATE",
-                    details: "Updated profile information",
-                    color: "blue",
-                });
-            }
-
-            close();
-        } catch (error) {
-            let errorMsg = error.message || "Failed to update profile.";
-            if (errorMsg === "Failed to update email in IDP") {
-                errorMsg = "Failed to update email. It may already be in use.";
-            }
-            toast.error(errorMsg);
-        } finally {
-            setIsSaving(false);
-        }
+        updateProfileMutation.mutate(profile);
     };
 
     return (
@@ -241,8 +245,8 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
                             Cancel
                         </Button>
                     </DialogClose>
-                    <Button onClick={handleSave} disabled={isSaving} className="rounded-lg h-8 px-2.5 bg-[#6b1115] dark:bg-yellow-400 text-white dark:text-[#7b0d15] hover:bg-yellow-400 dark:hover:bg-[#7b0d15] hover:text-[#4f0d17] dark:hover:text-yellow-400 border-none font-bold text-sm transition-colors">
-                        {isSaving ? "Saving..." : "Save Changes"}
+                    <Button onClick={handleSave} disabled={updateProfileMutation.isPending} className="rounded-lg h-8 px-2.5 bg-[#6b1115] dark:bg-yellow-400 text-white dark:text-[#7b0d15] hover:bg-yellow-400 dark:hover:bg-[#7b0d15] hover:text-[#4f0d17] dark:hover:text-yellow-400 border-none font-bold text-sm transition-colors">
+                        {updateProfileMutation.isPending ? "Saving..." : "Save Changes"}
                     </Button>
                 </DialogFooter>
             </DialogContent>
