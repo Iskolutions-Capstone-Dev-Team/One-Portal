@@ -3,7 +3,8 @@ import FaqSection from "../components/FaqSection";
 import FeaturesSection from "../components/FeaturesSection";
 import HeroSection from "../components/HeroSection";
 import LandingNavbar from "../components/LandingNavbar";
-import { startAuthorization, getRegisterPageUrl } from "../../../services/auth";
+import { getRegisterPageUrl } from "../../../services/auth";
+import { useLandingAuth } from "../hooks/useLandingAuth";
 import DotField from "../../../components/ui/DotField";
 import { Alert, AlertDescription } from "../../../components/reui/alert";
 import { CircleAlertIcon } from "lucide-react";
@@ -42,35 +43,15 @@ function useLandingReveal() {
 export default function Landing() {
     const [pendingAction, setPendingAction] = useState("");
     const [openFaqIndex, setOpenFaqIndex] = useState(null);
-    const [authError, setAuthError] = useState("");
-    const [cooldown, setCooldown] = useState(0);
-
-    useEffect(() => {
-        let intervalId;
-        if (cooldown > 0) {
-            intervalId = setInterval(() => setCooldown((prev) => prev - 1), 1000);
-        } else if (authError === "Too many attempts. Please wait.") {
-            setAuthError("");
-        }
-        return () => clearInterval(intervalId);
-    }, [cooldown, authError]);
+    const { loginMutation, authError, cooldown, setAuthError } = useLandingAuth();
 
     useLandingReveal();
 
     const handleLoginClick = async () => {
         setPendingAction("login");
-        setAuthError("");
-
         try {
-            await startAuthorization();
-        } catch (authorizationError) {
-            console.error("Unable to start authorization.", authorizationError);
-            if (authorizationError.message.includes("Too many attempts")) {
-                setAuthError("Too many attempts. Please wait.");
-                setCooldown(12);
-            } else {
-                setAuthError("Unable to start authorization. Please try again.");
-            }
+            await loginMutation.mutateAsync();
+        } catch {
             setPendingAction("");
         }
     };

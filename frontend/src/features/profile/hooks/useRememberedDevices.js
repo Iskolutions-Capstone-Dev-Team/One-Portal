@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import useSWR from "swr";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { getDevices, deleteDevice, updateDevice } from "../../../services/userDevices";
 
@@ -12,20 +12,18 @@ export function useRememberedDevices({ isProfileLoading }) {
     const [deletingId, setDeletingId] = useState(null);
     const [pendingDeleteDevice, setPendingDeleteDevice] = useState(null);
 
-    const fetcher = async () => {
-        await new Promise((resolve) => setTimeout(resolve, 1500));
-        return getDevices();
-    };
+    const queryClient = useQueryClient();
 
-    const { data: devices = [], error, isLoading, mutate } = useSWR(
-        !isProfileLoading ? "trusted_devices" : null,
-        fetcher,
-        {
-            revalidateOnFocus: false,
-            shouldRetryOnError: false,
-            revalidateIfStale: false
-        }
-    );
+    const { data: devices = [], error, isLoading } = useQuery({
+        queryKey: ["trusted_devices"],
+        queryFn: async () => {
+            await new Promise((resolve) => setTimeout(resolve, 1500));
+            return getDevices();
+        },
+        enabled: !isProfileLoading,
+        retry: false,
+        refetchOnWindowFocus: false,
+    });
 
     useEffect(() => {
         if (error) {
@@ -53,26 +51,28 @@ export function useRememberedDevices({ isProfileLoading }) {
         setRenameModalOpen(true);
     };
 
-    const handleRenameSave = async (newName) => {
-        if (!pendingRenameDevice) return;
-        setIsRenaming(true);
-        setErrorMessage("");
-        try {
-            await updateDevice({ id: pendingRenameDevice.id, name: newName });
+    const renameMutation = useMutation({
+        mutationFn: (newName) => updateDevice({ id: pendingRenameDevice.id, name: newName }),
+        onSuccess: () => {
             toast.success("Device renamed successfully.");
             setRenameModalOpen(false);
             setPendingRenameDevice(null);
-            await mutate();
-        } catch (error) {
+            queryClient.invalidateQueries({ queryKey: ["trusted_devices"] });
+        },
+        onError: (error) => {
             if (error?.status === 429 || error?.response?.status === 429) {
                 setCooldown(20);
                 setErrorMessage("Too many attempts. Please wait.");
             } else {
                 setErrorMessage(error.message || "Failed to rename device.");
             }
-        } finally {
-            setIsRenaming(false);
         }
+    });
+
+    const handleRenameSave = (newName) => {
+        if (!pendingRenameDevice) return;
+        setErrorMessage("");
+        renameMutation.mutate(newName);
     };
 
     const handleRenameCancel = () => {
@@ -84,27 +84,27 @@ export function useRememberedDevices({ isProfileLoading }) {
         setPendingDeleteDevice(device);
     };
 
-    const handleConfirmDelete = async () => {
-        if (!pendingDeleteDevice) return;
-        
-        setDeletingId(pendingDeleteDevice.id);
-        setErrorMessage("");
-        
-        try {
-            await deleteDevice({ id: pendingDeleteDevice.id });
+    const deleteMutation = useMutation({
+        mutationFn: (id) => deleteDevice({ id }),
+        onSuccess: () => {
             toast.success("Device removed successfully.");
             setPendingDeleteDevice(null);
-            await mutate();
-        } catch (error) {
+            queryClient.invalidateQueries({ queryKey: ["trusted_devices"] });
+        },
+        onError: (error) => {
             if (error?.status === 429 || error?.response?.status === 429) {
                 setCooldown(20);
                 setErrorMessage("Too many attempts. Please wait.");
             } else {
                 setErrorMessage(error.message || "Failed to remove device.");
             }
-        } finally {
-            setDeletingId(null);
         }
+    });
+
+    const handleConfirmDelete = () => {
+        if (!pendingDeleteDevice) return;
+        setErrorMessage("");
+        deleteMutation.mutate(pendingDeleteDevice.id);
     };
 
     const handleCancelDelete = () => {
@@ -118,11 +118,11 @@ export function useRememberedDevices({ isProfileLoading }) {
         cooldown,
         isRenameModalOpen,
         pendingRenameDevice,
-        isRenaming,
+        isRenaming: renameMutation.isPending,
         handleRenameClick,
         handleRenameSave,
         handleRenameCancel,
-        deletingId,
+        deletingId: deleteMutation.isPending ? pendingDeleteDevice?.id : null,
         pendingDeleteDevice,
         handleDeleteClick,
         handleConfirmDelete,
