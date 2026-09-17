@@ -7,10 +7,6 @@ export default function AuthLoadingScreen({ message, errorMessage = "", action =
     const screenPosition = isFixed ? "fixed inset-0 z-[9999]" : "relative min-h-screen";
     const isLoading = !errorMessage;
 
-    useEffect(() => {
-        document.documentElement.classList.remove("dark");
-    }, []);
-
     return (
         <div className={`${screenPosition} overflow-hidden font-[Poppins] text-white`} style={{ background: authPageBackground }}>
             <div className="absolute inset-0 overflow-hidden">
