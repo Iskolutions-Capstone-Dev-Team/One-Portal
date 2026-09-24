@@ -90,6 +90,13 @@ export async function updateCurrentUserProfile(profile) {
         data: buildUserNamePayload(profile),
     });
 
+    if (profile.email && currentUserProfile && profile.email !== currentUserProfile.email) {
+        await apiRequest(`/user/${userId}/email`, {
+            method: "PATCH",
+            data: { email: readTextValue(profile.email) },
+        });
+    }
+
     const updatedProfile = {
         ...createEmptyProfile(),
         id: userId,

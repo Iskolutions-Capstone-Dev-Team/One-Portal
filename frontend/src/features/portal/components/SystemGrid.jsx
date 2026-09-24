@@ -24,7 +24,7 @@ function StackedCardsIllustration() {
   )
 }
 
-export default function SystemGrid({ systems, currentPage = 1, cardsPerPage = 6, emptyMessage = "No systems found", searchQuery = "" }) {
+export default function SystemGrid({ systems, emptyMessage = "No systems found", searchQuery = "" }) {
     if (!systems.length) {
         return (
             <Card className="w-full max-w-5xl mx-auto border-slate-200 dark:border-white/10 bg-white/50 dark:bg-[#0a0a0a] backdrop-blur-sm rounded-3xl shadow-sm">
@@ -53,14 +53,10 @@ export default function SystemGrid({ systems, currentPage = 1, cardsPerPage = 6,
         );
     }
 
-    const startIndex = (currentPage - 1) * cardsPerPage;
-    const endIndex = startIndex + cardsPerPage;
-    const paginatedSystems = systems.slice(startIndex, endIndex);
-
     return (
         <section id="portal-systems" className="w-full flex justify-center" aria-label="Available systems">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-5 md:gap-y-8 gap-x-4 max-w-5xl w-full mx-auto">
-                {paginatedSystems.map((system) => (
+                {systems.map((system) => (
                     <MotionWrapper key={system.id}>
                         <SystemCard system={system} />
                     </MotionWrapper>

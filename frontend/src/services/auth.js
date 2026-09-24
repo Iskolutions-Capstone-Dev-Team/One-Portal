@@ -271,6 +271,13 @@ async function readAuthorizationUrl(response) {
 export async function startAuthorization() {
     if (!authorizationRequestPromise) {
         authorizationRequestPromise = (async () => {
+            const lastAuthTime = Number(window.localStorage.getItem("one-portal:last-auth-click") || "0");
+            const now = Date.now();
+            if (now - lastAuthTime < 12000) {
+                throw new Error("Too many attempts. Please wait.");
+            }
+            window.localStorage.setItem("one-portal:last-auth-click", now.toString());
+
             const response = await fetchApiResponse(AUTHORIZATION_PATH, {
                 method: "GET",
                 redirect: "manual",
@@ -370,6 +377,26 @@ export async function logoutSession() {
 
     try {
         const data = await apiRequest("/auth/logout", {
+            method: "POST",
+        });
+
+        logoutUrl = getLogoutResponseUrl(data);
+    } finally {
+        clearSessionState();
+    }
+
+    if (logoutUrl && !isLogoutApiUrl(logoutUrl)) {
+        return logoutUrl;
+    }
+
+    return getLogoutFallbackUrl();
+}
+
+export async function logoutAllSession() {
+    let logoutUrl = "";
+
+    try {
+        const data = await apiRequest("/auth/logout-all", {
             method: "POST",
         });
 

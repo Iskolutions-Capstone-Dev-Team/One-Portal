@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import QRCode from "qrcode";
 import { beginPasskeyRegistration, finishPasskeyRegistration, getMfaSetup, saveAuthenticator } from "../../../services/userMfa";
 import { createPasskeyCredential } from "../../../utils/webAuthn";
@@ -15,9 +16,25 @@ export function useMfaSetupModal({ isOpen, email, onClose, onSaved }) {
     const [backupCodes, setBackupCodes] = useState([]);
     const [hasCopiedBackupCodes, setHasCopiedBackupCodes] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
-    const [isLoadingSetup, setIsLoadingSetup] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [isRegisteringPasskey, setIsRegisteringPasskey] = useState(false);
+    const [cooldown, setCooldown] = useState(0);
+
+    useEffect(() => {
+        let intervalId;
+        if (cooldown > 0) {
+            intervalId = setInterval(() => {
+                setCooldown((prev) => prev - 1);
+            }, 1000);
+        }
+        return () => clearInterval(intervalId);
+    }, [cooldown]);
+
+    useEffect(() => {
+        if (cooldown === 0) {
+            setErrorMessage((prev) => prev.startsWith("Too many attempts") ? "" : prev);
+        }
+    }, [cooldown]);
 
     useEffect(() => {
         if (!isOpen) {
@@ -29,54 +46,74 @@ export function useMfaSetupModal({ isOpen, email, onClose, onSaved }) {
             setBackupCodes([]);
             setHasCopiedBackupCodes(false);
             setErrorMessage("");
-            setIsLoadingSetup(false);
             setIsSaving(false);
             setIsRegisteringPasskey(false);
-            return;
         }
+    }, [isOpen]);
 
-        if (step !== "scan") {
-            return;
+    const { data: setupData, error: loadError, isLoading: isLoadingSetup } = useQuery({
+        queryKey: ['mfaSetup', email],
+        queryFn: async () => {
+            const data = await getMfaSetup(email);
+            const qrUrl = await QRCode.toDataURL(data.otpauthUri, {
+                width: 320,
+                margin: 1,
+                color: { dark: "#000000", light: "#ffffff" },
+            });
+            return { setup: data, qrCodeUrl: qrUrl };
+        },
+        enabled: isOpen && step === "scan" && !!email,
+        retry: false,
+        refetchOnWindowFocus: false,
+    });
+
+    useEffect(() => {
+        if (setupData) {
+            setSetup(setupData.setup);
+            setQrCodeUrl(setupData.qrCodeUrl);
         }
+    }, [setupData]);
 
-        const loadSetup = async () => {
-            if (!email) {
-                setErrorMessage("Email is unavailable for MFA setup.");
-                return;
+    useEffect(() => {
+        if (loadError) {
+            if (loadError?.status === 429 || loadError?.response?.status === 429) {
+                setCooldown(20);
+                setErrorMessage(`Too many attempts. Please wait.`);
+                setStep("choice");
+            } else {
+                setErrorMessage(loadError.message || "Failed to prepare MFA setup.");
             }
+        }
+    }, [loadError]);
 
-            setErrorMessage("");
-            setIsLoadingSetup(true);
+    const saveAuthenticatorMutation = useMutation({
+        mutationFn: (data) => saveAuthenticator(data),
+        onSuccess: async (result) => {
+            setBackupCodes(result.backupCodes);
+            setHasCopiedBackupCodes(false);
+            setStep("backupCodes");
 
-            try {
-                const setupData = await getMfaSetup(email);
-                const qrUrl = await QRCode.toDataURL(setupData.otpauthUri, {
-                    width: 320,
-                    margin: 1,
-                    color: {
-                        dark: "#000000",
-                        light: "#ffffff",
-                    },
-                });
-
-                setSetup(setupData);
-                setQrCodeUrl(qrUrl);
-            } catch (error) {
-                setErrorMessage(error.message || "Failed to prepare MFA setup.");
-            } finally {
-                setIsLoadingSetup(false);
+            if (!result.backupCodes.length) {
+                await onSaved?.();
+                onClose();
             }
-        };
+        },
+        onError: (error) => {
+            setErrorMessage(error.message || "Failed to save authenticator.");
+        }
+    });
 
-        void loadSetup();
-    }, [email, isOpen, step]);
-
-    const handleSave = async () => {
+    const handleSave = () => {
         const submittedCode = code.join("");
         const name = authenticatorName.trim();
 
         if (!name) {
             setErrorMessage("Enter an authenticator name.");
+            return;
+        }
+
+        if (name.length > 255) {
+            setErrorMessage("Authenticator name cannot exceed 255 characters.");
             return;
         }
 
@@ -86,29 +123,13 @@ export function useMfaSetupModal({ isOpen, email, onClose, onSaved }) {
         }
 
         setErrorMessage("");
-        setIsSaving(true);
 
-        try {
-            const result = await saveAuthenticator({
-                email,
-                secret: setup.secret,
-                code: submittedCode,
-                name,
-            });
-
-            setBackupCodes(result.backupCodes);
-            setHasCopiedBackupCodes(false);
-            setStep("backupCodes");
-
-            if (!result.backupCodes.length) {
-                await onSaved?.();
-                onClose();
-            }
-        } catch (error) {
-            setErrorMessage(error.message || "Failed to save authenticator.");
-        } finally {
-            setIsSaving(false);
-        }
+        saveAuthenticatorMutation.mutate({
+            email,
+            secret: setup.secret,
+            code: submittedCode,
+            name,
+        });
     };
 
     const handleCopyBackupCodes = async () => {
@@ -160,23 +181,30 @@ export function useMfaSetupModal({ isOpen, email, onClose, onSaved }) {
         setStep("scan");
     };
 
-    const handleSelectPasskey = async () => {
-        setErrorMessage("");
-        setIsRegisteringPasskey(true);
-
-        try {
+    const passkeyMutation = useMutation({
+        mutationFn: async () => {
             const options = await beginPasskeyRegistration(email);
             const credential = await createPasskeyCredential(options);
-
             await finishPasskeyRegistration(email, credential);
+        },
+        onSuccess: async () => {
             await onSaved?.();
             toast.success("Passkey connected successfully!");
             onClose();
-        } catch (error) {
-            setErrorMessage(error.message || "Failed to register passkey.");
-        } finally {
-            setIsRegisteringPasskey(false);
+        },
+        onError: (error) => {
+            if (error?.status === 429 || error?.response?.status === 429) {
+                setCooldown(20);
+                setErrorMessage(`Too many attempts. Please wait.`);
+            } else {
+                setErrorMessage(error.message || "Failed to register passkey.");
+            }
         }
+    });
+
+    const handleSelectPasskey = () => {
+        setErrorMessage("");
+        passkeyMutation.mutate();
     };
 
     return {
@@ -193,8 +221,9 @@ export function useMfaSetupModal({ isOpen, email, onClose, onSaved }) {
         errorMessage,
         setErrorMessage,
         isLoadingSetup,
-        isSaving,
-        isRegisteringPasskey,
+        isSaving: saveAuthenticatorMutation.isPending,
+        isRegisteringPasskey: passkeyMutation.isPending,
+        cooldown,
         handleSave,
         handleCopyBackupCodes,
         handleFinish,

@@ -12,6 +12,8 @@ type UserRepository interface {
 	CreateUser(ctx context.Context, user models.User) error
 	GetUserByID(ctx context.Context, id uuid.UUID) (models.User, error)
 	UpdateUser(ctx context.Context, id uuid.UUID, user models.User) error
+	DeleteUser(ctx context.Context, id uuid.UUID) error
+	UpdateUserEmail(ctx context.Context, id uuid.UUID, email string) error
 }
 
 type userRepository struct {
@@ -83,5 +85,32 @@ func (r *userRepository) UpdateUser(
 
 	_, err = r.db.ExecContext(ctx, q, user.FirstName, user.MiddleName,
 		user.LastName, user.NameSuffix, idBytes)
+	return err
+}
+
+func (r *userRepository) DeleteUser(ctx context.Context, id uuid.UUID) error {
+	q := `DELETE FROM users WHERE id = ?`
+	idBytes, err := id.MarshalBinary()
+	if err != nil {
+		return err
+	}
+	_, err = r.db.ExecContext(ctx, q, idBytes)
+	return err
+}
+
+func (r *userRepository) UpdateUserEmail(
+	ctx context.Context,
+	id uuid.UUID,
+	email string,
+) error {
+	q := `UPDATE users SET email = ?, username = ?, ` +
+		`updated_at = CURRENT_TIMESTAMP WHERE id = ?`
+
+	idBytes, err := id.MarshalBinary()
+	if err != nil {
+		return err
+	}
+
+	_, err = r.db.ExecContext(ctx, q, email, email, idBytes)
 	return err
 }

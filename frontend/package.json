@@ -17,6 +17,8 @@
     "@react-three/rapier": "^2.2.0",
     "@simplewebauthn/browser": "^13.3.0",
     "@tailwindcss/vite": "^4.1.18",
+    "@tanstack/react-query": "^5.102.8",
+    "@tanstack/react-query-devtools": "^5.102.8",
     "axios": "^1.19.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -32,6 +34,7 @@
     "react-dom": "^19.2.3",
     "react-router-dom": "^7.11.0",
     "sonner": "^2.0.8",
+    "swr": "^2.5.1",
     "tailwind-merge": "^3.6.0",
     "three": "^0.185.1"
   },

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { formatTimestamp } from "../../../utils/formatTimestamp";
 import { updateCurrentUserProfile } from "../../../services/userProfile";
@@ -89,32 +90,11 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
         });
     };
 
-    const handleSave = async () => {
-        const nextErrors = {};
+    const queryClient = useQueryClient();
 
-        if (!profile.firstName.trim()) {
-            nextErrors.firstName = "First name is required.";
-        }
-
-        if (!profile.lastName.trim()) {
-            nextErrors.lastName = "Last name is required.";
-        }
-
-        if (allowEmailEdit && !profile.email.trim()) {
-            nextErrors.email = "Email is required.";
-        }
-
-        if (Object.keys(nextErrors).length > 0) {
-            setErrors(nextErrors);
-            return;
-        }
-
-        setErrors({});
-        setIsSaving(true);
-
-        try {
-            const savedProfile = await updateCurrentUserProfile(profile);
-
+    const updateProfileMutation = useMutation({
+        mutationFn: (profileData) => updateCurrentUserProfile(profileData),
+        onSuccess: (savedProfile) => {
             if (updateProfile) {
                 updateProfile(savedProfile);
             }
@@ -128,12 +108,54 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
                 });
             }
 
+            // queryClient.invalidateQueries({ queryKey: ["currentUser"] }); // if globally queried
             close();
-        } catch (error) {
-            toast.error(error.message || "Failed to update profile.");
-        } finally {
-            setIsSaving(false);
+        },
+        onError: (error) => {
+            let errorMsg = error.message || "Failed to update profile.";
+            if (errorMsg === "Failed to update email in IDP") {
+                errorMsg = "Failed to update email. It may already be in use.";
+            }
+            toast.error(errorMsg);
         }
+    });
+
+    const handleSave = () => {
+        const nextErrors = {};
+
+        if (!profile.firstName.trim()) {
+            nextErrors.firstName = "First name is required.";
+        } else if (profile.firstName.trim().length > 50) {
+            nextErrors.firstName = "First name cannot exceed 50 characters.";
+        }
+
+        if (profile.middleName && profile.middleName.trim().length > 50) {
+            nextErrors.middleName = "Middle name cannot exceed 50 characters.";
+        }
+
+        if (!profile.lastName.trim()) {
+            nextErrors.lastName = "Last name is required.";
+        } else if (profile.lastName.trim().length > 50) {
+            nextErrors.lastName = "Last name cannot exceed 50 characters.";
+        }
+
+        if (allowEmailEdit) {
+            if (!profile.email.trim()) {
+                nextErrors.email = "Email is required.";
+            } else if (profile.email.trim().length > 100) {
+                nextErrors.email = "Email cannot exceed 100 characters.";
+            } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(profile.email.trim())) {
+                nextErrors.email = "Please enter a valid email address.";
+            }
+        }
+
+        if (Object.keys(nextErrors).length > 0) {
+            setErrors(nextErrors);
+            return;
+        }
+
+        setErrors({});
+        updateProfileMutation.mutate(profile);
     };
 
     return (
@@ -148,6 +170,32 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
                 
                 <div className="-mx-4 no-scrollbar max-h-[60vh] overflow-y-auto px-4">
                     <form id="edit-profile-form" className="space-y-6 px-2 pb-6" onSubmit={(event) => event.preventDefault()}>
+
+                        {allowEmailEdit && (
+                            <Field className="w-full text-left mb-6 gap-0 space-y-1.5">
+                                <FieldLabel htmlFor="email">
+                                    Email Address
+                                    <span className="text-red-500">*</span>
+                                </FieldLabel>
+                                <Input 
+                                    id="email" 
+                                    type="email" 
+                                    name="email" 
+                                    placeholder="Enter email" 
+                                    value={profile.email} 
+                                    onChange={handleChange} 
+                                    maxLength={100}
+                                    className={`flex h-10 w-full rounded-md border ${errors.email ? "border-red-500 focus-visible:ring-red-500" : "border-slate-300 dark:border-white/10 focus-visible:ring-slate-300 dark:focus-visible:ring-white/20"} bg-white dark:bg-[#141414] px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 text-slate-900 dark:text-slate-100 transition-colors duration-200`}
+                                />
+                                {errors.email ? (
+                                    <p className="text-[0.8rem] font-medium text-red-500">{errors.email}</p>
+                                ) : (
+                                    <p className="text-[0.8rem] text-slate-500 dark:text-slate-400">
+                                        Must be an active email account
+                                    </p>
+                                )}
+                            </Field>
+                        )}
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {personalFields.map((field) => (
@@ -199,26 +247,6 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
                             ))}
                         </div>
 
-                        {allowEmailEdit && (
-                            <Field className="w-full text-left space-y-2 gap-0">
-                                <FieldLabel htmlFor="email">
-                                    Email Address
-                                    <span className="text-red-500">*</span>
-                                </FieldLabel>
-                                <Input 
-                                    id="email" 
-                                    type="email" 
-                                    name="email" 
-                                    placeholder="Enter email" 
-                                    value={profile.email} 
-                                    onChange={handleChange} 
-                                    className={`flex h-10 w-full rounded-md border ${errors.email ? "border-red-500 focus-visible:ring-red-500" : "border-slate-300 dark:border-white/10 focus-visible:ring-slate-300 dark:focus-visible:ring-white/20"} bg-white dark:bg-[#141414] px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 disabled:cursor-not-allowed disabled:opacity-50 text-slate-900 dark:text-slate-100 transition-colors duration-200`}
-                                />
-                                {errors.email && (
-                                    <p className="text-[0.8rem] font-medium text-red-500">{errors.email}</p>
-                                )}
-                            </Field>
-                        )}
                     </form>
                 </div>
 
@@ -228,8 +256,8 @@ export default function EditProfileModal({ open, close, profileData, updateProfi
                             Cancel
                         </Button>
                     </DialogClose>
-                    <Button onClick={handleSave} disabled={isSaving} className="rounded-lg h-8 px-2.5 bg-[#6b1115] dark:bg-yellow-400 text-white dark:text-[#7b0d15] hover:bg-yellow-400 dark:hover:bg-[#7b0d15] hover:text-[#4f0d17] dark:hover:text-yellow-400 border-none font-bold text-sm transition-colors">
-                        {isSaving ? "Saving..." : "Save Changes"}
+                    <Button onClick={handleSave} disabled={updateProfileMutation.isPending} className="rounded-lg h-8 px-2.5 bg-[#6b1115] dark:bg-yellow-400 text-white dark:text-[#7b0d15] hover:bg-yellow-400 dark:hover:bg-[#7b0d15] hover:text-[#4f0d17] dark:hover:text-yellow-400 border-none font-bold text-sm transition-colors">
+                        {updateProfileMutation.isPending ? "Saving..." : "Save Changes"}
                     </Button>
                 </DialogFooter>
             </DialogContent>

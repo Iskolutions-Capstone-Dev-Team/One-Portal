@@ -3,12 +3,10 @@ import FaqSection from "../components/FaqSection";
 import FeaturesSection from "../components/FeaturesSection";
 import HeroSection from "../components/HeroSection";
 import LandingNavbar from "../components/LandingNavbar";
-import { startAuthorization, getRegisterPageUrl } from "../../../services/auth";
+import { useLandingAuth } from "../hooks/useLandingAuth";
 import DotField from "../../../components/ui/DotField";
-
-function navigateToRegisterPage() {
-    window.location.href = getRegisterPageUrl();
-}
+import { Alert, AlertDescription } from "../../../components/reui/alert";
+import { CircleAlertIcon } from "lucide-react";
 
 function useLandingReveal() {
     useEffect(() => {
@@ -40,23 +38,17 @@ function useLandingReveal() {
 export default function Landing() {
     const [pendingAction, setPendingAction] = useState("");
     const [openFaqIndex, setOpenFaqIndex] = useState(null);
+    const { loginMutation, authError, cooldown, setAuthError } = useLandingAuth();
 
     useLandingReveal();
 
     const handleLoginClick = async () => {
         setPendingAction("login");
-
         try {
-            await startAuthorization();
-        } catch (authorizationError) {
-            console.error("Unable to start authorization.", authorizationError);
+            await loginMutation.mutateAsync();
+        } catch {
             setPendingAction("");
         }
-    };
-
-    const handleRegisterClick = () => {
-        setPendingAction("register");
-        navigateToRegisterPage();
     };
 
     const handleFaqToggle = (index) => {
@@ -84,10 +76,20 @@ export default function Landing() {
             </div>
 
             <div className="relative z-10 w-full max-w-[1280px] mx-auto pb-10">
-                <LandingNavbar pendingAction={pendingAction} onLoginClick={handleLoginClick} onRegisterClick={handleRegisterClick} />
+                <LandingNavbar pendingAction={pendingAction} cooldown={cooldown} onLoginClick={handleLoginClick} />
 
                 <main className="relative z-10">
-                    <HeroSection pendingAction={pendingAction} onRegisterClick={handleRegisterClick} />
+                    {authError && (
+                        <div className="mx-auto max-w-md px-5 mt-4 md:mt-8 mb-[-1rem] relative z-50">
+                            <Alert variant="destructive" className="bg-red-50 border-red-200 text-red-900 [&>svg]:text-red-600 shadow-sm flex items-center gap-2 py-3">
+                                <CircleAlertIcon className="h-5 w-5" />
+                                <AlertDescription className="text-red-800 font-medium">
+                                    {cooldown > 0 ? `${authError} (${cooldown}s)` : authError}
+                                </AlertDescription>
+                            </Alert>
+                        </div>
+                    )}
+                    <HeroSection pendingAction={pendingAction} cooldown={cooldown} />
                     <FeaturesSection />
                     <FaqSection />
                 </main>

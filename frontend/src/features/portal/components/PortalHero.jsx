@@ -77,7 +77,7 @@ export default function PortalHero({ children }) {
                 </div>
 
                 <h1 className="scroll-m-20 text-xl sm:text-2xl md:text-3xl lg:text-5xl font-bold tracking-tight mb-8 drop-shadow-lg text-white max-w-4xl mx-auto leading-tight">
-                    Online Repository for <span className="text-yellow-400">PUP Taguig Systems</span>
+                    PUP Taguig <span className="text-yellow-400">Digital Nexus</span>
                 </h1>
                 
                 <div className="flex flex-row items-center justify-center gap-2 sm:gap-4 w-full px-4" aria-label="Portal shortcuts">
