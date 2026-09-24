@@ -91,7 +91,7 @@ export default function HeroSection({ pendingAction, cooldown = 0 }) {
             <div className="absolute w-full left-[50%] -translate-x-[50%] top-[-20vh] z-0 overflow-visible h-[140vh] pointer-events-none">
                 <div className="pointer-events-auto h-full w-full">
                     <Lanyard 
-                        position={[0, 0, 20]} 
+                        position={[0, -3.0, 20]} 
                         gravity={[0, -40, 0]} 
                         frontImage="/assets/images/PUPlogo.png"
                         backImage="/assets/images/pup_bg.png"
