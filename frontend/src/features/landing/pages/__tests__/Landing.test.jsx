@@ -19,7 +19,6 @@ beforeEach(() => {
 // Mock services to prevent actual navigation logic
 vi.mock('../../../services/auth', () => ({
   startAuthorization: vi.fn(),
-  navigateToRegisterPage: vi.fn(),
 }));
 
 describe('Landing Page', () => {
