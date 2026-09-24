@@ -1,6 +1,6 @@
 import { Badge } from "@/components/reui/badge";
 import { Button } from "@/components/ui/button";
-import { House, UserPlus, GraduationCap, Landmark, CalendarRange, Users } from "lucide-react";
+import { House, GraduationCap, Landmark, CalendarRange, Users } from "lucide-react";
 import Lanyard from "@/components/Lanyard";
 import { motion } from "framer-motion";
 
@@ -51,7 +51,7 @@ function IconTile({ children, className, style, "aria-hidden": ariaHidden }) {
     );
 }
 
-export default function HeroSection({ pendingAction, cooldown = 0, onRegisterClick }) {
+export default function HeroSection({ pendingAction, cooldown = 0 }) {
     return (
         <section id="home" className="relative grid grid-cols-1 justify-items-center gap-10 md:gap-14 min-h-[calc(100vh-4.6rem)] py-12 md:py-20 px-5 md:px-16 text-center scroll-mt-20">
             <FloatingIcon className="top-[5.6rem] left-[15%]" style={{ animationDelay: '0s' }} rotate="-12deg">
@@ -86,13 +86,6 @@ export default function HeroSection({ pendingAction, cooldown = 0, onRegisterCli
                 <p className="leading-[1.9] text-[1.02rem] [&:not(:first-child)]:mt-[1.2rem] max-w-[28rem] mx-auto text-orange-50/80 pointer-events-auto">
                     One starting point for campus services.
                 </p>
-
-                <div className="mt-8 flex justify-center pointer-events-auto">
-                    <Button size="lg" onClick={onRegisterClick} disabled={pendingAction === "register" || cooldown > 0} className="bg-yellow-400 text-[#4f0d17] hover:bg-[#6b1115] hover:text-yellow-400 border border-yellow-400/70 hover:border-yellow-400/90 rounded-xl font-extrabold px-8 shadow-lg transition-all hover:-translate-y-[1px] min-h-[3rem]">
-                        <UserPlus className="w-5 h-5 mr-2" />
-                        {pendingAction === "register" ? "Redirecting..." : "Register"}
-                    </Button>
-                </div>
             </motion.div>
 
             <div className="absolute w-full left-[50%] -translate-x-[50%] top-[-20vh] z-0 overflow-visible h-[140vh] pointer-events-none">

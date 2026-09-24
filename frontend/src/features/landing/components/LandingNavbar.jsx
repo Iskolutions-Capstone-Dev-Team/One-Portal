@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
 import InstallPWAButton from "@/components/InstallPWAButton";
 
-export default function LandingNavbar({ pendingAction, cooldown = 0, onLoginClick, onRegisterClick }) {
+export default function LandingNavbar({ pendingAction, cooldown = 0, onLoginClick }) {
     const getNavIcon = (label) => {
         switch (label) {
             case "Home": return <House className="w-4 h-4" />;
