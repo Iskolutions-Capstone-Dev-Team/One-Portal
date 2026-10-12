@@ -171,7 +171,7 @@ func (r *Routes) Register(router *gin.Engine) {
 
 	// Devices: list, rename, delete trusted devices
 	devicesGroup := v1Group.Group("/devices")
-	devicesRL := middleware.RateLimitMiddleware(middleware.OTPRateLimiter)
+	devicesRL := middleware.RateLimitMiddleware(middleware.GeneralRateLimiter)
 	{
 		devicesGroup.GET(
 			"",
