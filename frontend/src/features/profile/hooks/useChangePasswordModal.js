@@ -130,7 +130,20 @@ export function useChangePasswordModal({ isOpen, email, addAuditLog }) {
             setStep(3);
         },
         onError: (error) => {
-            toast.error(error.message || "Failed to verify OTP or change password.");
+            const data = error?.response?.data;
+            const message = (data?.code === 1031 && data?.message)
+                ? data.message
+                : (data?.message || data?.error || error.message || "Failed to verify OTP or change password.");
+            toast.error(message);
+            setPasswordError(message);
+            if (data?.code === 1031) {
+                setForm((prev) => ({
+                    ...prev,
+                    newPassword: "",
+                    confirmPassword: "",
+                }));
+            }
+            setStep(1);
         }
     });
 

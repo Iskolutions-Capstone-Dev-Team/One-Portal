@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export function useChangePasswordStep({ form, setForm, onNext, showCurrentPassword, isSubmitting, onClearError }) {
+export function useChangePasswordStep({ form, setForm, onNext, showCurrentPassword, isSubmitting = false, onClearError }) {
     const [showPassword, setShowPassword] = useState({
         currentPassword: false,
         newPassword: false,
@@ -31,6 +31,8 @@ export function useChangePasswordStep({ form, setForm, onNext, showCurrentPasswo
         fieldErrors.newPassword = "New password is required.";
     } else if (!requirements.every((requirement) => requirement.valid)) {
         fieldErrors.newPassword = "Use at least 8 characters with an uppercase letter, number, and special character.";
+    } else if (showCurrentPassword && form.currentPassword.trim() && form.newPassword.trim() === form.currentPassword.trim()) {
+        fieldErrors.newPassword = "New password cannot be the same as your current password.";
     }
 
     if (!form.confirmPassword.trim()) {
