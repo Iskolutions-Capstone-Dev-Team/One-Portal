@@ -63,15 +63,21 @@ func (r *Routes) Register(router *gin.Engine) {
 	authGroup.POST("/refresh", r.AuthHandler.HandleRefresh)
 	authGroup.GET("/session", r.AuthHandler.HandleCheckSession)
 
-	// OTP: called pre-login during account recovery — rate-limited only.
+	// OTP: called pre-login during account recovery — rate-limited by
+	// target email + loose IP limit for NAT protection.
 	otpGroup := v1Group.Group("/otp")
-	otpRL := middleware.RateLimitMiddleware(middleware.OTPRateLimiter)
-	otpGroup.POST("/send", otpRL, r.OTP.SendOTP)
-	otpGroup.POST("/verify", otpRL, r.OTP.VerifyOTP)
+	otpIPRL := middleware.SensitiveRateLimitMiddleware()
+	otpTargetRL := middleware.RateLimitWithKey(
+		middleware.TargetOTPLimiter,
+		middleware.TargetEmailKeyExtractor,
+	)
+	otpGroup.POST("/send", otpIPRL, otpTargetRL, r.OTP.SendOTP)
+	otpGroup.POST("/verify", otpIPRL, otpTargetRL, r.OTP.VerifyOTP)
 
 	// MFA: called pre/post login during multi-factor auth setup/verification.
 	mfaGroup := v1Group.Group("/mfa")
-	mfaRL := middleware.RateLimitMiddleware(middleware.OTPRateLimiter)
+	mfaRL := middleware.SensitiveRateLimitMiddleware()
+	userRL := middleware.UserRateLimitMiddleware()
 	{
 		mfaGroup.GET("/setup", mfaRL, r.MFA.GetTOTPSetup)
 		mfaGroup.POST("/authenticators", mfaRL, r.MFA.PostAuthenticator)
@@ -79,13 +85,13 @@ func (r *Routes) Register(router *gin.Engine) {
 		mfaGroup.GET(
 			"/authenticators/list",
 			middleware.JWTAuthMiddleware,
-			mfaRL,
+			userRL,
 			r.MFA.GetAuthenticatorList,
 		)
 		mfaGroup.DELETE(
 			"/authenticators",
 			middleware.JWTAuthMiddleware,
-			mfaRL,
+			userRL,
 			r.MFA.DeleteAuthenticator,
 		)
 
@@ -148,10 +154,15 @@ func (r *Routes) Register(router *gin.Engine) {
 			middleware.JWTAuthMiddleware,
 			r.UserHandler.PatchUserEmail,
 		)
-		// Password forgot: user is locked out — rate-limited only.
-		// Intentionally unauthenticated; no token available.
-		forgotRL := middleware.RateLimitMiddleware(middleware.OTPRateLimiter)
-		userGroup.PATCH("/password/forgot", forgotRL,
+		// Password forgot: user is locked out — rate-limited by target email
+		// and loose IP protection.
+		forgotTargetRL := middleware.RateLimitWithKey(
+			middleware.TargetOTPLimiter,
+			middleware.TargetEmailKeyExtractor,
+		)
+		userGroup.PATCH("/password/forgot",
+			middleware.SensitiveRateLimitMiddleware(),
+			forgotTargetRL,
 			r.UserHandler.PatchUserPasswordByEmail,
 		)
 		// Password change: already had JWT — no change.
@@ -169,9 +180,9 @@ func (r *Routes) Register(router *gin.Engine) {
 		)
 	}
 
-	// Devices: list, rename, delete trusted devices
+	// Devices: list, rename, delete trusted devices (keyed by User ID)
 	devicesGroup := v1Group.Group("/devices")
-	devicesRL := middleware.RateLimitMiddleware(middleware.OTPRateLimiter)
+	devicesRL := middleware.UserRateLimitMiddleware()
 	{
 		devicesGroup.GET(
 			"",

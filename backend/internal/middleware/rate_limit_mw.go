@@ -2,91 +2,170 @@
 package middleware
 
 import (
+	"context"
+	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 
+	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/cache"
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/dto"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/time/rate"
 )
 
-// ipLimiter stores a rate limiter per client IP address.
-type ipLimiter struct {
+// KeyExtractor extracts a unique rate-limiting key from a Gin context.
+type KeyExtractor func(c *gin.Context) string
+
+type memoryLimiterEntry struct {
 	limiter  *rate.Limiter
 	lastSeen time.Time
 }
 
-// limiterStore holds per-IP limiters and a mutex for safe access.
-type limiterStore struct {
+// LimiterStore coordinates distributed and in-memory rate limiting.
+type LimiterStore struct {
+	cache    cache.Cache
 	mu       sync.Mutex
-	limiters map[string]*ipLimiter
-	// interval is how often the limiter replenishes one token.
+	limiters map[string]*memoryLimiterEntry
 	interval time.Duration
-	// burst is the maximum burst size above the steady-state rate.
-	burst int
+	burst    int
 }
 
-// newLimiterStore creates a store with the given replenishment
+// NewLimiterStore creates a store with the given replenishment
 // interval and burst size.
-func newLimiterStore(
+func NewLimiterStore(
+	appCache cache.Cache,
 	interval time.Duration,
 	burst int,
-) *limiterStore {
-	s := &limiterStore{
-		limiters: make(map[string]*ipLimiter),
+) *LimiterStore {
+	store := &LimiterStore{
+		cache:    appCache,
+		limiters: make(map[string]*memoryLimiterEntry),
 		interval: interval,
 		burst:    burst,
 	}
-	go s.cleanup()
-	return s
+	go store.cleanupRoutine()
+	return store
 }
 
-// getLimiter returns (or creates) the rate.Limiter for a given IP.
-func (s *limiterStore) getLimiter(ip string) *rate.Limiter {
+// SetCache sets or updates the cache instance used by the store.
+func (s *LimiterStore) SetCache(appCache cache.Cache) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-
-	entry, ok := s.limiters[ip]
-	if !ok {
-		lim := rate.NewLimiter(rate.Every(s.interval), s.burst)
-		s.limiters[ip] = &ipLimiter{
-			limiter:  lim,
-			lastSeen: time.Now(),
-		}
-		return lim
-	}
-
-	entry.lastSeen = time.Now()
-	return entry.limiter
+	s.cache = appCache
 }
 
-// cleanup removes IP entries that have been idle for 10 minutes to
-// prevent unbounded memory growth.
-func (s *limiterStore) cleanup() {
-	for {
-		time.Sleep(10 * time.Minute)
+func (s *LimiterStore) cleanupRoutine() {
+	ticker := time.NewTicker(10 * time.Minute)
+	defer ticker.Stop()
+
+	for range ticker.C {
 		s.mu.Lock()
-		for ip, entry := range s.limiters {
-			if time.Since(entry.lastSeen) > 10*time.Minute {
-				delete(s.limiters, ip)
+		now := time.Now()
+		for key, entry := range s.limiters {
+			if now.Sub(entry.lastSeen) > 15*time.Minute {
+				delete(s.limiters, key)
 			}
 		}
 		s.mu.Unlock()
 	}
 }
 
-// OTPRateLimiter allows 3 requests per IP per 60 seconds (burst 3).
-// Generous enough for legitimate users who may need to resend an OTP,
-// tight enough to prevent automated email-bombing.
-var OTPRateLimiter = newLimiterStore(20*time.Second, 3)
+func (s *LimiterStore) allowMemory(key string) bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 
-// RateLimitMiddleware returns a Gin middleware that enforces per-IP
-// rate limiting using the provided limiterStore.
-func RateLimitMiddleware(store *limiterStore) gin.HandlerFunc {
+	entry, ok := s.limiters[key]
+	if !ok {
+		lim := rate.NewLimiter(rate.Every(s.interval), s.burst)
+		s.limiters[key] = &memoryLimiterEntry{
+			limiter:  lim,
+			lastSeen: time.Now(),
+		}
+		return lim.Allow()
+	}
+
+	entry.lastSeen = time.Now()
+	return entry.limiter.Allow()
+}
+
+// Allow evaluates if a request with key should be allowed.
+func (s *LimiterStore) Allow(ctx context.Context, key string) bool {
+	if s.cache != nil {
+		windowSeconds := int64(s.interval.Seconds()) * int64(s.burst)
+		if windowSeconds < 1 {
+			windowSeconds = 60
+		}
+
+		redisKey := fmt.Sprintf("rl:%s:%d", key, time.Now().Unix()/windowSeconds)
+		count, err := s.cache.Incr(ctx, redisKey)
+		if err == nil {
+			if count == 1 {
+				_ = s.cache.Set(
+					ctx,
+					redisKey,
+					strconv.FormatInt(count, 10),
+					time.Duration(windowSeconds*2)*time.Second,
+				)
+			}
+			return int(count) <= s.burst
+		}
+	}
+
+	return s.allowMemory(key)
+}
+
+// Global default limiters designed for high-concurrency campus NAT.
+var (
+	// LooseIPLimiter allows up to 300 requests/min per IP.
+	LooseIPLimiter = NewLimiterStore(nil, 200*time.Millisecond, 300)
+
+	// UserLimiter allows up to 120 requests/min per authenticated user.
+	UserLimiter = NewLimiterStore(nil, 500*time.Millisecond, 120)
+
+	// SensitiveIPLimiter allows up to 120 requests/min per IP.
+	SensitiveIPLimiter = NewLimiterStore(nil, 500*time.Millisecond, 120)
+
+	// TargetOTPLimiter allows 3 attempts per 60 seconds per recipient.
+	TargetOTPLimiter = NewLimiterStore(nil, 20*time.Second, 3)
+
+	// OTPRateLimiter is maintained for backward compatibility.
+	OTPRateLimiter = TargetOTPLimiter
+)
+
+// IPKeyExtractor extracts client IP.
+func IPKeyExtractor(c *gin.Context) string {
+	return "ip:" + c.ClientIP()
+}
+
+// UserKeyExtractor extracts authenticated user ID or falls back to IP.
+func UserKeyExtractor(c *gin.Context) string {
+	userID := c.GetString("userID")
+	if userID != "" {
+		return "user:" + userID
+	}
+	return IPKeyExtractor(c)
+}
+
+// TargetEmailKeyExtractor extracts email from query, body, or IP.
+func TargetEmailKeyExtractor(c *gin.Context) string {
+	email := strings.TrimSpace(c.Query("email"))
+	if email != "" {
+		return "target:" + strings.ToLower(email)
+	}
+	return IPKeyExtractor(c)
+}
+
+// RateLimitWithKey applies rate limiting using a custom key extractor.
+func RateLimitWithKey(
+	store *LimiterStore,
+	keyFn KeyExtractor,
+) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		ip := c.ClientIP()
-		if !store.getLimiter(ip).Allow() {
+		key := keyFn(c)
+		if !store.Allow(c.Request.Context(), key) {
 			c.AbortWithStatusJSON(
 				http.StatusTooManyRequests,
 				dto.ErrorResponse{
@@ -97,4 +176,23 @@ func RateLimitMiddleware(store *limiterStore) gin.HandlerFunc {
 		}
 		c.Next()
 	}
+}
+
+// RateLimitMiddleware returns a Gin middleware that enforces rate limiting
+// using the provided LimiterStore. Defaults to LooseIPLimiter if nil.
+func RateLimitMiddleware(store *LimiterStore) gin.HandlerFunc {
+	if store == nil {
+		store = LooseIPLimiter
+	}
+	return RateLimitWithKey(store, IPKeyExtractor)
+}
+
+// UserRateLimitMiddleware enforces rate limiting per authenticated user.
+func UserRateLimitMiddleware() gin.HandlerFunc {
+	return RateLimitWithKey(UserLimiter, UserKeyExtractor)
+}
+
+// SensitiveRateLimitMiddleware enforces strict rate limiting per IP.
+func SensitiveRateLimitMiddleware() gin.HandlerFunc {
+	return RateLimitWithKey(SensitiveIPLimiter, IPKeyExtractor)
 }
