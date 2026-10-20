@@ -103,6 +103,9 @@ export default function ChangePasswordStep({
 
                                 {field === "newPassword" && (
                                     <>
+                                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                                            Must be different from your last 5 passwords.
+                                        </p>
                                         <div className="mt-3 grid gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
                                             {requirements.map((requirement) => (
                                                 <p key={requirement.key} className={`flex items-center gap-2 ${requirement.valid ? "text-green-700 dark:text-green-400" : ""}`}>

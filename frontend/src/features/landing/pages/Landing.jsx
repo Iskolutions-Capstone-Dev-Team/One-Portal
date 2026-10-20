@@ -3,15 +3,10 @@ import FaqSection from "../components/FaqSection";
 import FeaturesSection from "../components/FeaturesSection";
 import HeroSection from "../components/HeroSection";
 import LandingNavbar from "../components/LandingNavbar";
-import { getRegisterPageUrl } from "../../../services/auth";
 import { useLandingAuth } from "../hooks/useLandingAuth";
 import DotField from "../../../components/ui/DotField";
 import { Alert, AlertDescription } from "../../../components/reui/alert";
 import { CircleAlertIcon } from "lucide-react";
-
-function navigateToRegisterPage() {
-    window.location.href = getRegisterPageUrl();
-}
 
 function useLandingReveal() {
     useEffect(() => {
@@ -56,11 +51,6 @@ export default function Landing() {
         }
     };
 
-    const handleRegisterClick = () => {
-        setPendingAction("register");
-        navigateToRegisterPage();
-    };
-
     const handleFaqToggle = (index) => {
         setOpenFaqIndex((currentIndex) => (currentIndex === index ? null : index));
     };
@@ -86,7 +76,7 @@ export default function Landing() {
             </div>
 
             <div className="relative z-10 w-full max-w-[1280px] mx-auto pb-10">
-                <LandingNavbar pendingAction={pendingAction} cooldown={cooldown} onLoginClick={handleLoginClick} onRegisterClick={handleRegisterClick} />
+                <LandingNavbar pendingAction={pendingAction} cooldown={cooldown} onLoginClick={handleLoginClick} />
 
                 <main className="relative z-10">
                     {authError && (
@@ -99,7 +89,7 @@ export default function Landing() {
                             </Alert>
                         </div>
                     )}
-                    <HeroSection pendingAction={pendingAction} cooldown={cooldown} onRegisterClick={handleRegisterClick} />
+                    <HeroSection pendingAction={pendingAction} cooldown={cooldown} />
                     <FeaturesSection />
                     <FaqSection />
                 </main>

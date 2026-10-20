@@ -22,7 +22,7 @@ describe('ChangePasswordStep Component', () => {
     expect(container).toBeInTheDocument();
   });
 
-  it('renders warning when new password matches current password', () => {
+  it('renders warning when new password matches current password and disables continue', () => {
     const form = {
       currentPassword: 'CurrentPassword123!',
       newPassword: 'CurrentPassword123!',
@@ -66,5 +66,30 @@ describe('ChangePasswordStep Component', () => {
 
     const continueButton = screen.getByRole('button', { name: /continue/i });
     expect(continueButton).not.toBeDisabled();
+  });
+
+  it('renders hint indicating password cannot match last 5 passwords', () => {
+    renderWithDialog(
+      <ChangePasswordStep
+        form={{ currentPassword: '', newPassword: '', confirmPassword: '' }}
+        setForm={vi.fn()}
+      />
+    );
+    expect(
+      screen.getByText('Must be different from your last 5 passwords.')
+    ).toBeInTheDocument();
+  });
+
+  it('displays errorMessage alert when provided', () => {
+    renderWithDialog(
+      <ChangePasswordStep
+        form={{ currentPassword: '', newPassword: '', confirmPassword: '' }}
+        setForm={vi.fn()}
+        errorMessage="You cannot reuse any of your last 5 passwords."
+      />
+    );
+    expect(
+      screen.getByText('You cannot reuse any of your last 5 passwords.')
+    ).toBeInTheDocument();
   });
 });
