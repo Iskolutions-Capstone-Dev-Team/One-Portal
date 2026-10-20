@@ -307,3 +307,163 @@ func TestUserHandler_DeleteUser(t *testing.T) {
 		t.Logf("Response body: %s", w.Body.String())
 	}
 }
+
+func TestUserHandler_PatchChangePassword_EarlyCheck(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	svc := mocks.NewMockUserService(ctrl)
+	h := v1.NewUserHandler(svc)
+
+	r := gin.New()
+	r.PATCH("/user/password/change", h.PatchChangePassword)
+
+	reqBody := dto.ChangePasswordRequest{
+		OldPassword: "SamePassword123!",
+		NewPassword: "SamePassword123!",
+	}
+	body, _ := json.Marshal(reqBody)
+
+	req := httptest.NewRequest(
+		http.MethodPatch,
+		"/user/password/change",
+		bytes.NewBuffer(body),
+	)
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400, got %d: %s", w.Code, w.Body.String())
+	}
+
+	var resp map[string]interface{}
+	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+		t.Fatalf("failed to unmarshal JSON: %v", err)
+	}
+
+	if code, ok := resp["code"].(float64); !ok || int(code) != 1031 {
+		t.Errorf("expected code 1031, got %v", resp["code"])
+	}
+}
+
+func TestUserHandler_PatchChangePassword_IDPProxy(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	// Mock IDP server returning 400 with code 1031
+	idpServer := httptest.NewServer(http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{
+				"code":    1031,
+				"message": "You cannot reuse any of your last 5 passwords.",
+				"error":   "password cannot be reused from recent history",
+			})
+		},
+	))
+	defer idpServer.Close()
+
+	os.Setenv("IDP_USER_URL", idpServer.URL)
+	defer os.Unsetenv("IDP_USER_URL")
+
+	svc := mocks.NewMockUserService(ctrl)
+	h := v1.NewUserHandler(svc)
+
+	r := gin.New()
+	r.PATCH("/user/password/change", h.PatchChangePassword)
+
+	reqBody := dto.ChangePasswordRequest{
+		OldPassword: "OldPassword123!",
+		NewPassword: "PreviousPassword456!",
+	}
+	body, _ := json.Marshal(reqBody)
+
+	req := httptest.NewRequest(
+		http.MethodPatch,
+		"/user/password/change",
+		bytes.NewBuffer(body),
+	)
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400, got %d: %s", w.Code, w.Body.String())
+	}
+
+	var resp map[string]interface{}
+	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+		t.Fatalf("failed to unmarshal JSON: %v", err)
+	}
+
+	if msg, ok := resp["message"].(string); !ok ||
+		msg != "You cannot reuse any of your last 5 passwords." {
+		t.Errorf("unexpected message: %v", resp["message"])
+	}
+}
+
+func TestUserHandler_PatchUserPasswordByEmail_IDPProxy(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	idpServer := httptest.NewServer(http.HandlerFunc(
+		func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			_ = json.NewEncoder(w).Encode(map[string]interface{}{
+				"code":    1031,
+				"message": "You cannot reuse any of your last 5 passwords.",
+				"error":   "password cannot be reused from recent history",
+			})
+		},
+	))
+	defer idpServer.Close()
+
+	os.Setenv("IDP_USER_URL", idpServer.URL)
+	defer os.Unsetenv("IDP_USER_URL")
+
+	svc := mocks.NewMockUserService(ctrl)
+	h := v1.NewUserHandler(svc)
+
+	r := gin.New()
+	r.PATCH("/user/password/forgot", h.PatchUserPasswordByEmail)
+
+	reqBody := dto.UpdatePasswordByEmailRequest{
+		Email:       "user@example.com",
+		NewPassword: "PreviousPassword456!",
+	}
+	body, _ := json.Marshal(reqBody)
+
+	req := httptest.NewRequest(
+		http.MethodPatch,
+		"/user/password/forgot",
+		bytes.NewBuffer(body),
+	)
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+
+	r.ServeHTTP(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400, got %d: %s", w.Code, w.Body.String())
+	}
+
+	var resp map[string]interface{}
+	if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+		t.Fatalf("failed to unmarshal JSON: %v", err)
+	}
+
+	if code, ok := resp["code"].(float64); !ok || int(code) != 1031 {
+		t.Errorf("expected code 1031, got %v", resp["code"])
+	}
+}
