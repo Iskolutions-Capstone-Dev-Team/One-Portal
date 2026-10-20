@@ -102,18 +102,25 @@ export default function ChangePasswordStep({
                                 )}
 
                                 {field === "newPassword" && (
-                                    <div className="mt-3 grid gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
-                                        {requirements.map((requirement) => (
-                                            <p key={requirement.key} className={`flex items-center gap-2 ${requirement.valid ? "text-green-700 dark:text-green-400" : ""}`}>
-                                                {requirement.valid ? (
-                                                    <Check className="size-3.5 shrink-0 text-green-700 dark:text-green-400" />
-                                                ) : (
-                                                    <Minus className="size-3.5 shrink-0 text-slate-500 dark:text-slate-400" />
-                                                )}
-                                                {requirement.label}
+                                    <>
+                                        <div className="mt-3 grid gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
+                                            {requirements.map((requirement) => (
+                                                <p key={requirement.key} className={`flex items-center gap-2 ${requirement.valid ? "text-green-700 dark:text-green-400" : ""}`}>
+                                                    {requirement.valid ? (
+                                                        <Check className="size-3.5 shrink-0 text-green-700 dark:text-green-400" />
+                                                    ) : (
+                                                        <Minus className="size-3.5 shrink-0 text-slate-500 dark:text-slate-400" />
+                                                    )}
+                                                    {requirement.label}
+                                                </p>
+                                            ))}
+                                        </div>
+                                        {showCurrentPassword && form.currentPassword && form.newPassword && form.newPassword === form.currentPassword && (
+                                            <p className="text-[0.8rem] font-medium text-red-500 mt-2">
+                                                New password cannot be the same as your current password.
                                             </p>
-                                        ))}
-                                    </div>
+                                        )}
+                                    </>
                                 )}
                             </Field>
                         ))}

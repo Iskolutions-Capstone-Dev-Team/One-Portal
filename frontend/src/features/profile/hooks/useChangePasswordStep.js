@@ -31,6 +31,8 @@ export function useChangePasswordStep({ form, setForm, onNext, showCurrentPasswo
         fieldErrors.newPassword = "New password is required.";
     } else if (!requirements.every((requirement) => requirement.valid)) {
         fieldErrors.newPassword = "Use at least 8 characters with an uppercase letter, number, and special character.";
+    } else if (showCurrentPassword && form.currentPassword.trim() && form.newPassword === form.currentPassword) {
+        fieldErrors.newPassword = "New password cannot be the same as your current password.";
     }
 
     if (!form.confirmPassword.trim()) {
