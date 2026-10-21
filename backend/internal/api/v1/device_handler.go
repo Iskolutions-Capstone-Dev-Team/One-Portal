@@ -28,7 +28,7 @@ func (h *DeviceHandler) ListDevices(c *gin.Context) {
 
 	proxyReq, err := http.NewRequest(http.MethodGet, idpURL, nil)
 	if err != nil {
-		log.Printf("[ListDevices] Build Request: %v", err)
+		log.Printf("[DeviceHandler] Build Request: %v", err)
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error: "Failed to build list devices request",
 		})
@@ -52,12 +52,13 @@ func (h *DeviceHandler) UpdateDevice(c *gin.Context) {
 		c.Request.Body,
 	)
 	if err != nil {
-		log.Printf("[UpdateDevice] Build Request: %v", err)
+		log.Printf("[DeviceHandler] Build Request: %v", err)
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error: "Failed to build update device request",
 		})
 		return
 	}
+	proxyReq.ContentLength = c.Request.ContentLength
 
 	h.proxyToIDP(c, proxyReq)
 }
@@ -72,7 +73,7 @@ func (h *DeviceHandler) DeleteDevice(c *gin.Context) {
 
 	proxyReq, err := http.NewRequest(http.MethodDelete, idpURL, nil)
 	if err != nil {
-		log.Printf("[DeleteDevice] Build Request: %v", err)
+		log.Printf("[DeviceHandler] Build Request: %v", err)
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error: "Failed to build delete device request",
 		})
@@ -95,7 +96,7 @@ func (h *DeviceHandler) proxyToIDP(c *gin.Context, proxyReq *http.Request) {
 
 	resp, err := Client.Do(proxyReq)
 	if err != nil {
-		log.Printf("[proxyToIDP] IDP Request: %v", err)
+		log.Printf("[DeviceHandler] Proxy Request: %v", err)
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error: "Failed to fetch response from IDP",
 		})
