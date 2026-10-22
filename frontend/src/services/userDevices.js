@@ -1,36 +1,7 @@
 import { apiRequest } from "./api";
 
-function getCookieValue(cookieName) {
-    if (typeof document === "undefined") {
-        return "";
-    }
-    const cookie = document.cookie
-        .split(";")
-        .map((cookiePair) => cookiePair.trim())
-        .find((cookiePair) => cookiePair.startsWith(`${cookieName}=`));
-
-    if (!cookie) return "";
-    const value = cookie.split("=").slice(1).join("=");
-    try {
-        return decodeURIComponent(value);
-    } catch {
-        return value;
-    }
-}
-
-function getAuthorizationHeaders() {
-    const accessToken = getCookieValue("access_token");
-    return accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
-}
-
 function deviceRequest(path, options = {}) {
-    return apiRequest(path, {
-        ...options,
-        headers: {
-            ...getAuthorizationHeaders(),
-            ...options.headers,
-        },
-    });
+    return apiRequest(path, options);
 }
 
 function readTextValue(value) {

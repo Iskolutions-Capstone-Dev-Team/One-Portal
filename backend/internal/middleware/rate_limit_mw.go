@@ -81,6 +81,10 @@ func (s *limiterStore) cleanup() {
 // tight enough to prevent automated email-bombing.
 var OTPRateLimiter = newLimiterStore(20*time.Second, 3)
 
+// GeneralRateLimiter allows 30 requests per IP with steady token replenishment.
+// Suitable for interactive authenticated API routes like device management.
+var GeneralRateLimiter = newLimiterStore(time.Second, 30)
+
 // RateLimitMiddleware returns a Gin middleware that enforces per-IP
 // rate limiting using the provided limiterStore.
 func RateLimitMiddleware(store *limiterStore) gin.HandlerFunc {
