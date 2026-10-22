@@ -63,7 +63,7 @@ func TestDeviceHandler_UpdateDevice(t *testing.T) {
 	r := gin.New()
 	r.PATCH("/api/v1/devices/:id", h.UpdateDevice)
 
-	body := []byte(`{"device_name":"New Name"}`)
+	body := []byte(`{"name":"New Name"}`)
 	req := httptest.NewRequest(
 		http.MethodPatch,
 		"/api/v1/devices/123",

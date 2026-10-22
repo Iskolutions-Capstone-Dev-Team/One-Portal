@@ -18,8 +18,8 @@ import (
 
 const (
 	// userAccessTTL is how long user-access data is cached per user.
-	// Short TTL to reflect permission changes in a reasonable window.
-	userAccessTTL = 30 * time.Second
+	// 5-minute TTL provides low DB proxy load while ensuring responsive permission changes.
+	userAccessTTL = 5 * time.Minute
 )
 
 type UserAccessHandler struct {

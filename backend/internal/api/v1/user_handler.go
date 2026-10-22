@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -230,11 +231,11 @@ func (h *UserHandler) PatchUserName(c *gin.Context) {
 
 // PatchUserPasswordByEmail proxies password recovery to IDP.
 // @Summary      Forgot password
-// @Description  Proxies password reset request by email to the Identity Provider.
+// @Description  Proxies password reset request by email to Identity Provider.
 // @Tags         User
 // @Accept       json
 // @Produce      json
-// @Param        request body      dto.UpdatePasswordByEmailRequest true "Email Data"
+// @Param        request body      dto.UpdatePasswordByEmailRequest true "Data"
 // @Success      200     {object}  dto.SuccessResponse
 // @Failure      400     {object}  dto.ErrorResponse
 // @Failure      500     {object}  dto.ErrorResponse
@@ -262,7 +263,8 @@ func (h *UserHandler) PatchUserPasswordByEmail(c *gin.Context) {
 	proxyReq.Header.Set("X-API-Key", os.Getenv("BACKEND_API_KEY"))
 
 	resp, err := Client.Do(proxyReq)
-	if err != nil || resp.StatusCode != http.StatusOK {
+	if err != nil {
+		log.Printf("[PatchUserPasswordByEmail] Send Request: %v", err)
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error: "Failed to process password recovery in IDP",
 		})
@@ -270,16 +272,29 @@ func (h *UserHandler) PatchUserPasswordByEmail(c *gin.Context) {
 	}
 	defer resp.Body.Close()
 
-	c.JSON(http.StatusOK, dto.SuccessResponse{Message: "Password reset processed"})
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("[PatchUserPasswordByEmail] Read Response: %v", err)
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to read IDP response",
+		})
+		return
+	}
+
+	contentType := resp.Header.Get("Content-Type")
+	if contentType == "" {
+		contentType = "application/json"
+	}
+	c.Data(resp.StatusCode, contentType, bodyBytes)
 }
 
 // PatchChangePassword proxies authenticated password change to IDP.
 // @Summary      Change password
-// @Description  Proxies current user's password change request to the Identity Provider.
+// @Description  Proxies current user password change request to IDP.
 // @Tags         User
 // @Accept       json
 // @Produce      json
-// @Param        request body      dto.ChangePasswordRequest true "Password Data"
+// @Param        request body      dto.ChangePasswordRequest true "Data"
 // @Success      200     {object}  dto.SuccessResponse
 // @Failure      400     {object}  dto.ErrorResponse
 // @Failure      401     {object}  dto.ErrorResponse
@@ -290,6 +305,15 @@ func (h *UserHandler) PatchChangePassword(c *gin.Context) {
 	var req dto.ChangePasswordRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, dto.ErrorResponse{Error: "Invalid request"})
+		return
+	}
+
+	if req.NewPassword == req.OldPassword {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"code":    1031,
+			"message": "You cannot reuse any of your last 5 passwords.",
+			"error":   "password cannot be reused from recent history",
+		})
 		return
 	}
 
@@ -314,7 +338,8 @@ func (h *UserHandler) PatchChangePassword(c *gin.Context) {
 	}
 
 	resp, err := Client.Do(proxyReq)
-	if err != nil || resp.StatusCode != http.StatusOK {
+	if err != nil {
+		log.Printf("[PatchChangePassword] Send Request: %v", err)
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
 			Error: "Failed to change password in IDP",
 		})
@@ -322,7 +347,20 @@ func (h *UserHandler) PatchChangePassword(c *gin.Context) {
 	}
 	defer resp.Body.Close()
 
-	c.JSON(http.StatusOK, dto.SuccessResponse{Message: "Password changed successfully"})
+	bodyBytes, err := io.ReadAll(resp.Body)
+	if err != nil {
+		log.Printf("[PatchChangePassword] Read Response: %v", err)
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{
+			Error: "Failed to read IDP response",
+		})
+		return
+	}
+
+	contentType := resp.Header.Get("Content-Type")
+	if contentType == "" {
+		contentType = "application/json"
+	}
+	c.Data(resp.StatusCode, contentType, bodyBytes)
 }
 
 // DeleteUser deletes a user and all associated records from the database.
