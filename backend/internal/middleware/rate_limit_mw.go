@@ -133,6 +133,9 @@ var (
 
 	// OTPRateLimiter is maintained for backward compatibility.
 	OTPRateLimiter = TargetOTPLimiter
+
+	// GeneralRateLimiter allows 30 requests with steady replenishment.
+	GeneralRateLimiter = NewLimiterStore(nil, time.Second, 30)
 )
 
 // IPKeyExtractor extracts client IP.

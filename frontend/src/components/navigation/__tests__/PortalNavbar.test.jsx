@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { MemoryRouter, useNavigate, useLocation } from 'react-router-dom';
@@ -13,6 +13,11 @@ vi.mock('react-router-dom', async () => {
     useLocation: vi.fn(() => ({ pathname: '/portal' })),
   };
 });
+
+// Mock NotificationCenter to avoid unneeded query context in navbar tests
+vi.mock('../../../features/notifications/components/NotificationCenter', () => ({
+  default: () => <div data-testid="notification-center" />
+}));
 
 // Mock Portal Theme
 const mockToggleTheme = vi.fn();
@@ -36,7 +41,7 @@ describe('PortalNavbar Component', () => {
       </MemoryRouter>
     );
     
-    expect(screen.getByText('PUP TAGUIG ONE PORTAL')).toBeInTheDocument();
+    expect(screen.getByText('ONE PORTAL')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Switch to dark mode/i })).toBeInTheDocument();
   });
 
@@ -59,11 +64,11 @@ describe('PortalNavbar Component', () => {
       </MemoryRouter>
     );
     
-    const profileBtn = screen.getByRole('button', { name: /Open portal menu/i });
+    const profileBtn = screen.getByRole('button', { name: /Open menu/i });
     await userEvent.click(profileBtn);
     
-    expect(screen.getByText('Profile')).toBeInTheDocument();
-    expect(screen.getByText('Logout')).toBeInTheDocument();
+    expect(await screen.findByText('Profile')).toBeInTheDocument();
+    expect(await screen.findByText('Logout')).toBeInTheDocument();
   });
 
   it('opens dropdown and shows Dashboard if on /profile', async () => {
@@ -75,10 +80,10 @@ describe('PortalNavbar Component', () => {
       </MemoryRouter>
     );
     
-    const profileBtn = screen.getByRole('button', { name: /Open portal menu/i });
+    const profileBtn = screen.getByRole('button', { name: /Open menu/i });
     await userEvent.click(profileBtn);
     
-    expect(screen.getByText('Dashboard')).toBeInTheDocument();
+    expect(await screen.findByText('Dashboard')).toBeInTheDocument();
   });
   
   it('navigates to logout', async () => {
@@ -91,12 +96,13 @@ describe('PortalNavbar Component', () => {
       </MemoryRouter>
     );
     
-    const profileBtn = screen.getByRole('button', { name: /Open portal menu/i });
+    const profileBtn = screen.getByRole('button', { name: /Open menu/i });
     await userEvent.click(profileBtn);
     
-    const logoutMenuBtn = screen.getByText('Logout').closest('button');
+    const logoutMenuBtn = await screen.findByText('Logout');
     await userEvent.click(logoutMenuBtn);
     
     expect(mockNavigate).toHaveBeenCalledWith('/logout');
   });
 });
+
