@@ -16,10 +16,7 @@ export function useRememberedDevices({ isProfileLoading }) {
 
     const { data: devices = [], error, isLoading } = useQuery({
         queryKey: ["trusted_devices"],
-        queryFn: async () => {
-            await new Promise((resolve) => setTimeout(resolve, 1500));
-            return getDevices();
-        },
+        queryFn: getDevices,
         enabled: !isProfileLoading,
         retry: false,
         refetchOnWindowFocus: false,
