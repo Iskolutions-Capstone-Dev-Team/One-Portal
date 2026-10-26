@@ -89,12 +89,19 @@ export default function Login() {
                 <img src="/assets/images/PUPlogo.png" alt="PUP Logo" className="float-logo w-28 sm:w-32" />
 
                 {hasAuthorizationError && (
-                    <Link
-                        to="/"
-                        className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#f8d24e] px-6 py-3 text-sm font-semibold text-[#5c0b10] shadow-[0_18px_40px_rgba(0,0,0,0.28)] transition hover:-translate-y-0.5 hover:bg-[#ffe27a]"
-                    >
-                        Return to home page
-                    </Link>
+                    <div className="flex flex-col items-center gap-3">
+                        <p className="max-w-md text-sm font-medium text-white/85">
+                            {identityProviderError === "access_denied"
+                                ? "Access was denied or your account has been temporarily suspended."
+                                : "Unable to complete authorization. Please try again."}
+                        </p>
+                        <Link
+                            to="/"
+                            className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#f8d24e] px-6 py-3 text-sm font-semibold text-[#5c0b10] shadow-[0_18px_40px_rgba(0,0,0,0.28)] transition hover:-translate-y-0.5 hover:bg-[#ffe27a]"
+                        >
+                            Return to home page
+                        </Link>
+                    </div>
                 )}
             </div>
         </div>
