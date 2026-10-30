@@ -181,10 +181,10 @@ export default function RememberedDevices({ isProfileLoading = false }) {
                     )}
 
                     {isLoading ? (
-                        <div className="w-full min-w-0 relative px-0 sm:px-12">
+                        <div className="w-full min-w-0 relative px-8 min-[580px]:px-12">
                             <div className="flex -ml-2 overflow-hidden">
                                 {[1, 2, 3].map((i) => (
-                                    <div key={i} className="min-w-0 shrink-0 grow-0 basis-full sm:basis-1/2 lg:basis-1/3 pl-2">
+                                    <div key={i} className="min-w-0 shrink-0 grow-0 basis-full min-[580px]:basis-1/2 lg:basis-1/3 pl-2">
                                         <div className="p-1 h-[440px]">
                                             <Card className="w-full overflow-hidden p-0 relative group shadow-sm bg-white dark:bg-[#141414] border border-slate-200 dark:border-white/10 transition-all duration-300 h-full flex flex-col">
                                                 <CardContent className="flex flex-col items-center p-0 h-full flex-1">
@@ -211,19 +211,19 @@ export default function RememberedDevices({ isProfileLoading = false }) {
                                     opts={{
                                         align: "start",
                                     }}
-                                    className="w-full min-w-0 relative px-0 sm:px-12"
+                                    className="w-full min-w-0 relative px-8 min-[580px]:px-12"
                                 >
                                     <CarouselContent className="-ml-2">
                                         {devices.map((device) => (
-                                            <CarouselItem key={device.id} className="sm:basis-1/2 lg:basis-1/3 pl-2">
+                                            <CarouselItem key={device.id} className="basis-full min-[580px]:basis-1/2 lg:basis-1/3 pl-2">
                                                 <div className="p-1 h-[440px]">
                                                     {renderDeviceCard(device)}
                                                 </div>
                                             </CarouselItem>
                                         ))}
                                     </CarouselContent>
-                                    <CarouselPrevious className="hidden sm:inline-flex left-0 bg-[#7b0d15] dark:bg-yellow-400 hover:bg-yellow-400 dark:hover:bg-[#7b0d15] text-white dark:text-[#7b0d15] hover:text-[#7b0d15] dark:hover:text-yellow-400 border-none" />
-                                    <CarouselNext className="hidden sm:inline-flex right-0 bg-[#7b0d15] dark:bg-yellow-400 hover:bg-yellow-400 dark:hover:bg-[#7b0d15] text-white dark:text-[#7b0d15] hover:text-[#7b0d15] dark:hover:text-yellow-400 border-none" />
+                                    <CarouselPrevious className="inline-flex left-0 min-[580px]:left-1 bg-[#7b0d15] dark:bg-yellow-400 hover:bg-yellow-400 dark:hover:bg-[#7b0d15] text-white dark:text-[#7b0d15] hover:text-[#7b0d15] dark:hover:text-yellow-400 border-none disabled:opacity-40" />
+                                    <CarouselNext className="inline-flex right-0 min-[580px]:right-1 bg-[#7b0d15] dark:bg-yellow-400 hover:bg-yellow-400 dark:hover:bg-[#7b0d15] text-white dark:text-[#7b0d15] hover:text-[#7b0d15] dark:hover:text-yellow-400 border-none disabled:opacity-40" />
                                 </Carousel>
                             ) : (
                                 !errorMessage && (

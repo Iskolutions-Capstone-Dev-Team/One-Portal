@@ -24,6 +24,9 @@ type Cache interface {
 
 	// Delete removes the given key from the cache.
 	Delete(ctx context.Context, key string) error
+
+	// Incr increments the integer value of a key.
+	Incr(ctx context.Context, key string) (int64, error)
 }
 
 type redisCache struct {
@@ -63,4 +66,11 @@ func (r *redisCache) Delete(
 	key string,
 ) error {
 	return r.client.Del(ctx, key).Err()
+}
+
+func (r *redisCache) Incr(
+	ctx context.Context,
+	key string,
+) (int64, error) {
+	return r.client.Incr(ctx, key).Result()
 }
