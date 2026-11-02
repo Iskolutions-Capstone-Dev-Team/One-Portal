@@ -103,6 +103,47 @@ services:
       timeout: 5s
       retries: 5
 
+  # Minio (S3-Like storage - using pgsty/silo drop-in replacement)
+  minio:
+    image: pgsty/silo:latest
+    container_name: one_portal_minio
+    restart: always
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${S3_KEY}
+      MINIO_ROOT_PASSWORD: ${S3_SECRET}
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - one_portal_network
+
+  # Minio Setup Service
+  minio_init:
+    image: quay.io/minio/mc:latest
+    container_name: one_portal_minio_setup
+    depends_on:
+      - minio
+    networks:
+      - one_portal_network
+    environment:
+      - S3_KEY=${S3_KEY}
+      - S3_SECRET=${S3_SECRET}
+      - S3_BUCKET=${S3_BUCKET}
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5;
+      MC_CMD=\$$(command -v mc || command -v mcli);
+      \$$MC_CMD alias set local http://minio:9000 \${S3_KEY} \${S3_SECRET};
+      \$$MC_CMD mb local/\${S3_BUCKET} --ignore-existing;
+      \$$MC_CMD anonymous set download local/\${S3_BUCKET};
+      echo '[{\"AllowedOrigins\":[\"*\"],\"AllowedMethods\":[\"GET\"],\"AllowedHeaders\":[\"*\"]}]' > /tmp/cors.json;
+      \$$MC_CMD cors set local/\${S3_BUCKET} /tmp/cors.json;
+      exit 0;
+      "
+
 networks:
   one_portal_network:
     driver: bridge
@@ -110,3 +151,4 @@ networks:
 volumes:
   db_data:
   frontend_node_modules:
+  minio_data:

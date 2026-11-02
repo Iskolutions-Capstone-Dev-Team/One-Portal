@@ -89,6 +89,14 @@ function createApiError(status, data) {
 
     error.status = status;
     error.data = data;
+    error.code = data?.code;
+
+    if (status === 429) {
+        error.isRateLimited = true;
+    }
+    if (status === 403 && data?.code === 1030) {
+        error.isSuspended = true;
+    }
 
     return error;
 }

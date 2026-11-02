@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/cache"
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/database"
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/initializers"
+	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/redis/go-redis/v9"
@@ -73,6 +75,29 @@ func main() {
 
 	// Initialize the Gin router
 	r := gin.Default()
+	trustedProxiesEnv := os.Getenv("TRUSTED_PROXIES")
+	if trustedProxiesEnv != "" {
+		proxies := strings.Split(trustedProxiesEnv, ",")
+		for i := range proxies {
+			proxies[i] = strings.TrimSpace(proxies[i])
+		}
+		_ = r.SetTrustedProxies(proxies)
+	} else {
+		_ = r.SetTrustedProxies([]string{
+			"127.0.0.1",
+			"10.0.0.0/8",
+			"172.16.0.0/12",
+			"192.168.0.0/16",
+			"::1",
+		})
+	}
+
+	if appCache != nil {
+		middleware.LooseIPLimiter.SetCache(appCache)
+		middleware.UserLimiter.SetCache(appCache)
+		middleware.SensitiveIPLimiter.SetCache(appCache)
+		middleware.TargetOTPLimiter.SetCache(appCache)
+	}
 
 	db, err := database.ConnectToDB()
 	if err != nil {
