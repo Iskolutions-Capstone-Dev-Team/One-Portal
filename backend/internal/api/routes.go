@@ -1,6 +1,8 @@
 package api
 
 import (
+	"os"
+
 	_ "github.com/Iskolutions-Capstone-Dev-Team/One-Portal/docs"
 	v1 "github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/api/v1"
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/initializers"
@@ -42,8 +44,12 @@ func NewRoutes(handlers *initializers.Handlers) *Routes {
 // so that IDP-facing flows (auth, otp, password/forgot) remain
 // completely open as required by the OAuth/OIDC handshake.
 func (r *Routes) Register(router *gin.Engine) {
-	swaggerHandler := NewSwaggerHandler()
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerHandler))
+	if os.Getenv("ENABLE_SWAGGER") == "true" ||
+		(os.Getenv("APP_ENV") != "production" &&
+			os.Getenv("ENABLE_SWAGGER") != "false") {
+		swaggerHandler := NewSwaggerHandler()
+		router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerHandler))
+	}
 	apiGroup := router.Group("/api")
 	v1Group := apiGroup.Group("/v1")
 
