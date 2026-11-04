@@ -4,11 +4,9 @@ import { House, GraduationCap, Landmark, CalendarRange, Users } from "lucide-rea
 import Lanyard from "@/components/Lanyard";
 import { motion } from "framer-motion";
 
-function FloatingIcon({ children, className, rotate = "0deg", style }) {
-    const delay = parseFloat(style?.animationDelay || '0');
-    
+function FloatingIcon({ children, className, delay = 0 }) {
     return (
-        <div className={`absolute z-0 ${className}`} style={{ transform: `rotate(${rotate})` }}>
+        <div className={`absolute z-0 ${className}`}>
             <motion.div
                 animate={{ y: [-15, 15, -15] }}
                 transition={{
@@ -20,10 +18,6 @@ function FloatingIcon({ children, className, rotate = "0deg", style }) {
             >
                 <IconTile 
                     className="transition-transform duration-1000" 
-                    style={{
-                        '--icon-tile-size': '4.25rem',
-                        '--icon-tile-icon-size': '1.8rem'
-                    }}
                     aria-hidden="true"
                 >
                     {children}
@@ -33,18 +27,13 @@ function FloatingIcon({ children, className, rotate = "0deg", style }) {
     );
 }
 
-function IconTile({ children, className, style, "aria-hidden": ariaHidden }) {
+function IconTile({ children, className, "aria-hidden": ariaHidden }) {
     return (
         <div 
-            className={`hidden xl:flex items-center justify-center bg-white/10 border border-white/20 rounded-2xl shadow-lg backdrop-blur-sm ${className}`}
-            style={{
-                width: 'var(--icon-tile-size, 3rem)',
-                height: 'var(--icon-tile-size, 3rem)',
-                ...style
-            }}
+            className={`hidden xl:flex items-center justify-center bg-white/10 border border-white/20 rounded-2xl shadow-lg backdrop-blur-sm size-[4.25rem] ${className}`}
             aria-hidden={ariaHidden}
         >
-            <div className="text-white/80 flex items-center justify-center drop-shadow-md" style={{ width: 'var(--icon-tile-icon-size, 1.5rem)', height: 'var(--icon-tile-icon-size, 1.5rem)' }}>
+            <div className="text-white/80 flex items-center justify-center drop-shadow-md size-[1.8rem]">
                 {children}
             </div>
         </div>
@@ -54,16 +43,16 @@ function IconTile({ children, className, style, "aria-hidden": ariaHidden }) {
 export default function HeroSection({ pendingAction, cooldown = 0 }) {
     return (
         <section id="home" className="relative grid grid-cols-1 justify-items-center gap-10 md:gap-14 min-h-[calc(100vh-4.6rem)] py-12 md:py-20 px-5 md:px-16 text-center scroll-mt-20">
-            <FloatingIcon className="top-[5.6rem] left-[15%]" style={{ animationDelay: '0s' }} rotate="-12deg">
+            <FloatingIcon className="top-[5.6rem] left-[15%] -rotate-12" delay={0}>
                 <GraduationCap />
             </FloatingIcon>
-            <FloatingIcon className="top-[17rem] left-[18%]" style={{ animationDelay: '1.4s' }} rotate="15deg">
+            <FloatingIcon className="top-[17rem] left-[18%] rotate-[15deg]" delay={1.4}>
                 <Landmark />
             </FloatingIcon>
-            <FloatingIcon className="top-[5rem] right-[17%]" style={{ animationDelay: '0.7s' }} rotate="12deg">
+            <FloatingIcon className="top-[5rem] right-[17%] rotate-12" delay={0.7}>
                 <CalendarRange />
             </FloatingIcon>
-            <FloatingIcon className="top-[16.4rem] right-[18%]" style={{ animationDelay: '2s' }} rotate="-15deg">
+            <FloatingIcon className="top-[16.4rem] right-[18%] -rotate-[15deg]" delay={2}>
                 <Users />
             </FloatingIcon>
 
