@@ -6,7 +6,6 @@ import (
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/initializers"
 	"github.com/Iskolutions-Capstone-Dev-Team/One-Portal/internal/middleware"
 	"github.com/gin-gonic/gin"
-	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
@@ -43,7 +42,8 @@ func NewRoutes(handlers *initializers.Handlers) *Routes {
 // so that IDP-facing flows (auth, otp, password/forgot) remain
 // completely open as required by the OAuth/OIDC handshake.
 func (r *Routes) Register(router *gin.Engine) {
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	swaggerHandler := NewSwaggerHandler()
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerHandler))
 	apiGroup := router.Group("/api")
 	v1Group := apiGroup.Group("/v1")
 
