@@ -75,6 +75,7 @@ func main() {
 
 	// Initialize the Gin router
 	r := gin.Default()
+	r.Use(middleware.SecurityHeadersMiddleware())
 	trustedProxiesEnv := os.Getenv("TRUSTED_PROXIES")
 	if trustedProxiesEnv != "" {
 		proxies := strings.Split(trustedProxiesEnv, ",")
