@@ -86,11 +86,7 @@ export default function Profile() {
                 {/* Background Layer matching Dashboard */}
                 <div className="absolute inset-x-0 top-0 h-[45vh] md:h-[55vh] z-0 bg-gradient-to-b from-[#4f0d17] from-50% to-transparent pointer-events-none">
                     <div 
-                        className="absolute inset-0 pointer-events-none"
-                        style={{ 
-                            maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 45%, black 65%, black 100%)', 
-                            WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, transparent 45%, black 65%, black 100%)' 
-                        }}
+                        className="absolute inset-0 pointer-events-none mask-hero-gradient"
                     >
                         <div className="absolute inset-0 scale-y-[-1] overflow-hidden">
                             <GradientWaves
