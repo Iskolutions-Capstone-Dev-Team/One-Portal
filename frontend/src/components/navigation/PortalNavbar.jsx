@@ -104,17 +104,17 @@ export default function PortalNavbar() {
 
                         <DropdownMenuContent align="end" className="font-[Poppins] w-48 p-1.5 mt-2 rounded-2xl bg-[#2a050a]/95 border border-white/10 shadow-[0_18px_42px_rgba(0,0,0,0.26)] backdrop-blur-md ring-0 outline-none">
                             <DropdownMenuItem onClick={handleFirstOption} className="group px-4 py-2.5 rounded-xl cursor-pointer text-sm font-medium text-orange-50/90 focus:bg-white/10 focus:text-orange-50 data-[highlighted]:bg-white/10 data-[highlighted]:text-orange-50">
-                                {firstOption === "Dashboard" ? <LayoutDashboard className="mr-3 w-5 h-5" style={{ color: "inherit" }} /> : <User className="mr-3 w-5 h-5" style={{ color: "inherit" }} />}
+                                {firstOption === "Dashboard" ? <LayoutDashboard className="mr-3 w-5 h-5 text-inherit" /> : <User className="mr-3 w-5 h-5 text-inherit" />}
                                 {firstOption}
                             </DropdownMenuItem>
 
                             <DropdownMenuItem onClick={() => window.location.href = "mailto:iskolutions.team@gmail.com"} className="group px-4 py-2.5 rounded-xl cursor-pointer text-sm font-medium text-orange-50/90 focus:bg-white/10 focus:text-orange-50 data-[highlighted]:bg-white/10 data-[highlighted]:text-orange-50">
-                                <HelpCircle className="mr-3 w-5 h-5" style={{ color: "inherit" }} />
+                                <HelpCircle className="mr-3 w-5 h-5 text-inherit" />
                                 Support
                             </DropdownMenuItem>
 
                             <DropdownMenuItem onClick={handleLogout} className="group px-4 py-2.5 rounded-xl cursor-pointer text-sm font-medium text-red-400 focus:bg-white/10 focus:text-red-300 data-[highlighted]:bg-white/10 data-[highlighted]:text-red-300">
-                                <LogOut className="mr-3 w-5 h-5" style={{ color: "inherit" }} />
+                                <LogOut className="mr-3 w-5 h-5 text-inherit" />
                                 Logout
                             </DropdownMenuItem>
                         </DropdownMenuContent>
