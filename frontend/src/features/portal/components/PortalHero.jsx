@@ -25,11 +25,7 @@ export default function PortalHero({ children }) {
             {/* Background Layer */}
             <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#4f0d17] from-50% to-transparent">
                 <div 
-                    className="absolute inset-0 pointer-events-none"
-                    style={{ 
-                        maskImage: 'linear-gradient(to bottom, transparent 0%, transparent 45%, black 65%, black 100%)', 
-                        WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, transparent 45%, black 65%, black 100%)' 
-                    }}
+                    className="absolute inset-0 pointer-events-none mask-hero-gradient"
                 >
                     <div className="absolute inset-0 scale-y-[-1] overflow-hidden">
                         <GradientWaves

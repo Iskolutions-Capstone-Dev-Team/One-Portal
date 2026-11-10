@@ -62,10 +62,7 @@ export default function Login() {
     return (
         <div className="relative min-h-screen overflow-hidden bg-[#250508] font-[Poppins] text-white">
             <div 
-                className="fixed inset-0 z-0"
-                style={{ 
-                    background: 'radial-gradient(circle at 12% 14%, rgba(145, 31, 42, 0.5), transparent 30rem), radial-gradient(circle at 84% 20%, rgba(248, 210, 78, 0.08), transparent 26rem), linear-gradient(135deg, #1c0306 0%, #4f0d17 48%, #230407 100%)' 
-                }}
+                className="fixed inset-0 z-0 auth-page-bg"
             >
                 <div className="absolute inset-0 overflow-hidden">
                     <DotField

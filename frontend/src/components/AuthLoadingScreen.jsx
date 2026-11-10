@@ -8,7 +8,7 @@ export default function AuthLoadingScreen({ message, errorMessage = "", action =
     const isLoading = !errorMessage;
 
     return (
-        <div className={`${screenPosition} overflow-hidden font-[Poppins] text-white`} style={{ background: authPageBackground }}>
+        <div className={`${screenPosition} overflow-hidden font-[Poppins] text-white auth-page-bg`}>
             <div className="absolute inset-0 overflow-hidden">
                 <DotField
                     dotRadius={1.5}
