@@ -125,7 +125,7 @@ export default function Profile() {
                     
                     <div className="flex w-full min-w-0 flex-col gap-6 mt-2">
                         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-                            <TabsList className="mb-3 grid w-full grid-cols-2 max-w-xs min-[580px]:max-w-sm sm:max-w-sm h-auto p-1 sm:h-9 bg-slate-200 dark:bg-muted border border-slate-300/40 dark:border-transparent">
+                            <TabsList className="mb-3 grid w-full grid-cols-2 max-w-sm sm:max-w-md md:max-w-lg h-auto p-1 sm:h-9 bg-slate-200 dark:bg-muted border border-slate-300/40 dark:border-transparent">
                                 <TabsTrigger
                                     value="authenticators"
                                     title="Authenticators"
